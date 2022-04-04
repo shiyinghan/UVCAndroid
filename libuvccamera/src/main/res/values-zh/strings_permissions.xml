@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="permission_title">关于权限</string>
+	<!--录音权限 RECORD_AUDIO -->
+	<string name="permission_audio">没有录音许可。 \n所有音频功能被禁用</string>
+	<string name="permission_audio_recording_request">录制带有录音的视频需要录音权限。</string>
+	<!-- 外部存储的写入权限 WRITE_EXTERNAL_STORAGE -->
+	<string name="permission_ext_storage">没有外部存储的写入权限。 无法保存图像/视频。</string>
+	<string name="permission_ext_storage_request">保存图像和视频需要外部存储的写入权限。</string>
+	<!-- 访问网络的权限 INTERNET -->
+	<string name="permission_network">没有访问网络的权限。</string>
+	<string name="permission_network_request">需要获得访问网络的权限才能进行流式传输。</string>
+	<!-- 访问摄像头的权限 -->
+	<string name="permission_camera">没有访问摄像头的权限。</string>
+	<string name="permission_camera_request">需要相机访问权限才能调用外部UVC设备。</string>
+</resources>

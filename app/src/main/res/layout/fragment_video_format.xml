@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/FragmentVideoFormatLabelText"
+        android:text="@string/video_format_format" />
+
+    <Spinner
+        android:id="@+id/spVideoFormatFormat"
+        style="@style/FragmentVideoFormatOptionSpinner" />
+
+    <TextView
+        style="@style/FragmentVideoFormatLabelText"
+        android:text="@string/video_format_resolution" />
+
+    <Spinner
+        android:id="@+id/spVideoFormatResolution"
+        style="@style/FragmentVideoFormatOptionSpinner" />
+
+    <TextView
+        style="@style/FragmentVideoFormatLabelText"
+        android:text="@string/video_format_frame_rate" />
+
+    <Spinner
+        android:id="@+id/spVideoFormatFrameRate"
+        style="@style/FragmentVideoFormatOptionSpinner" />
+</LinearLayout>

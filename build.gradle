@@ -1,0 +1,46 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+		maven { url 'https://maven.aliyun.com/repository/google' }
+		maven { url 'https://maven.aliyun.com/repository/jcenter' }
+		maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+
+		google()
+		jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.6.4'
+    }
+}
+
+allprojects {
+    repositories {
+		maven { url 'https://maven.aliyun.com/repository/google' }
+		maven { url 'https://maven.aliyun.com/repository/jcenter' }
+		maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+
+		maven { url 'https://jitpack.io' }
+
+		google()
+		jcenter()
+    }
+}
+
+task clean(type: Delete) {
+	delete rootProject.buildDir
+}
+
+ext {
+	supportLibVersion = '22.2.1'  // variable that can be referenced to keep support libs consistent
+	versionBuildTool = '30.0.3'
+	versionCompiler = 31
+	versionTarget = 27
+	versionMin = 18
+	versionNameString = '1.0.0'
+	commonLibVersion= '2.12.4'
+	javaSourceCompatibility = JavaVersion.VERSION_1_8
+	javaTargetCompatibility = JavaVersion.VERSION_1_8
+
+	versionCodeNum = 209
+	versionNameString = '2.12.4'
+}

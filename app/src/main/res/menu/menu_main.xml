@@ -1,0 +1,60 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.herohan.uvcapp.activity.MainActivity">
+
+    <item
+        android:id="@+id/action_control"
+        android:icon="@drawable/ic_action_control"
+        android:title="@string/action_control"
+        android:visible="true"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_device"
+        android:icon="@drawable/ic_action_usb"
+        android:title="@string/action_usb"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_safely_eject"
+        android:title="@string/action_safely_eject"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_video_format"
+        android:title="@string/action_video_format"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_rotate_90_CW"
+        android:title="@string/action_rotate_90_CW"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_rotate_90_CCW"
+        android:title="@string/action_rotate_90_CCW"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_flip_horizontally"
+        android:title="@string/action_flip_horizontally"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_flip_vertically"
+        android:title="@string/action_flip_vertically"
+        android:visible="false"
+        app:showAsAction="never" />
+</menu>

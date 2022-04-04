@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">USB Camera</string>
+    <string name="action_control">Controls</string>
+    <string name="action_usb">USB</string>
+    <string name="action_safely_eject">Safely Eject</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_video_format">Video Format</string>
+    <string name="action_rotate_90_CW">Rotate 90 CW</string>
+    <string name="action_rotate_90_CCW">Rotate 90 CCW</string>
+    <string name="action_flip_horizontally">Flip Horizontally</string>
+    <string name="action_flip_vertically">Flip Vertically</string>
+    
+    <string name="saved_preview_size">saved_preview_size</string>
+
+    <string name="main_connect_usb_tip">Connect the USB camera</string>
+
+    <string name="device_list_dialog_title">Device</string>
+    <string name="device_list_empty_tip">Please connect a USB Camera</string>
+    <string name="device_list_cancel_button">Cancel</string>
+
+    <string name="video_format_title">Video Format</string>
+    <string name="video_format_format">Format</string>
+    <string name="video_format_resolution">Resolution</string>
+    <string name="video_format_frame_rate">Frame Rate</string>
+    <string name="video_format_ok_button">OK</string>
+    <string name="video_format_cancel_button">Cancel</string>
+    <string name="video_format_format_yuv">YUV</string>
+    <string name="video_format_format_mjped">MJPEG</string>
+
+    <string name="camera_controls_text_brightness">Brightness</string>
+    <string name="camera_controls_text_contrast">Contrast</string>
+    <string name="camera_controls_text_hue">Hue</string>
+    <string name="camera_controls_text_auto">Auto</string>
+    <string name="camera_controls_text_saturation">Saturation</string>
+    <string name="camera_controls_text_sharpness">Sharpness</string>
+    <string name="camera_controls_text_gamma">Gamma</string>
+    <string name="camera_controls_text_white_balance">White Balance</string>
+    <string name="camera_controls_text_backlight_comp">Backlight Comp</string>
+    <string name="camera_controls_text_gain">Gain</string>
+    <string name="camera_controls_text_exposure_time">ExposureTime</string>
+    <string name="camera_controls_text_iris">Iris</string>
+    <string name="camera_controls_text_focus">Focus</string>
+    <string name="camera_controls_text_zoom">Zoom</string>
+    <string name="camera_controls_text_pan">Pan</string>
+    <string name="camera_controls_text_tilt">Tilt</string>
+    <string name="camera_controls_text_roll">Roll</string>
+    <string name="camera_controls_text_disable">Disable</string>
+    <string name="camera_controls_text_50hz">50Hz</string>
+    <string name="camera_controls_text_60hz">60Hz</string>
+    <string name="camera_controls_button_close">Close</string>
+    <string name="camera_controls_button_reset">Reset</string>
+</resources>

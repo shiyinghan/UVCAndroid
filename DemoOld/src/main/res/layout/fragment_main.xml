@@ -1,0 +1,85 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="0dp"
+    android:paddingLeft="@dimen/horizontal_margin"
+    android:paddingTop="@dimen/vertical_margin"
+    android:paddingRight="@dimen/horizontal_margin"
+    android:paddingBottom="@dimen/vertical_margin">
+
+    <com.serenegiant.widget.AspectRatioSurfaceView
+        android:id="@+id/svCameraViewMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_weight="1" />
+
+    <ImageView
+        android:id="@+id/ivBackgroundBorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/svCameraViewMain"
+        android:layout_alignTop="@+id/svCameraViewMain"
+        android:layout_alignRight="@+id/svCameraViewMain"
+        android:layout_alignBottom="@+id/svCameraViewMain"
+        android:src="@drawable/border" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/svCameraViewMain"
+        android:gravity="bottom|center_horizontal">
+
+        <Button
+            android:id="@+id/btnOpenCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_open_camera" />
+
+        <Button
+            android:id="@+id/btnCloseCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_close_camera" />
+    </LinearLayout>
+
+    <ToggleButton
+        android:id="@+id/tbSwitchCameraPreview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:layout_alignLeft="@+id/svCameraViewMain"
+        android:layout_gravity="center_horizontal"
+        android:text="ToggleButton" />
+
+    <SurfaceView
+        android:id="@+id/svCameraViewSub"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignTop="@+id/svCameraViewMain"
+        android:layout_alignRight="@+id/svCameraViewMain"
+        android:layout_margin="5dp" />
+
+    <ImageButton
+        android:id="@+id/bthCaptureVideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tbSwitchCameraPreview"
+        android:layout_alignLeft="@+id/svCameraViewMain"
+        android:layout_marginLeft="@dimen/horizontal_margin"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:background="@null"
+        android:src="@drawable/ic_switch_video" />
+
+    <ImageButton
+        android:id="@+id/btnCaptureImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bthCaptureVideo"
+        android:layout_alignLeft="@+id/svCameraViewMain"
+        android:layout_marginLeft="@dimen/horizontal_margin"
+        android:layout_marginTop="@dimen/vertical_margin"
+        android:background="@null"
+        android:src="@drawable/ic_switch_camera" />
+</RelativeLayout>

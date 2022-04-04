@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">UVC Demo</string>
+    <string name="entry_basic_preview">Basic Preview</string>
+    <string name="entry_custom_preview">Custom Preview</string>
+    <string name="btn_open_camera">Open Camera</string>
+    <string name="btn_close_camera">Close Camera</string>
+</resources>

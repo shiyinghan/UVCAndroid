@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="permission_title">Regarding permission</string>
+	<!-- 録音のパーミッション RECORD_AUDIO -->
+	<string name="permission_audio">No audio recording permission. \nAll audio function is disabled</string>
+	<string name="permission_audio_recording_request">Audio recording permission is necessary for movie capture with audio.</string>
+	<!-- 外部ストレージへの書き込みパーミッション WRITE_EXTERNAL_STORAGE -->
+	<string name="permission_ext_storage">No permission of writing external storage. \nMovie/still image capturing are disabled.</string>
+	<string name="permission_ext_storage_request">Permission of writing external storage is necessary for movie/still image capturing.</string>
+	<!-- ネットワークアクセスのパーミッション INTERNET -->
+	<string name="permission_network">No network access permission.</string>
+	<string name="permission_network_request">Network access permission is necessary for streaming.</string>
+	<!-- カメラアクセスのパーミッション -->
+	<string name="permission_camera">No camera access permission</string>
+	<string name="permission_camera_request">Camera access permission is necessary for fallback to built in camera.</string>
+</resources>
