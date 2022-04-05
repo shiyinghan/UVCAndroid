@@ -658,6 +658,7 @@ public class RendererHolder extends EGLTask implements IRendererHolder {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
                     mPrimaryTexture.setDefaultBufferSize(mVideoWidth, mVideoHeight);
                 }
+                mIsFirstFrameRendered = false;
                 mPrimaryTexture.setOnFrameAvailableListener(mOnFrameAvailableListener);
 
                 makeCurrent();
@@ -725,7 +726,10 @@ public class RendererHolder extends EGLTask implements IRendererHolder {
             @Override
             public void onFrameAvailable(final SurfaceTexture surfaceTexture) {
                 removeMessages(REQUEST_DRAW);
-                mIsFirstFrameRendered = true;
+                if(!mIsFirstFrameRendered){
+                    makeCurrent();
+                    mIsFirstFrameRendered = true;
+                }
                 sendEmptyMessage(REQUEST_DRAW);
             }
         };

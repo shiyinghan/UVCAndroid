@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="10dp"
+    android:layout_marginTop="60dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginBottom="60dp"
+    android:background="#77000000">
+
+    <ScrollView
+        android:id="@+id/svCameraControlsContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/btnCameraControlsCancel"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical"
+        android:paddingTop="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_brightness" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbBrightness"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
+
+                <TextView
+                    android:id="@+id/tvContrast"
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_contrast" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbContrast"
+                    style="@style/FragmentCameraControlsSeekBar"
+                    android:layout_toRightOf="@id/tvContrast" />
+
+                <CheckBox
+                    android:id="@+id/cbContrastAuto"
+                    style="@style/FragmentCameraControlsAutoCheckBox"
+                    android:layout_below="@id/tvContrast"
+                    android:text="@string/camera_controls_text_auto" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
+
+                <TextView
+                    android:id="@+id/tvHue"
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_hue" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbHue"
+                    style="@style/FragmentCameraControlsSeekBar"
+                    android:layout_toRightOf="@id/tvHue" />
+
+                <CheckBox
+                    android:id="@+id/cbHueAuto"
+                    style="@style/FragmentCameraControlsAutoCheckBox"
+                    android:layout_below="@id/tvHue"
+                    android:text="@string/camera_controls_text_auto" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_saturation" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbSaturation"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_sharpness" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbSharpness"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_gamma" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbGamma"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
+
+                <TextView
+                    android:id="@+id/tvWhiteBalance"
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_white_balance" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbWhiteBalance"
+                    style="@style/FragmentCameraControlsSeekBar"
+                    android:layout_toRightOf="@id/tvWhiteBalance" />
+
+                <CheckBox
+                    android:id="@+id/cbWhiteBalanceAuto"
+                    style="@style/FragmentCameraControlsAutoCheckBox"
+                    android:layout_below="@id/tvWhiteBalance"
+                    android:text="@string/camera_controls_text_auto" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_backlight_comp" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbBacklightComp"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_gain" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbGain"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
+
+                <TextView
+                    android:id="@+id/tvExposureTime"
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_exposure_time" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbExposureTime"
+                    style="@style/FragmentCameraControlsSeekBar"
+                    android:layout_toRightOf="@id/tvExposureTime" />
+
+                <CheckBox
+                    android:id="@+id/cbExposureTimeAuto"
+                    style="@style/FragmentCameraControlsAutoCheckBox"
+                    android:layout_below="@id/tvExposureTime"
+                    android:text="@string/camera_controls_text_auto" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_iris" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbIris"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp">
+
+                <TextView
+                    android:id="@+id/tvFocus"
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_focus" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbFocus"
+                    style="@style/FragmentCameraControlsSeekBar"
+                    android:layout_toRightOf="@id/tvFocus" />
+
+                <CheckBox
+                    android:id="@+id/cbFocusAuto"
+                    style="@style/FragmentCameraControlsAutoCheckBox"
+                    android:layout_below="@id/tvFocus"
+                    android:text="@string/camera_controls_text_auto" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_zoom" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbZoom"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_pan" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbPan"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_tilt" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbTilt"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/FragmentCameraControlsTextLeft"
+                    android:text="@string/camera_controls_text_roll" />
+
+                <com.warkiz.widget.IndicatorSeekBar
+                    android:id="@+id/isbRoll"
+                    style="@style/FragmentCameraControlsSeekBar" />
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/rgPowerLineFrequency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rbPowerLineFrequencyDisable"
+                    style="@style/FragmentCameraControlsRadioButton"
+                    android:text="@string/camera_controls_text_disable" />
+
+                <RadioButton
+                    android:id="@+id/rbPowerLineFrequency50Hz"
+                    style="@style/FragmentCameraControlsRadioButton"
+                    android:text="@string/camera_controls_text_50hz" />
+
+                <RadioButton
+                    android:id="@+id/rbPowerLineFrequency60Hz"
+                    style="@style/FragmentCameraControlsRadioButton"
+                    android:text="@string/camera_controls_text_60hz" />
+
+                <RadioButton
+                    android:id="@+id/rbPowerLineFrequencyAuto"
+                    style="@style/FragmentCameraControlsRadioButton"
+                    android:text="@string/camera_controls_text_auto" />
+            </RadioGroup>
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnCameraControlsCancel"
+        style="@style/FragmentCameraControlsBottomButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="50dp"
+        android:text="@string/camera_controls_button_close" />
+
+    <Button
+        android:id="@+id/btnCameraControlsReset"
+        style="@style/FragmentCameraControlsBottomButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="50dp"
+        android:text="@string/camera_controls_button_reset" />
+</RelativeLayout>

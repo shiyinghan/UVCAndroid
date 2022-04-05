@@ -136,7 +136,7 @@ class CameraConnectionService {
     }
 
     private final class CameraConnection implements ICameraConnection {
-        private final String LOG_PREFIX = "CameraConnection";
+        private final String LOG_PREFIX = "CameraConnection#";
         private USBMonitor mUSBMonitor;
         private WeakReference<ICameraHelper.StateCallback> mWeakClientCallback;
 

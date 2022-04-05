@@ -8,6 +8,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="gray_400">#FFBDBDBD</color>
+    <color name="gray_600">#FF757575</color>
+
     <!-- Web colors -->
     <color name="CLEAR">#00000000</color>
     <color name="HALF_CLEAR_WHITE">#7fffffff</color>

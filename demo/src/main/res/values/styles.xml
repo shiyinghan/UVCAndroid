@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="TransparentDialogFragment" parent="@android:style/Theme.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="EntryButton">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -8,6 +18,60 @@
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginRight">30dp</item>
         <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+    <style name="FragmentVideoFormatLabelText" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/gray_600</item>
+    </style>
+
+    <style name="FragmentVideoFormatOptionSpinner" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="FragmentCameraControlsTextLeft" parent="">
+        <item name="android:layout_width">100dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:textColor">@color/gray_400</item>
+    </style>
+
+    <style name="FragmentCameraControlsSeekBar" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="isb_show_indicator">none</item>
+        <item name="isb_show_thumb_text">true</item>
+        <item name="isb_show_tick_texts">true</item>
+        <item name="isb_ticks_count">2</item>
+        <item name="isb_thumb_color">@color/DEEPPINK</item>
+        <item name="isb_thumb_text_color">@color/DEEPPINK</item>
+        <item name="isb_track_progress_color">@color/DEEPPINK</item>
+    </style>
+
+    <style name="FragmentCameraControlsAutoCheckBox" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:scaleX">0.7</item>
+        <item name="android:scaleY">0.7</item>
+        <item name="android:textColor">@color/gray_400</item>
+    </style>
+
+    <style name="FragmentCameraControlsRadioButton" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/DEEPPINK</item>
+    </style>
+
+    <style name="FragmentCameraControlsBottomButton" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">#00000000</item>
+        <item name="android:textColor">@color/DEEPPINK</item>
     </style>
 
 </resources>

@@ -2,8 +2,10 @@ package com.herohan.uvcapp;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.Surface;
 import android.widget.Toast;
 
+import com.serenegiant.opengl.renderer.RendererHolderCallback;
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
@@ -33,9 +35,10 @@ final class CameraInternal implements ICameraInternal {
     private final Object mSync = new Object();
 
     private final WeakReference<Context> mWeakContext;
-    private UsbControlBlock mCtrlBlock;
+    private final UsbControlBlock mCtrlBlock;
 
     private ICameraRendererHolder mRendererHolder;
+    private volatile boolean mIsPreviewing = false;
 
     /**
      * for accessing UVC camera
@@ -52,7 +55,25 @@ final class CameraInternal implements ICameraInternal {
         mWeakContext = new WeakReference<Context>(context);
         mCtrlBlock = ctrlBlock;
 
-        mRendererHolder = new CameraRendererHolder(mFrameWidth, mFrameHeight, null);
+        mRendererHolder = new CameraRendererHolder(mFrameWidth, mFrameHeight, new RendererHolderCallback() {
+            @Override
+            public void onPrimarySurfaceCreate(Surface surface) {
+                // After primary surface has been created during previewing, invoking startPreview method again.
+                if(mIsPreviewing){
+                    startPreview();
+                }
+            }
+
+            @Override
+            public void onFrameAvailable() {
+
+            }
+
+            @Override
+            public void onPrimarySurfaceDestroy() {
+
+            }
+        });
     }
 
     @Override
@@ -261,6 +282,8 @@ final class CameraInternal implements ICameraInternal {
 
             mUVCCamera.setPreviewDisplay(mRendererHolder.getPrimarySurface());
             mUVCCamera.startPreview();
+
+            mIsPreviewing = true;
         }
     }
 
@@ -271,6 +294,8 @@ final class CameraInternal implements ICameraInternal {
             if (mUVCCamera != null) {
                 mUVCCamera.stopPreview();
             }
+
+            mIsPreviewing = false;
         }
     }
 

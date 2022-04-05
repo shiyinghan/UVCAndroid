@@ -454,9 +454,9 @@ public class UVCCamera {
 
             //set preview size
             final int result = nativeSetPreviewSize(mNativePtr, size.width, size.height, size.type, size.fps);
-//            if (result != 0) {
-//                throw new IllegalArgumentException("Failed to set preview size");
-//            }
+            if (result != 0) {
+                throw new IllegalArgumentException("Failed to set preview size");
+            }
 
             mCurrentSize = size;
         }

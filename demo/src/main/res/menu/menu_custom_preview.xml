@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_control"
+        android:icon="@drawable/ic_action_control"
+        android:title="@string/action_control"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_video_format"
+        android:title="@string/action_video_format"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_rotate_90_CW"
+        android:title="@string/action_rotate_90_CW"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_rotate_90_CCW"
+        android:title="@string/action_rotate_90_CCW"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_flip_horizontally"
+        android:title="@string/action_flip_horizontally"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_flip_vertically"
+        android:title="@string/action_flip_vertically"
+        android:visible="false"
+        app:showAsAction="never" />
+</menu>

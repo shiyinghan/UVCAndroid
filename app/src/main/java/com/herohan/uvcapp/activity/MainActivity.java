@@ -161,10 +161,10 @@ public class MainActivity extends AppCompatActivity {
             showVideoFormatDialog();
             return true;
         } else if (id == R.id.action_rotate_90_CW) {
-            setRotation(90);
+            rotateBy(90);
             return true;
         } else if (id == R.id.action_rotate_90_CCW) {
-            setRotation(-90);
+            rotateBy(-90);
             return true;
         } else if (id == R.id.action_flip_horizontally) {
             flipHorizontally();
@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
         if (mControlsDialog == null) {
             mControlsDialog = new CameraControlsDialogFragment(mCameraHelper);
         }
-        // When DialogFragment
+        // When DialogFragment is not showing
         if (!mControlsDialog.isAdded()) {
             mControlsDialog.show(getSupportFragmentManager(), "camera_controls");
         }
@@ -239,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
                 selectDevice(mUsbDevice);
             });
         }
+        // When DialogFragment is not showing
         if (!mDeviceListDialog.isAdded()) {
             mDeviceListDialog.show(getSupportFragmentManager(), "device_list");
         }
@@ -265,13 +266,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void closeAllDialogFragment() {
-        if (mControlsDialog.isAdded()) {
+        if (mControlsDialog != null && mControlsDialog.isAdded()) {
             mControlsDialog.dismiss();
         }
-        if (mDeviceListDialog.isAdded()) {
+        if (mDeviceListDialog != null && mDeviceListDialog.isAdded()) {
             mDeviceListDialog.dismiss();
         }
-        if (mFormatDialog.isAdded()) {
+        if (mFormatDialog != null && mFormatDialog.isAdded()) {
             mFormatDialog.dismiss();
         }
     }
@@ -282,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setRotation(int angle) {
+    private void rotateBy(int angle) {
         mPreviewRotation += angle;
         mPreviewRotation %= 360;
         if (mPreviewRotation < 0) {

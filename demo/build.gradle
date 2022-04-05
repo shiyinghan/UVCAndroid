@@ -32,6 +32,8 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.4.0'
 
+    implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
+
     // debugImplementation because LeakCanary should only run in debug builds.
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.8.1'
 

@@ -33,13 +33,14 @@ public class BasicPreviewActivity extends AppCompatActivity implements View.OnCl
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_basic_preview);
+        setTitle(R.string.entry_basic_preview);
 
         initViews();
     }
 
     private void initViews() {
         mCameraViewMain = findViewById(R.id.svCameraViewMain);
-        mCameraViewMain.setAspectRatio(DEFAULT_WIDTH / (float) DEFAULT_HEIGHT);
+        mCameraViewMain.setAspectRatio(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
         mCameraViewMain.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -135,7 +136,7 @@ public class BasicPreviewActivity extends AppCompatActivity implements View.OnCl
         public void onCameraClose(UsbDevice device) {
             if (DEBUG) Log.v(TAG, "onCameraClose:");
 
-            if (mCameraHelper!=null){
+            if (mCameraHelper != null) {
                 mCameraHelper.removeSurface(mCameraViewMain.getHolder().getSurface());
             }
         }
