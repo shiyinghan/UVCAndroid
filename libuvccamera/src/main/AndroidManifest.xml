@@ -38,12 +38,5 @@
         android:required="true" />
 
     <application>
-        <service
-            android:name="com.herohan.uvcapp.CameraRepositoryService"
-            android:foregroundServiceType="camera|microphone">
-            <intent-filter>
-                <action android:name="com.serenegiant.service.IUVCService" />
-            </intent-filter>
-        </service>
     </application>
 </manifest>

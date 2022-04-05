@@ -15,7 +15,7 @@ import java.util.List;
  * closeCamera>				stop streaming and close device
  * release>					release camera
  */
-interface ICameraRepositoryService {
+interface ICameraConnection {
     void register(ICameraHelper.StateCallback callback);
 
     void unregister(ICameraHelper.StateCallback callback);

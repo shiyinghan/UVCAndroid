@@ -195,7 +195,6 @@ public class RendererHolder extends EGLTask implements IRendererHolder {
                                 final Object surface, final boolean isRecordable)
             throws IllegalStateException, IllegalArgumentException {
 
-        if (DEBUG) Log.v(TAG, "addSlaveSurface:id=" + id + ",surface=" + surface);
         addSlaveSurface(id, surface, isRecordable, -1);
     }
 

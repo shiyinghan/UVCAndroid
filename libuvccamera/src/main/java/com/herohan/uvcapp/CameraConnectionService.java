@@ -1,159 +1,55 @@
 package com.herohan.uvcapp;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.hardware.usb.UsbDevice;
-import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
-
-import androidx.core.app.NotificationCompat;
 
 import com.serenegiant.usb.DeviceFilter;
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
-import com.serenegiant.usb.UVCControl;
-import com.serenegiant.utils.HandlerThreadHandler;
-import com.serenegiant.uvccamera.BuildConfig;
-import com.serenegiant.uvccamera.R;
 import com.serenegiant.usb.USBMonitor;
 import com.serenegiant.usb.USBMonitor.OnDeviceConnectListener;
 import com.serenegiant.usb.USBMonitor.UsbControlBlock;
+import com.serenegiant.usb.UVCControl;
+import com.serenegiant.utils.HandlerThreadHandler;
+import com.serenegiant.utils.UVCUtils;
+import com.serenegiant.uvccamera.BuildConfig;
+import com.serenegiant.uvccamera.R;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 
-public class CameraRepositoryService extends Service {
+class CameraConnectionService {
     private static final boolean DEBUG = BuildConfig.DEBUG;
-    private static final String TAG = CameraRepositoryService.class.getSimpleName();
+    private static final String TAG = CameraConnectionService.class.getSimpleName();
 
-    private static final int NOTIFICATION_ID = 10001;
+    private static volatile CameraConnectionService mInstance;
 
-    private static final String NOTIFICATION_PENDING_ACTIVITY = "com.xxx.MainActivity";
+    private final Object mServiceSync = new Object();
+    private final HashMap<String, CameraInternal> mCameras = new HashMap<>();
 
-    private NotificationManager mNotificationManager;
-
-    private static String sNotificationChannelId = "uvc_android_push";
-
-    public CameraRepositoryService() {
-        if (DEBUG) Log.d(TAG, "Constructor:");
+    CameraConnectionService() {
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        if (DEBUG) Log.d(TAG, "onCreate:");
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-
-//        initNotificationChannel();
-//        showForegroundNotification();
-
-        return START_STICKY;
-    }
-
-    @Override
-    public void onDestroy() {
-        if (DEBUG) Log.d(TAG, "onDestroy:");
-
-        /*removeNotification*/
-        stopForeground(true);
-        if (mNotificationManager != null) {
-            mNotificationManager.cancel(NOTIFICATION_ID);
-            mNotificationManager = null;
+    public static CameraConnectionService getInstance() {
+        if (mInstance == null) {
+            synchronized (CameraConnectionService.class) {
+                if (mInstance == null) {
+                    mInstance = new CameraConnectionService();
+                }
+            }
         }
-        super.onDestroy();
+        return mInstance;
     }
 
-    @Override
-    public IBinder onBind(final Intent intent) {
-        if (DEBUG) Log.d(TAG, "onBind:" + intent);
-        return new CameraRepositoryBinderImpl();
-    }
-
-    @Override
-    public void onRebind(final Intent intent) {
-        if (DEBUG) Log.d(TAG, "onRebind:" + intent);
-    }
-
-    @Override
-    public boolean onUnbind(final Intent intent) {
-        if (DEBUG) Log.d(TAG, "onUnbind:" + intent);
-        if (checkReleaseService()) {
-//            stopSelf();
-        }
-        if (DEBUG) Log.d(TAG, "onUnbind:finished");
-        return true;
-    }
-
-//********************************************************************************
-
-    /**
-     * For Android 8.0 and above devices, register for NotificationChannel
-     */
-    public void initNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationManager mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-
-            CharSequence name = getString(R.string.app_name);
-            String description = getString(R.string.app_name);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = new NotificationChannel(sNotificationChannelId, name, importance);
-            mChannel.setDescription(description);
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.YELLOW);
-
-            mChannel.enableVibration(false);
-            mChannel.setVibrationPattern(new long[]{0});
-
-            mChannel.setSound(null, null);
-
-            mChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-
-            mNotificationManager.createNotificationChannel(mChannel);
-        }
-    }
-
-    /**
-     * helper method to show/change message on notification area
-     * and set this service as foreground service to keep alive as possible as this can.
-     */
-    private void showForegroundNotification() {
-        String text = getString(R.string.app_name);
-
-        if (DEBUG) Log.v(TAG, "showForegroundNotification:" + text);
-
-//        Intent intent = new Intent();
-//        intent.setClassName(this, NOTIFICATION_PENDING_ACTIVITY);
-
-        // Set the info for the views that show in the notification panel.
-        final Notification notification = new NotificationCompat.Builder(this, sNotificationChannelId)
-                .setSmallIcon(R.mipmap.ic_launcher)  // the status icon
-                .setTicker(text)  // the status text
-                .setWhen(System.currentTimeMillis())  // the time stamp
-                .setContentTitle(text)  // the label of the entry
-//                .setContentText(text)  // the contents of the entry
-//                .setContentIntent(PendingIntent.getActivity(this, 0, intent, 0))  // The intent to send when the entry is clicked
-                .build();
-
-        startForeground(NOTIFICATION_ID, notification);
+    public ICameraConnection newConnection() {
+        return new CameraConnection();
     }
 
     //********************************************************************************
-    private final Object mServiceSync = new Object();
-    private final HashMap<String, CameraInternal> mCameras = new HashMap<>();
 
     private CameraInternal addCamera(final UsbDevice device, UsbControlBlock ctrlBlock) {
         if (DEBUG) Log.d(TAG, "addCamera:device=" + device.getDeviceName());
@@ -162,13 +58,14 @@ public class CameraRepositoryService extends Service {
         synchronized (mServiceSync) {
             cameraInternal = mCameras.get(key);
             if (cameraInternal == null) {
-                cameraInternal = new CameraInternal(CameraRepositoryService.this, ctrlBlock, device.getVendorId(), device.getProductId());
+                cameraInternal = new CameraInternal(UVCUtils.getApplication(), ctrlBlock, device.getVendorId(), device.getProductId());
                 mCameras.put(key, cameraInternal);
             } else {
-                if (DEBUG) Log.d(TAG, "CameraInternal already exist");
+                if (DEBUG) Log.d(TAG, "Camera already exist");
             }
             mServiceSync.notifyAll();
         }
+        checkExistCamera();
         return cameraInternal;
     }
 
@@ -183,9 +80,7 @@ public class CameraRepositoryService extends Service {
             mCameras.remove(key);
             mServiceSync.notifyAll();
         }
-        if (checkReleaseService()) {
-//            stopSelf();
-        }
+        checkExistCamera();
     }
 
     /**
@@ -228,13 +123,10 @@ public class CameraRepositoryService extends Service {
         return getCamera(device, true);
     }
 
-    /**
-     * @return true if there are no camera connection
-     */
-    private boolean checkReleaseService() {
+    private boolean checkExistCamera() {
         synchronized (mServiceSync) {
             final int n = mCameras.size();
-            if (DEBUG) Log.d(TAG, "checkReleaseService:number of service=" + n);
+            if (DEBUG) Log.d(TAG, "number of existed camera=" + n);
             return n == 0;
         }
     }
@@ -243,25 +135,23 @@ public class CameraRepositoryService extends Service {
         return USBMonitor.getDeviceKey(device);
     }
 
-    private final class CameraRepositoryBinderImpl extends Binder implements ICameraRepositoryService {
+    private final class CameraConnection implements ICameraConnection {
+        private final String LOG_PREFIX = "CameraConnection";
         private USBMonitor mUSBMonitor;
         private WeakReference<ICameraHelper.StateCallback> mWeakClientCallback;
-        private Handler UIHandler = new Handler(Looper.getMainLooper());
 
         private final OnDeviceConnectListener mOnDeviceConnectListener = new OnDeviceConnectListener() {
             @Override
             public void onAttach(final UsbDevice device) {
                 if (DEBUG) Log.d(TAG, "OnDeviceConnectListener#onAttach:");
 
-                UIHandler.post(() -> {
-                    if (mWeakClientCallback.get() != null) {
-                        try {
-                            mWeakClientCallback.get().onAttach(device);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                if (mWeakClientCallback.get() != null) {
+                    try {
+                        mWeakClientCallback.get().onAttach(device);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
+                }
             }
 
             @Override
@@ -277,15 +167,13 @@ public class CameraRepositoryService extends Service {
                     @Override
                     public void onCameraOpen() {
                         if (!mIsCameraOpened) {
-                            UIHandler.post(() -> {
-                                if (mWeakClientCallback.get() != null) {
-                                    try {
-                                        mWeakClientCallback.get().onCameraOpen(device);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
+                            if (mWeakClientCallback.get() != null) {
+                                try {
+                                    mWeakClientCallback.get().onCameraOpen(device);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                            });
+                            }
                             mIsCameraOpened = true;
                         }
                     }
@@ -293,44 +181,38 @@ public class CameraRepositoryService extends Service {
                     @Override
                     public void onCameraClose() {
                         if (mIsCameraOpened) {
-                            UIHandler.post(() -> {
-                                if (mWeakClientCallback.get() != null) {
-                                    try {
-                                        mWeakClientCallback.get().onCameraClose(device);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
+                            if (mWeakClientCallback.get() != null) {
+                                try {
+                                    mWeakClientCallback.get().onCameraClose(device);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                            });
+                            }
                             mIsCameraOpened = false;
                         }
                     }
                 });
 
-                UIHandler.post(() -> {
-                    if (mWeakClientCallback.get() != null) {
-                        try {
-                            mWeakClientCallback.get().onDeviceOpen(device, createNew);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                if (mWeakClientCallback.get() != null) {
+                    try {
+                        mWeakClientCallback.get().onDeviceOpen(device, createNew);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
+                }
             }
 
             @Override
             public void onDeviceClose(final UsbDevice device, final UsbControlBlock ctrlBlock) {
                 if (DEBUG) Log.d(TAG, "OnDeviceConnectListener#onDeviceClose:");
 
-                UIHandler.post(() -> {
-                    if (mWeakClientCallback.get() != null) {
-                        try {
-                            mWeakClientCallback.get().onDeviceClose(device);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                if (mWeakClientCallback.get() != null) {
+                    try {
+                        mWeakClientCallback.get().onDeviceClose(device);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
+                }
 
                 removeCamera(device);
             }
@@ -339,15 +221,13 @@ public class CameraRepositoryService extends Service {
             public void onDetach(final UsbDevice device) {
                 if (DEBUG) Log.d(TAG, "OnDeviceConnectListener#onDetach:");
 
-                UIHandler.post(() -> {
-                    if (mWeakClientCallback.get() != null) {
-                        try {
-                            mWeakClientCallback.get().onDetach(device);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                if (mWeakClientCallback.get() != null) {
+                    try {
+                        mWeakClientCallback.get().onDetach(device);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
+                }
 
                 removeCamera(device);
             }
@@ -356,15 +236,13 @@ public class CameraRepositoryService extends Service {
             public void onCancel(final UsbDevice device) {
                 if (DEBUG) Log.d(TAG, "OnDeviceConnectListener#onCancel:");
 
-                UIHandler.post(() -> {
-                    if (mWeakClientCallback.get() != null) {
-                        try {
-                            mWeakClientCallback.get().onCancel(device);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                if (mWeakClientCallback.get() != null) {
+                    try {
+                        mWeakClientCallback.get().onCancel(device);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
+                }
 
                 synchronized (mServiceSync) {
                     mServiceSync.notifyAll();
@@ -379,10 +257,10 @@ public class CameraRepositoryService extends Service {
             if (mUSBMonitor == null) {
                 if (DEBUG) Log.d(TAG, "mUSBMonitor#register:");
                 mUSBMonitor = new USBMonitor(
-                        CameraRepositoryService.this,
+                        UVCUtils.getApplication(),
                         mOnDeviceConnectListener,
                         HandlerThreadHandler.createHandler(TAG));
-                final List<DeviceFilter> filters = DeviceFilter.getDeviceFilters(getApplication(), R.xml.device_filter);
+                final List<DeviceFilter> filters = DeviceFilter.getDeviceFilters(UVCUtils.getApplication(), R.xml.device_filter);
                 mUSBMonitor.setDeviceFilter(filters);
                 mUSBMonitor.register();
             }
@@ -412,7 +290,7 @@ public class CameraRepositoryService extends Service {
         @Override
         public void selectDevice(final UsbDevice device) {
             if (DEBUG)
-                Log.d(TAG, "UVCBinderImpl#selectDevice:device=" + (device != null ? device.getDeviceName() : null));
+                Log.d(TAG, LOG_PREFIX + "selectDevice:device=" + (device != null ? device.getDeviceName() : null));
             final String cameraKey = getCameraKey(device);
             CameraInternal cameraInternal = null;
             synchronized (mServiceSync) {
@@ -465,7 +343,7 @@ public class CameraRepositoryService extends Service {
 
         @Override
         public void setPreviewSize(final UsbDevice device, final Size size) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#setPreviewSize:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "setPreviewSize:");
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal == null) {
                 throw new IllegalArgumentException("invalid device");
@@ -476,7 +354,7 @@ public class CameraRepositoryService extends Service {
         @Override
         public void addSurface(final UsbDevice device, final Object surface, final boolean isRecordable) {
             if (DEBUG)
-                Log.d(TAG, "UVCBinderImpl#addSurface:surface=" + surface);
+                Log.d(TAG, LOG_PREFIX + "addSurface:surface=" + surface);
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal != null) {
                 cameraInternal.addSurface(surface, isRecordable);
@@ -485,7 +363,7 @@ public class CameraRepositoryService extends Service {
 
         @Override
         public void removeSurface(final UsbDevice device, final Object surface) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#removeSurface:surface=" + surface);
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "removeSurface:surface=" + surface);
             final CameraInternal cameraInternal = getCamera(device, false);
             if (cameraInternal != null) {
                 cameraInternal.removeSurface(surface);
@@ -495,7 +373,7 @@ public class CameraRepositoryService extends Service {
         @Override
         public void setFrameCallback(final UsbDevice device, final IFrameCallback callback, int pixelFormat) {
             if (DEBUG)
-                Log.d(TAG, "UVCBinderImpl#setFrameCallback:pixelFormat=" + pixelFormat);
+                Log.d(TAG, LOG_PREFIX + "setFrameCallback:pixelFormat=" + pixelFormat);
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal != null) {
                 cameraInternal.setFrameCallback(callback, pixelFormat);
@@ -513,7 +391,7 @@ public class CameraRepositoryService extends Service {
                                CameraPreviewConfig previewConfig,
                                ImageCaptureConfig imageCaptureConfig,
                                VideoCaptureConfig videoCaptureConfig) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#openCamera:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "openCamera:");
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal == null) {
                 throw new IllegalArgumentException("invalid device");
@@ -529,7 +407,7 @@ public class CameraRepositoryService extends Service {
          */
         @Override
         public void closeCamera(final UsbDevice device) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#closeCamera:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "closeCamera:");
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal == null) {
                 throw new IllegalArgumentException("invalid device");
@@ -544,7 +422,7 @@ public class CameraRepositoryService extends Service {
          */
         @Override
         public void startPreview(final UsbDevice device) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#startPreview:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "startPreview:");
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal == null) {
                 throw new IllegalArgumentException("invalid device");
@@ -559,7 +437,7 @@ public class CameraRepositoryService extends Service {
          */
         @Override
         public void stopPreview(final UsbDevice device) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#stopPreview:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "stopPreview:");
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal == null) {
                 throw new IllegalArgumentException("invalid device");
@@ -578,7 +456,7 @@ public class CameraRepositoryService extends Service {
 
         @Override
         public void takePicture(UsbDevice device, ImageCapture.OutputFileOptions options, ImageCapture.OnImageCaptureCallback callback) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#takePicture");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "takePicture");
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal != null) {
                 cameraInternal.takePicture(options, callback);
@@ -594,7 +472,7 @@ public class CameraRepositoryService extends Service {
         @Override
         public void startRecording(final UsbDevice device, final VideoCapture.CaptureOptions options
                 , final VideoCapture.OnVideoCaptureCallback callback) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#startRecording");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "startRecording");
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal != null) {
                 cameraInternal.startRecording(options, callback);
@@ -603,7 +481,7 @@ public class CameraRepositoryService extends Service {
 
         @Override
         public void stopRecording(final UsbDevice device) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#stopRecording:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "stopRecording:");
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal != null) {
                 cameraInternal.stopRecording();
@@ -623,7 +501,7 @@ public class CameraRepositoryService extends Service {
          */
         @Override
         public void release(final UsbDevice device) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#release:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "release:");
             String cameraKey = getCameraKey(device);
             synchronized (mServiceSync) {
                 final CameraInternal cameraInternal = mCameras.get(cameraKey);
@@ -638,7 +516,7 @@ public class CameraRepositoryService extends Service {
 
         @Override
         public void releaseAll() {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#releaseAll:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "releaseAll:");
             synchronized (mServiceSync) {
                 for (CameraInternal cameraInternal : mCameras.values()) {
                     if (cameraInternal != null) {
@@ -651,7 +529,7 @@ public class CameraRepositoryService extends Service {
 
         @Override
         public void setPreviewConfig(UsbDevice device, CameraPreviewConfig config) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#setCameraPreviewConfig:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "setCameraPreviewConfig:");
             String cameraKey = getCameraKey(device);
             synchronized (mServiceSync) {
                 final CameraInternal cameraInternal = mCameras.get(cameraKey);
@@ -663,7 +541,7 @@ public class CameraRepositoryService extends Service {
 
         @Override
         public void setImageCaptureConfig(UsbDevice device, ImageCaptureConfig config) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#setImageCaptureConfig:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "setImageCaptureConfig:");
             String cameraKey = getCameraKey(device);
             synchronized (mServiceSync) {
                 final CameraInternal cameraInternal = mCameras.get(cameraKey);
@@ -675,7 +553,7 @@ public class CameraRepositoryService extends Service {
 
         @Override
         public void setVideoCaptureConfig(UsbDevice device, VideoCaptureConfig config) {
-            if (DEBUG) Log.d(TAG, "UVCBinderImpl#setVideoCaptureConfig:");
+            if (DEBUG) Log.d(TAG, LOG_PREFIX + "setVideoCaptureConfig:");
             String cameraKey = getCameraKey(device);
             synchronized (mServiceSync) {
                 final CameraInternal cameraInternal = mCameras.get(cameraKey);
