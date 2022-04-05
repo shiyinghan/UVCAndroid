@@ -65,13 +65,15 @@ interface ICameraConnection {
 
     boolean isCameraOpened(UsbDevice device);
 
-    void release(UsbDevice device);
+    void releaseCamera(UsbDevice device);
 
-    void releaseAll();
+    void releaseAllCamera();
 
     void setPreviewConfig(UsbDevice device, CameraPreviewConfig config);
 
     void setImageCaptureConfig(UsbDevice device, ImageCaptureConfig config);
 
     void setVideoCaptureConfig(UsbDevice device, VideoCaptureConfig config);
+
+    void release();
 }

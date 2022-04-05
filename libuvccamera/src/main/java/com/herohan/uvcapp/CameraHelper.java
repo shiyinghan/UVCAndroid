@@ -379,14 +379,13 @@ public class CameraHelper implements ICameraHelper {
         mAsyncHandler.post(() -> {
             if (mService != null) {
                 try {
-                    mService.release(mUsbDevice);
+                    mService.releaseCamera(mUsbDevice);
+                    mService.release();
                 } catch (final Exception e) {
                     if (DEBUG) Log.e(TAG, "release:", e);
                 }
 
-                unregisterCallback();
                 mCallbackWrapper = null;
-
                 mService = null;
             }
 
