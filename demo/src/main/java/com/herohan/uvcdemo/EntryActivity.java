@@ -22,6 +22,8 @@ public class EntryActivity extends AppCompatActivity implements View.OnClickList
         btnBasicPreview.setOnClickListener(this);
         Button btnCustomPreview = findViewById(R.id.btnCustomPreview);
         btnCustomPreview.setOnClickListener(this);
+        Button btnMultiPreview = findViewById(R.id.btnMultiPreview);
+        btnMultiPreview.setOnClickListener(this);
     }
 
     @Override
@@ -30,6 +32,8 @@ public class EntryActivity extends AppCompatActivity implements View.OnClickList
             startActivity(new Intent(this, BasicPreviewActivity.class));
         } else if (v.getId() == R.id.btnCustomPreview) {
             startActivity(new Intent(this, CustomPreviewActivity.class));
+        } else if (v.getId() == R.id.btnMultiPreview) {
+            startActivity(new Intent(this, MultiPreviewActivity.class));
         }
     }
 }

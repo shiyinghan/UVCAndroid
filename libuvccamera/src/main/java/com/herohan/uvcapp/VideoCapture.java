@@ -494,22 +494,15 @@ public class VideoCapture {
 
     @UiThread
     private void releaseCameraSurface(final boolean releaseVideoEncoder) {
-        if (mCameraSurface == null) {
-            return;
-        }
-
-        final MediaCodec videoEncoder = mVideoEncoder;
-
-        if (releaseVideoEncoder && videoEncoder != null) {
-            videoEncoder.release();
-        }
-
-        if (releaseVideoEncoder) {
+        if (releaseVideoEncoder && mVideoEncoder != null) {
+            mVideoEncoder.release();
             mVideoEncoder = null;
         }
 
-        mCameraSurface.release();
-        mCameraSurface = null;
+        if (mCameraSurface != null) {
+            mCameraSurface.release();
+            mCameraSurface = null;
+        }
     }
 
     /**

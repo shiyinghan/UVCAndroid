@@ -16,4 +16,9 @@
         android:id="@+id/btnCustomPreview"
         style="@style/EntryButton"
         android:text="@string/entry_custom_preview" />
+
+    <Button
+        android:id="@+id/btnMultiPreview"
+        style="@style/EntryButton"
+        android:text="@string/entry_multi_preview" />
 </LinearLayout>

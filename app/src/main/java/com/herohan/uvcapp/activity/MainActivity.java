@@ -148,33 +148,24 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_control) {
             showCameraControlsDialog();
-            return true;
         } else if (id == R.id.action_device) {
             showDeviceListDialog();
-            return true;
         } else if (id == R.id.action_safely_eject) {
             safelyEject();
-            return true;
         } else if (id == R.id.action_settings) {
-            return true;
         } else if (id == R.id.action_video_format) {
             showVideoFormatDialog();
-            return true;
         } else if (id == R.id.action_rotate_90_CW) {
             rotateBy(90);
-            return true;
         } else if (id == R.id.action_rotate_90_CCW) {
             rotateBy(-90);
-            return true;
         } else if (id == R.id.action_flip_horizontally) {
             flipHorizontally();
-            return true;
         } else if (id == R.id.action_flip_vertically) {
             flipVertically();
-            return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     @Override
@@ -229,16 +220,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDeviceListDialog() {
-        if (mDeviceListDialog == null) {
-            mDeviceListDialog = new DeviceListDialogFragment(mCameraHelper, mIsCameraConnected ? mUsbDevice : null);
-            mDeviceListDialog.setOnDeviceItemSelectListener(usbDevice -> {
-                if (mIsCameraConnected) {
-                    mCameraHelper.closeCamera();
-                }
-                mUsbDevice = usbDevice;
-                selectDevice(mUsbDevice);
-            });
-        }
+        mDeviceListDialog = new DeviceListDialogFragment(mCameraHelper, mIsCameraConnected ? mUsbDevice : null);
+        mDeviceListDialog.setOnDeviceItemSelectListener(usbDevice -> {
+            if (mIsCameraConnected) {
+                mCameraHelper.closeCamera();
+            }
+            mUsbDevice = usbDevice;
+            selectDevice(mUsbDevice);
+        });
+
         // When DialogFragment is not showing
         if (!mDeviceListDialog.isAdded()) {
             mDeviceListDialog.show(getSupportFragmentManager(), "device_list");

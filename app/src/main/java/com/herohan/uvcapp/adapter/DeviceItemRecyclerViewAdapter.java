@@ -35,9 +35,7 @@ public class DeviceItemRecyclerViewAdapter extends RecyclerView.Adapter<DeviceIt
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        if (holder.mItem.equals(mCurrentItem)) {
-            holder.rbDeviceSelected.setChecked(true);
-        }
+        holder.rbDeviceSelected.setChecked(holder.mItem.equals(mCurrentItem));
         holder.tvProductName.setText(holder.mItem.getProductName() != null ? holder.mItem.getProductName() : holder.mItem.getManufacturerName());
         holder.tvDeviceName.setText(holder.mItem.getDeviceName());
         holder.mRootView.setOnClickListener(v -> {

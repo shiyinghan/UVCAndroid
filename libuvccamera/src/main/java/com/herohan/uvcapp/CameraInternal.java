@@ -59,7 +59,7 @@ final class CameraInternal implements ICameraInternal {
             @Override
             public void onPrimarySurfaceCreate(Surface surface) {
                 // After primary surface has been created during previewing, invoking startPreview method again.
-                if(mIsPreviewing){
+                if (mIsPreviewing) {
                     startPreview();
                 }
             }
@@ -90,6 +90,7 @@ final class CameraInternal implements ICameraInternal {
 
     @Override
     public void clearCallbacks() {
+        if (DEBUG) Log.d(TAG, "clearCallbacks:");
         mCallbacks.clear();
     }
 
@@ -235,13 +236,6 @@ final class CameraInternal implements ICameraInternal {
     public void closeCamera() {
         if (DEBUG) Log.d(TAG, "closeCamera:");
         stopRecording();
-        stopPreview();
-        closeUVCCamera();
-    }
-
-    private void closeUVCCamera() {
-        if (DEBUG) Log.d(TAG, "closeUVCCamera:");
-        stopRecording();
         boolean closed = false;
         synchronized (mSync) {
             if (mUVCCamera != null) {
@@ -250,6 +244,11 @@ final class CameraInternal implements ICameraInternal {
                 mUVCCamera = null;
                 closed = true;
             }
+
+            if (closed) {
+                processOnCameraClose();
+            }
+
             mSync.notifyAll();
         }
 
@@ -260,10 +259,6 @@ final class CameraInternal implements ICameraInternal {
         if (mVideoCapture != null) {
             mVideoCapture.release();
             mVideoCapture = null;
-        }
-
-        if (closed) {
-            processOnCameraClose();
         }
     }
 

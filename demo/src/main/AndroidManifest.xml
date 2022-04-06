@@ -10,13 +10,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UVCAndroid">
         <activity
-            android:name="com.herohan.uvcdemo.CustomPreviewActivity"
+            android:name=".MultiPreviewActivity"
             android:exported="false" />
         <activity
-            android:name="com.herohan.uvcdemo.BasicPreviewActivity"
+            android:name=".CustomPreviewActivity"
             android:exported="false" />
         <activity
-            android:name="com.herohan.uvcdemo.EntryActivity"
+            android:name=".BasicPreviewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EntryActivity"
             android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
