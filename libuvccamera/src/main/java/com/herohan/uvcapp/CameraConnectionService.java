@@ -465,12 +465,12 @@ class CameraConnectionService {
 
         @Override
         public void release() {
-            mListenerHandlerThread.quitSafely();
-
             if (mUSBMonitor != null) {
                 mUSBMonitor.destroy();
                 mUSBMonitor = null;
             }
+
+            mListenerHandlerThread.quitSafely();
         }
 
         private class MyOnDeviceConnectListener implements OnDeviceConnectListener {

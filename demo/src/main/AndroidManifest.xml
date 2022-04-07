@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UVCAndroid">
         <activity
+            android:name=".MultiCameraActivity"
+            android:exported="false" />
+        <activity
             android:name=".MultiPreviewActivity"
             android:exported="false" />
         <activity

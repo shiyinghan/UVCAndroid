@@ -21,4 +21,9 @@
         android:id="@+id/btnMultiPreview"
         style="@style/EntryButton"
         android:text="@string/entry_multi_preview" />
+
+    <Button
+        android:id="@+id/btnMultiCamera"
+        style="@style/EntryButton"
+        android:text="@string/entry_multi_camera" />
 </LinearLayout>

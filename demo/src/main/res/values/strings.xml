@@ -4,6 +4,7 @@
     <string name="entry_basic_preview">Basic Preview</string>
     <string name="entry_custom_preview">Custom Preview</string>
     <string name="entry_multi_preview">Multi Preview</string>
+    <string name="entry_multi_camera">Multi Camera</string>
     <string name="btn_open_camera">Open Camera</string>
     <string name="btn_close_camera">Close Camera</string>
 
@@ -13,6 +14,10 @@
     <string name="action_rotate_90_CCW">Rotate 90 CCW</string>
     <string name="action_flip_horizontally">Flip Horizontally</string>
     <string name="action_flip_vertically">Flip Vertically</string>
+
+    <string name="device_list_dialog_title">Device</string>
+    <string name="device_list_empty_tip">Please connect a USB Camera</string>
+    <string name="device_list_cancel_button">Cancel</string>
 
     <string name="video_format_title">Video Format</string>
     <string name="video_format_format">Format</string>
@@ -45,4 +50,7 @@
     <string name="camera_controls_text_60hz">60Hz</string>
     <string name="camera_controls_button_close">Close</string>
     <string name="camera_controls_button_reset">Reset</string>
+
+    <string name="btn_open">Open</string>
+    <string name="btn_close">Close</string>
 </resources>

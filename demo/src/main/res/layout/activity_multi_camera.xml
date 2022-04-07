@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/GRAY"
+    tools:context=".MultiCameraActivity">
+
+    <RelativeLayout
+        android:id="@+id/rlCameraViewLeft"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="4:3"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/rlCameraViewRight"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.49">
+
+        <com.serenegiant.widget.AspectRatioSurfaceView
+            android:id="@+id/svCameraViewLeft"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+        <Button
+            android:id="@+id/btnOpenCameraLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="10dp"
+            android:text="@string/btn_open" />
+
+        <Button
+            android:id="@+id/btnCloseCameraLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="10dp"
+            android:text="@string/btn_close" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rlCameraViewRight"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="4:3"
+        app:layout_constraintLeft_toRightOf="@id/rlCameraViewLeft"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.49">
+
+        <com.serenegiant.widget.AspectRatioSurfaceView
+            android:id="@+id/svCameraViewRight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+
+        <Button
+            android:id="@+id/btnOpenCameraRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="10dp"
+            android:text="@string/btn_open" />
+
+        <Button
+            android:id="@+id/btnCloseCameraRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="10dp"
+            android:text="@string/btn_close" />
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

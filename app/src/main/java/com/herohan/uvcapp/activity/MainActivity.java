@@ -229,10 +229,7 @@ public class MainActivity extends AppCompatActivity {
             selectDevice(mUsbDevice);
         });
 
-        // When DialogFragment is not showing
-        if (!mDeviceListDialog.isAdded()) {
-            mDeviceListDialog.show(getSupportFragmentManager(), "device_list");
-        }
+        mDeviceListDialog.show(getSupportFragmentManager(), "device_list");
     }
 
     private void showVideoFormatDialog() {
@@ -433,6 +430,10 @@ public class MainActivity extends AppCompatActivity {
 
             if (mIsRecording) {
                 toggleVideoRecord(false);
+            }
+
+            if (mBinding.viewMainPreview.getSurfaceTexture() != null) {
+                mCameraHelper.removeSurface(mBinding.viewMainPreview.getSurfaceTexture());
             }
 
             mIsCameraConnected = false;

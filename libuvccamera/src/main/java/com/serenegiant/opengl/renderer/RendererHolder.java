@@ -24,6 +24,8 @@ import com.serenegiant.opengl.GLHelper;
 import com.serenegiant.utils.UVCUtils;
 import com.serenegiant.uvccamera.BuildConfig;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -527,8 +529,9 @@ public class RendererHolder extends EGLTask implements IRendererHolder {
                         try {
                             onDrawSlaveSurface(slaveSurface, mTexId, mTexMatrix, mMvpMatrix);
                         } catch (final Exception e) {
-                            mSlaveSurfaces.removeAt(i);
-                            slaveSurface.release();
+                            Log.e(TAG, "onDrawSlaveSurface:", e);
+//                            mSlaveSurfaces.removeAt(i);
+//                            slaveSurface.release();
                         }
                     }
                 }
@@ -547,7 +550,7 @@ public class RendererHolder extends EGLTask implements IRendererHolder {
                         slaveSurface = RendererSurface.newInstance(getEgl(), surface, maxFps);
                         mSlaveSurfaces.append(id, slaveSurface);
                     } catch (final Exception e) {
-                        Log.w(TAG, "invalid surface: surface=" + surface, e);
+                        Log.e(TAG, "invalid surface: surface=" + surface, e);
                     }
                 } else {
                     Log.w(TAG, "surface is already added: id=" + id);
@@ -568,9 +571,9 @@ public class RendererHolder extends EGLTask implements IRendererHolder {
                     }
                     slaveSurface.release();
                 }
-                checkSurface();
                 mSlaveSurfaces.notifyAll();
             }
+            checkSurface();
             makeCurrent();
         }
 
@@ -600,14 +603,18 @@ public class RendererHolder extends EGLTask implements IRendererHolder {
         protected void checkSurface() {
             if (DEBUG) Log.v(TAG, "checkSurface");
             synchronized (mSlaveSurfaces) {
+                List<Integer> removeIndexList = new ArrayList<>();
                 final int n = mSlaveSurfaces.size();
                 for (int i = 0; i < n; i++) {
                     final RendererSurface slaveSurface = mSlaveSurfaces.valueAt(i);
                     if ((slaveSurface != null) && !slaveSurface.isValid()) {
-                        final int id = mSlaveSurfaces.keyAt(i);
-                        mSlaveSurfaces.valueAt(i).release();
-                        mSlaveSurfaces.remove(id);
+                        removeIndexList.add(i);
                     }
+                }
+
+                for (int index : removeIndexList) {
+                    mSlaveSurfaces.valueAt(index).release();
+                    mSlaveSurfaces.removeAt(index);
                 }
             }
         }
@@ -726,7 +733,7 @@ public class RendererHolder extends EGLTask implements IRendererHolder {
             @Override
             public void onFrameAvailable(final SurfaceTexture surfaceTexture) {
                 removeMessages(REQUEST_DRAW);
-                if(!mIsFirstFrameRendered){
+                if (!mIsFirstFrameRendered) {
                     makeCurrent();
                     mIsFirstFrameRendered = true;
                 }
