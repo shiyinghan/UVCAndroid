@@ -47,7 +47,7 @@ interface ICameraInternal {
 
     boolean isRecording();
 
-    void startRecording(VideoCapture.CaptureOptions options,
+    void startRecording(VideoCapture.OutputFileOptions options,
                         VideoCapture.OnVideoCaptureCallback callback);
 
     void stopRecording();

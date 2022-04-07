@@ -538,9 +538,9 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             File file = new File(SaveHelper.getSavePhotoPath());
-            ImageCapture.OutputFileOptions.Builder builder =
-                    new ImageCapture.OutputFileOptions.Builder(file);
-            mCameraHelper.takePicture(builder.build(), new ImageCapture.OnImageCaptureCallback() {
+            ImageCapture.OutputFileOptions options =
+                    new ImageCapture.OutputFileOptions.Builder(file).build();
+            mCameraHelper.takePicture(options, new ImageCapture.OnImageCaptureCallback() {
                 @Override
                 public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                     Toast.makeText(MainActivity.this,
@@ -592,9 +592,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void startRecord() {
         File file = new File(SaveHelper.getSaveVideoPath());
-        VideoCapture.CaptureOptions.Builder builder =
-                new VideoCapture.CaptureOptions.Builder(file);
-        mCameraHelper.startRecording(builder.build(), new VideoCapture.OnVideoCaptureCallback() {
+        VideoCapture.OutputFileOptions options =
+                new VideoCapture.OutputFileOptions.Builder(file).build();
+        mCameraHelper.startRecording(options, new VideoCapture.OnVideoCaptureCallback() {
             @Override
             public void onStart() {
                 startRecordTimer();

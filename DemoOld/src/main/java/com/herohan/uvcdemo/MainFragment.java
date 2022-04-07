@@ -3,7 +3,6 @@ package com.herohan.uvcdemo;
 import java.io.File;
 import java.util.List;
 
-import android.app.Fragment;
 import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,7 +28,6 @@ import com.serenegiant.common.BaseFragment;
 import com.herohan.uvcapp.CameraHelper;
 import com.herohan.uvcapp.ICameraHelper;
 import com.serenegiant.uvcdemo.R;
-import com.serenegiant.usb.CameraDialog;
 import com.serenegiant.usb.Size;
 import com.serenegiant.utils.FileUtils;
 import com.serenegiant.utils.UriHelper;
@@ -278,9 +276,9 @@ public class MainFragment extends BaseFragment {
                     if (checkPermissionWriteExternalStorage()) {
                         if (mCameraHelper != null && checkPermissionWriteExternalStorage()) {
                             File file = FileUtils.getCaptureFile(getActivity(), Environment.DIRECTORY_DCIM, ".jpg");
-                            ImageCapture.OutputFileOptions.Builder builder =
-                                    new ImageCapture.OutputFileOptions.Builder(file);
-                            mCameraHelper.takePicture(builder.build(), new ImageCapture.OnImageCaptureCallback() {
+                            ImageCapture.OutputFileOptions options =
+                                    new ImageCapture.OutputFileOptions.Builder(file).build();
+                            mCameraHelper.takePicture(options, new ImageCapture.OnImageCaptureCallback() {
                                 @Override
                                 public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                                     Toast.makeText(getActivity(),
@@ -304,9 +302,9 @@ public class MainFragment extends BaseFragment {
 
     private void startRecord() {
         File file = FileUtils.getCaptureFile(getActivity(), Environment.DIRECTORY_MOVIES, ".mp4");
-        VideoCapture.CaptureOptions.Builder builder =
-                new VideoCapture.CaptureOptions.Builder(file);
-        mCameraHelper.startRecording(builder.build(), new VideoCapture.OnVideoCaptureCallback() {
+        VideoCapture.OutputFileOptions options =
+                new VideoCapture.OutputFileOptions.Builder(file).build();
+        mCameraHelper.startRecording(options, new VideoCapture.OnVideoCaptureCallback() {
             @Override
             public void onStart() {
             }

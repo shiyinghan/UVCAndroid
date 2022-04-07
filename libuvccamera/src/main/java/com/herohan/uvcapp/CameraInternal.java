@@ -326,7 +326,7 @@ final class CameraInternal implements ICameraInternal {
     }
 
     @Override
-    public void startRecording(VideoCapture.CaptureOptions options, VideoCapture.OnVideoCaptureCallback callback) {
+    public void startRecording(VideoCapture.OutputFileOptions options, VideoCapture.OnVideoCaptureCallback callback) {
         if (isCameraOpened() && mVideoCapture != null) {
             mVideoCapture.startRecording(options, callback);
         } else {

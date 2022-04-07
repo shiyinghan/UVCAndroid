@@ -58,7 +58,7 @@ interface ICameraConnection {
     boolean isRecording(UsbDevice device);
 
     void startRecording(UsbDevice device,
-                        VideoCapture.CaptureOptions options,
+                        VideoCapture.OutputFileOptions options,
                         VideoCapture.OnVideoCaptureCallback callback);
 
     void stopRecording(UsbDevice device);

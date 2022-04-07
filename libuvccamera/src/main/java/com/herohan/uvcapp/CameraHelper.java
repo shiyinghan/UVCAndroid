@@ -331,7 +331,7 @@ public class CameraHelper implements ICameraHelper {
     }
 
     @Override
-    public void startRecording(VideoCapture.CaptureOptions options, VideoCapture.OnVideoCaptureCallback callback) {
+    public void startRecording(VideoCapture.OutputFileOptions options, VideoCapture.OnVideoCaptureCallback callback) {
         if (DEBUG) Log.d(TAG, "startRecording");
         mAsyncHandler.post(() -> {
             if (mService != null && mUsbDevice != null) {

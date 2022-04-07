@@ -273,13 +273,13 @@ public class VideoCapture {
      * <p>StartRecording() is asynchronous. User needs to check if any error occurs by setting the
      * {@link OnVideoCaptureCallback#onError(int, String, Throwable)}.
      *
-     * @param captureOptions Location to save the video capture
+     * @param outputFileOptions Location to save the video capture
      * @param callback       Callback for when the recorded video saving completion or failure.
      */
     @SuppressWarnings("ObjectToString")
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public void startRecording(
-            @NonNull CaptureOptions captureOptions,
+            @NonNull OutputFileOptions outputFileOptions,
             @NonNull OnVideoCaptureCallback callback) {
         Log.i(TAG, "startRecording");
         mIsFirstVideoKeyFrameWrite.set(false);
@@ -396,7 +396,7 @@ public class VideoCapture {
 
         try {
             synchronized (mMuxerLock) {
-                mMuxer = initMediaMuxer(captureOptions);
+                mMuxer = initMediaMuxer(outputFileOptions);
                 if (mMuxer == null) {
                     throw new NullPointerException();
                 }
@@ -424,7 +424,7 @@ public class VideoCapture {
 
         mVideoHandler.post(
                 () -> {
-                    boolean errorOccurred = videoEncode(postListener, captureOptions);
+                    boolean errorOccurred = videoEncode(postListener, outputFileOptions);
                     if (!errorOccurred) {
                         scanMediaFile(mSavedVideoUri);
                         postListener.onVideoSaved(new OutputFileResults(mSavedVideoUri));
@@ -436,7 +436,7 @@ public class VideoCapture {
 
     /**
      * Stops recording video, this must be called after {@link
-     * VideoCapture#startRecording(CaptureOptions, OnVideoCaptureCallback)} is
+     * VideoCapture#startRecording(OutputFileOptions, OnVideoCaptureCallback)} is
      * called.
      *
      * <p>stopRecording() is asynchronous API. User need to check if {@link
@@ -723,7 +723,7 @@ public class VideoCapture {
      * @return returns {@code true} if an error condition occurred, otherwise returns {@code false}
      */
     boolean videoEncode(@NonNull OnVideoCaptureCallback videoSavedCallback,
-                        @NonNull CaptureOptions captureOptions) {
+                        @NonNull OutputFileOptions outputFileOptions) {
         // Main encoding loop. Exits on end of stream.
         boolean errorOccurred = false;
         boolean videoEos = false;
@@ -794,7 +794,7 @@ public class VideoCapture {
             // frame, then the video file is not playable, needs to call
             // onError() and will be removed.
 
-            boolean checkResult = removeRecordingResultIfNoVideoKeyFrameArrived(captureOptions);
+            boolean checkResult = removeRecordingResultIfNoVideoKeyFrameArrived(outputFileOptions);
 
             if (!checkResult) {
                 videoSavedCallback.onError(ERROR_RECORDING_TOO_SHORT,
@@ -1025,7 +1025,7 @@ public class VideoCapture {
     }
 
     private boolean removeRecordingResultIfNoVideoKeyFrameArrived(
-            @NonNull CaptureOptions captureOptions) {
+            @NonNull OutputFileOptions outputFileOptions) {
         boolean checkKeyFrame;
 
         // 1. There should be one video key frame at least.
@@ -1040,17 +1040,17 @@ public class VideoCapture {
         }
 
         // 2. If no key frame, remove file except the target is a file descriptor case.
-        if (captureOptions.isSavingToFile()) {
-            File outputFile = captureOptions.getFile();
+        if (outputFileOptions.isSavingToFile()) {
+            File outputFile = outputFileOptions.getFile();
             if (!checkKeyFrame) {
                 Log.i(TAG, "Delete file.");
                 outputFile.delete();
             }
-        } else if (captureOptions.isSavingToMediaStore()) {
+        } else if (outputFileOptions.isSavingToMediaStore()) {
             if (!checkKeyFrame) {
                 Log.i(TAG, "Delete file.");
                 if (mSavedVideoUri != null) {
-                    ContentResolver contentResolver = captureOptions.getContentResolver();
+                    ContentResolver contentResolver = outputFileOptions.getContentResolver();
                     contentResolver.delete(mSavedVideoUri, null, null);
                 }
             }
@@ -1060,31 +1060,31 @@ public class VideoCapture {
     }
 
     @NonNull
-    private MediaMuxer initMediaMuxer(@NonNull CaptureOptions captureOptions)
+    private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
             throws IOException {
         MediaMuxer mediaMuxer;
 
-        if (captureOptions.isSavingToFile()) {
-            File savedVideoFile = captureOptions.getFile();
-            mSavedVideoUri = Uri.fromFile(captureOptions.getFile());
+        if (outputFileOptions.isSavingToFile()) {
+            File savedVideoFile = outputFileOptions.getFile();
+            mSavedVideoUri = Uri.fromFile(outputFileOptions.getFile());
 
             mediaMuxer = new MediaMuxer(savedVideoFile.getAbsolutePath(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-        } else if (captureOptions.isSavingToFileDescriptor()) {
+        } else if (outputFileOptions.isSavingToFileDescriptor()) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 throw new IllegalArgumentException("Using a FileDescriptor to record a video is "
                         + "only supported for Android 8.0 or above.");
             }
 
-            mediaMuxer = Api26Impl.createMediaMuxer(captureOptions.getFileDescriptor(),
+            mediaMuxer = Api26Impl.createMediaMuxer(outputFileOptions.getFileDescriptor(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-        } else if (captureOptions.isSavingToMediaStore()) {
-            ContentValues values = captureOptions.getContentValues() != null
-                    ? new ContentValues(captureOptions.getContentValues())
+        } else if (outputFileOptions.isSavingToMediaStore()) {
+            ContentValues values = outputFileOptions.getContentValues() != null
+                    ? new ContentValues(outputFileOptions.getContentValues())
                     : new ContentValues();
 
-            mSavedVideoUri = captureOptions.getContentResolver().insert(
-                    captureOptions.getSaveCollection(), values);
+            mSavedVideoUri = outputFileOptions.getContentResolver().insert(
+                    outputFileOptions.getSaveCollection(), values);
 
             if (mSavedVideoUri == null) {
                 throw new IOException("Invalid Uri!");
@@ -1094,14 +1094,14 @@ public class VideoCapture {
             try {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     String savedLocationPath = VideoUtil.getAbsolutePathFromUri(
-                            captureOptions.getContentResolver(), mSavedVideoUri);
+                            outputFileOptions.getContentResolver(), mSavedVideoUri);
 
                     Log.i(TAG, "Saved Location Path: " + savedLocationPath);
                     mediaMuxer = new MediaMuxer(savedLocationPath,
                             MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 } else {
                     mParcelFileDescriptor =
-                            captureOptions.getContentResolver().openFileDescriptor(
+                            outputFileOptions.getContentResolver().openFileDescriptor(
                                     mSavedVideoUri, "rw");
                     mediaMuxer = Api26Impl.createMediaMuxer(
                             mParcelFileDescriptor.getFileDescriptor(),
@@ -1223,9 +1223,9 @@ public class VideoCapture {
         /**
          * Returns the {@link Uri} of the saved video file.
          *
-         * <p> This field is only returned if the {@link CaptureOptions} is
+         * <p> This field is only returned if the {@link OutputFileOptions} is
          * backed by {@link MediaStore} constructed with
-         * {@link CaptureOptions}.
+         * {@link OutputFileOptions}.
          */
         @Nullable
         public Uri getSavedUri() {
@@ -1240,7 +1240,7 @@ public class VideoCapture {
      * either a {@link File}, {@link MediaStore}. The metadata will be
      * stored with the saved video.
      */
-    public static final class CaptureOptions {
+    public static final class OutputFileOptions {
 
         @Nullable
         private final File mFile;
@@ -1253,11 +1253,11 @@ public class VideoCapture {
         @Nullable
         private final ContentValues mContentValues;
 
-        CaptureOptions(@Nullable File file,
-                       @Nullable FileDescriptor fileDescriptor,
-                       @Nullable ContentResolver contentResolver,
-                       @Nullable Uri saveCollection,
-                       @Nullable ContentValues contentValues) {
+        OutputFileOptions(@Nullable File file,
+                          @Nullable FileDescriptor fileDescriptor,
+                          @Nullable ContentResolver contentResolver,
+                          @Nullable Uri saveCollection,
+                          @Nullable ContentValues contentValues) {
             mFile = file;
             mFileDescriptor = fileDescriptor;
             mContentResolver = contentResolver;
@@ -1266,7 +1266,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the File object which is set by the {@link CaptureOptions.Builder}.
+         * Returns the File object which is set by the {@link OutputFileOptions.Builder}.
          */
         @Nullable
         File getFile() {
@@ -1274,7 +1274,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the FileDescriptor object which is set by the {@link CaptureOptions.Builder}.
+         * Returns the FileDescriptor object which is set by the {@link OutputFileOptions.Builder}.
          */
         @Nullable
         FileDescriptor getFileDescriptor() {
@@ -1282,7 +1282,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the content resolver which is set by the {@link CaptureOptions.Builder}.
+         * Returns the content resolver which is set by the {@link OutputFileOptions.Builder}.
          */
         @Nullable
         ContentResolver getContentResolver() {
@@ -1290,7 +1290,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the URI which is set by the {@link CaptureOptions.Builder}.
+         * Returns the URI which is set by the {@link OutputFileOptions.Builder}.
          */
         @Nullable
         Uri getSaveCollection() {
@@ -1298,7 +1298,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the content values which is set by the {@link CaptureOptions.Builder}.
+         * Returns the content values which is set by the {@link OutputFileOptions.Builder}.
          */
         @Nullable
         ContentValues getContentValues() {
@@ -1328,7 +1328,7 @@ public class VideoCapture {
         }
 
         /**
-         * Builder class for {@link CaptureOptions}.
+         * Builder class for {@link OutputFileOptions}.
          */
         public static final class Builder {
             @Nullable
@@ -1400,11 +1400,11 @@ public class VideoCapture {
             }
 
             /**
-             * Builds {@link CaptureOptions}.
+             * Builds {@link OutputFileOptions}.
              */
             @NonNull
-            public CaptureOptions build() {
-                return new CaptureOptions(mFile, mFileDescriptor, mContentResolver,
+            public OutputFileOptions build() {
+                return new OutputFileOptions(mFile, mFileDescriptor, mContentResolver,
                         mSaveCollection, mContentValues);
             }
         }

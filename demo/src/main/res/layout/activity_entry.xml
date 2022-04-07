@@ -26,4 +26,14 @@
         android:id="@+id/btnMultiCamera"
         style="@style/EntryButton"
         android:text="@string/entry_multi_camera" />
+
+    <Button
+        android:id="@+id/btnTakePicture"
+        style="@style/EntryButton"
+        android:text="@string/entry_take_picture" />
+
+    <Button
+        android:id="@+id/btnRecordVideo"
+        style="@style/EntryButton"
+        android:text="@string/entry_record_video" />
 </LinearLayout>

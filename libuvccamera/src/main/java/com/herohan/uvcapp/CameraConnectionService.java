@@ -3,7 +3,6 @@ package com.herohan.uvcapp;
 import android.hardware.usb.UsbDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.util.Log;
 
 import com.serenegiant.usb.DeviceFilter;
@@ -14,7 +13,6 @@ import com.serenegiant.usb.USBMonitor;
 import com.serenegiant.usb.USBMonitor.OnDeviceConnectListener;
 import com.serenegiant.usb.USBMonitor.UsbControlBlock;
 import com.serenegiant.usb.UVCControl;
-import com.serenegiant.utils.HandlerThreadHandler;
 import com.serenegiant.utils.UVCUtils;
 import com.serenegiant.uvccamera.BuildConfig;
 import com.serenegiant.uvccamera.R;
@@ -370,7 +368,7 @@ class CameraConnectionService {
         }
 
         @Override
-        public void startRecording(final UsbDevice device, final VideoCapture.CaptureOptions options
+        public void startRecording(final UsbDevice device, final VideoCapture.OutputFileOptions options
                 , final VideoCapture.OnVideoCaptureCallback callback) {
             if (DEBUG) Log.d(TAG, LOG_PREFIX + "startRecording");
             final CameraInternal cameraInternal = getCamera(device);
