@@ -21,8 +21,6 @@
  *  may have a different license, see the respective files.
  */
 
-include ':usbCameraCommon'
-include ':DemoOld'
 include ':libuvccamera'
 include ':app'
 include ':demo'
