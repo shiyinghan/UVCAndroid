@@ -61,7 +61,6 @@ public class CameraHelper implements ICameraHelper {
             unregisterCallback();
             mCallbackWrapper = null;
         }
-
     }
 
     @Override
