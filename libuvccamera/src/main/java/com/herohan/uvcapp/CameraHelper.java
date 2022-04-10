@@ -234,7 +234,7 @@ public class CameraHelper implements ICameraHelper {
                                 mImageCaptureConfig,
                                 mVideoCaptureConfig);
                     } else {
-                        mCallbackWrapper.onCameraOpen(mUsbDevice);
+//                        mCallbackWrapper.onCameraOpen(mUsbDevice);
                     }
                 } catch (final Exception e) {
                     if (DEBUG) Log.e(TAG, "openCamera:", e);
@@ -252,7 +252,7 @@ public class CameraHelper implements ICameraHelper {
                     if (mService.isCameraOpened(mUsbDevice)) {
                         mService.closeCamera(mUsbDevice);
                     } else {
-                        mCallbackWrapper.onCameraClose(mUsbDevice);
+//                        mCallbackWrapper.onCameraClose(mUsbDevice);
                     }
                 } catch (final Exception e) {
                     if (DEBUG) Log.e(TAG, "closeCamera:", e);

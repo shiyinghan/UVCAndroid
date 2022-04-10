@@ -51,7 +51,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
     // debugImplementation because LeakCanary should only run in debug builds.
-    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.8.1'
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.8.1'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

@@ -405,8 +405,6 @@ class CameraConnectionService {
                 final CameraInternal cameraInternal = mCameras.get(cameraKey);
                 if (cameraInternal != null) {
                     cameraInternal.release();
-                    // not need to unregisterCallback, release method will kill all callback
-//                    cameraInternal.unregisterCallback(mCallback);
                 }
                 mCameras.remove(cameraKey);
             }

@@ -274,7 +274,7 @@ public class VideoCapture {
      * {@link OnVideoCaptureCallback#onError(int, String, Throwable)}.
      *
      * @param outputFileOptions Location to save the video capture
-     * @param callback       Callback for when the recorded video saving completion or failure.
+     * @param callback          Callback for when the recorded video saving completion or failure.
      */
     @SuppressWarnings("ObjectToString")
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
@@ -400,7 +400,6 @@ public class VideoCapture {
                 if (mMuxer == null) {
                     throw new NullPointerException();
                 }
-//                mMuxer.setOrientationHint(getRelativeRotation(attachedCamera));
             }
         } catch (IOException e) {
             mExecutor.execute(mRecordingFuture);
@@ -727,45 +726,51 @@ public class VideoCapture {
         // Main encoding loop. Exits on end of stream.
         boolean errorOccurred = false;
         boolean videoEos = false;
-        while (!videoEos && !errorOccurred) {
-            // Check for end of stream from main thread
-            if (mEndOfVideoStreamSignal.get()) {
-                mVideoEncoder.signalEndOfInputStream();
-                mEndOfVideoStreamSignal.set(false);
-            }
+        try {
+            while (!videoEos && !errorOccurred) {
+                // Check for end of stream from main thread
+                if (mEndOfVideoStreamSignal.get()) {
+                    mVideoEncoder.signalEndOfInputStream();
+                    mEndOfVideoStreamSignal.set(false);
+                }
 
-            // Deque buffer to check for processing step
-            int outputBufferId =
-                    mVideoEncoder.dequeueOutputBuffer(mVideoBufferInfo, DEQUE_TIMEOUT_USEC);
-            switch (outputBufferId) {
-                case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-                    if (mMuxerStarted.get()) {
-                        videoSavedCallback.onError(
-                                ERROR_ENCODER,
-                                "Unexpected change in video encoding format.",
-                                null);
-                        errorOccurred = true;
-                    }
-
-                    synchronized (mMuxerLock) {
-                        mVideoTrackIndex = mMuxer.addTrack(mVideoEncoder.getOutputFormat());
-
-                        if ((mIsAudioEnabled.get() && mAudioTrackIndex >= 0
-                                && mVideoTrackIndex >= 0)
-                                || (!mIsAudioEnabled.get() && mVideoTrackIndex >= 0)) {
-                            Log.i(TAG, "MediaMuxer started on video encode thread and audio "
-                                    + "enabled: " + mIsAudioEnabled);
-                            mMuxer.start();
-                            mMuxerStarted.set(true);
+                // Deque buffer to check for processing step
+                int outputBufferId =
+                        mVideoEncoder.dequeueOutputBuffer(mVideoBufferInfo, DEQUE_TIMEOUT_USEC);
+                switch (outputBufferId) {
+                    case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
+                        if (mMuxerStarted.get()) {
+                            videoSavedCallback.onError(
+                                    ERROR_ENCODER,
+                                    "Unexpected change in video encoding format.",
+                                    null);
+                            errorOccurred = true;
                         }
-                    }
-                    break;
-                case MediaCodec.INFO_TRY_AGAIN_LATER:
-                    // Timed out. Just wait until next attempt to deque.
-                    break;
-                default:
-                    videoEos = writeVideoEncodedBuffer(outputBufferId);
+
+                        synchronized (mMuxerLock) {
+                            mVideoTrackIndex = mMuxer.addTrack(mVideoEncoder.getOutputFormat());
+
+                            if ((mIsAudioEnabled.get() && mAudioTrackIndex >= 0
+                                    && mVideoTrackIndex >= 0)
+                                    || (!mIsAudioEnabled.get() && mVideoTrackIndex >= 0)) {
+                                Log.i(TAG, "MediaMuxer started on video encode thread and audio "
+                                        + "enabled: " + mIsAudioEnabled);
+                                mMuxer.start();
+                                mMuxerStarted.set(true);
+                            }
+                        }
+                        break;
+                    case MediaCodec.INFO_TRY_AGAIN_LATER:
+                        // Timed out. Just wait until next attempt to deque.
+                        break;
+                    default:
+                        videoEos = writeVideoEncodedBuffer(outputBufferId);
+                }
             }
+        } catch (IllegalStateException e) {
+            videoSavedCallback.onError(ERROR_ENCODER,
+                    "Video encoder encode failed!", e);
+            errorOccurred = true;
         }
 
         try {

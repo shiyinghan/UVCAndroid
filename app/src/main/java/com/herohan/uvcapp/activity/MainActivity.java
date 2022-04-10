@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
         if (mFormatDialog == null) {
             mFormatDialog = new VideoFormatDialogFragment(mCameraHelper.getSupportedFormatList(), mCameraHelper.getPreviewSize());
             mFormatDialog.setOnVideoFormatSelectListener(size -> {
-                if (mIsCameraConnected) {
+                if (mIsCameraConnected && !mCameraHelper.isRecording()) {
                     mCameraHelper.stopPreview();
                     mCameraHelper.setPreviewSize(size);
                     mCameraHelper.startPreview();
@@ -317,7 +317,6 @@ public class MainActivity extends AppCompatActivity {
     private void clearCameraHelper() {
         if (DEBUG) Log.v(TAG, "clearCameraHelper:");
         if (mCameraHelper != null) {
-            mCameraHelper.closeCamera();
             mCameraHelper.release();
             mCameraHelper = null;
         }
@@ -357,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void attachNewDevice(UsbDevice device) {
-        if (mUsbDevice == null || mUsbDevice.equals(device)) {
+        if (mUsbDevice == null) {
             mUsbDevice = device;
 
             selectDevice(device);
@@ -400,9 +399,7 @@ public class MainActivity extends AppCompatActivity {
         public void onDeviceOpen(UsbDevice device, boolean isFirstOpen) {
             if (DEBUG) Log.v(TAG, "onDeviceOpen:device=" + device.getDeviceName());
 
-            if (mCameraHelper != null) {
-                mCameraHelper.openCamera(getSavedPreviewSize());
-            }
+            mCameraHelper.openCamera(getSavedPreviewSize());
         }
 
         @Override
@@ -432,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
                 toggleVideoRecord(false);
             }
 
-            if (mBinding.viewMainPreview.getSurfaceTexture() != null) {
+            if (mCameraHelper != null && mBinding.viewMainPreview.getSurfaceTexture() != null) {
                 mCameraHelper.removeSurface(mBinding.viewMainPreview.getSurfaceTexture());
             }
 
