@@ -37,7 +37,4 @@ ext {
 
 	javaSourceCompatibility = JavaVersion.VERSION_1_8
 	javaTargetCompatibility = JavaVersion.VERSION_1_8
-
-	versionCodeNum = 1
-	versionNameString = '1.0.0'
 }

@@ -64,3 +64,19 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.3.0'
     implementation 'cn.hutool:hutool-core:5.6.3'
 }
+
+ext {
+    libraryVersion = '1.0.0'
+    publishedGroupId = 'com.herohan'
+    artifact = 'UVCAndroid'
+    libraryDescription = 'library and sample to access to UVC camera on non-rooted Android device'
+    siteUrl = 'https://github.com/shiyinghan/UVCAndroid'
+    gitUrl = 'https://github.com/shiyinghan/UVCAndroid.git'
+    developerId = 'hansy'
+    developerName = 'hansy'
+    developerEmail = '1040762057@qq.com'
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+}
+
+apply from: "../publish_aar.gradle"
