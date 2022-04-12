@@ -53,6 +53,9 @@ public class EntryActivity extends AppCompatActivity implements View.OnClickList
         XXPermissions.with(this)
                 .permission(needPermissions)
                 .request((permissions, all) -> {
+                    if(!all){
+                        return;
+                    }
 
                     if (v.getId() == R.id.btnBasicPreview) {
                         startActivity(new Intent(this, BasicPreviewActivity.class));
