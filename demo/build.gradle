@@ -39,7 +39,8 @@ dependencies {
     // debugImplementation because LeakCanary should only run in debug builds.
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.8.1'
 
-    implementation project(':libuvccamera')
+//    implementation project(':libuvccamera')
+    implementation 'com.herohan:UVCAndroid:1.0.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
