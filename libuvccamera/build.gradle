@@ -69,7 +69,7 @@ ext {
     libraryVersion = '1.0.0'
     publishedGroupId = 'com.herohan'
     artifact = 'UVCAndroid'
-    libraryDescription = 'library and sample to access to UVC camera on non-rooted Android device'
+    libraryDescription = 'Library and sample to access UVC camera on non-rooted Android device'
     siteUrl = 'https://github.com/shiyinghan/UVCAndroid'
     gitUrl = 'https://github.com/shiyinghan/UVCAndroid.git'
     developerId = 'hansy'
