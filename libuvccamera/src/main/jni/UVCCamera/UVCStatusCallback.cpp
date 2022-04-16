@@ -77,11 +77,17 @@ void UVCStatusCallback::uvc_status_callback(uvc_status_class status_class, int e
 	UVCStatusCallback *statusCallback = reinterpret_cast<UVCStatusCallback *>(user_ptr);
 
 	JavaVM *vm = getVM();
-	JNIEnv *env;
-	// attach to JavaVM
-	vm->AttachCurrentThread(&env, NULL);
+	JNIEnv *env = getEnv();
+	bool  isAttached = false;
+	if(env == NULL){
+		// attach current thread to JavaVM
+		vm->AttachCurrentThread(&env, NULL);
+		isAttached = true;
+	}
 
 	statusCallback->notifyStatusCallback(env, status_class, event, selector, status_attribute, data, data_len);
-	
-	vm->DetachCurrentThread();
+
+	if(isAttached){
+		vm->DetachCurrentThread();
+	}
 }
