@@ -164,6 +164,9 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 control.isContrastEnable(),
                 control.updateContrastLimit(),
                 control.getContrast());
+        if (control.isContrastAutoEnable()) {
+            isbContrast.setEnabled(false);
+        }
         // Contrast Auto
         setCheckBoxParams(
                 cbContrastAuto,
@@ -176,6 +179,9 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 control.isHueEnable(),
                 control.updateHueLimit(),
                 control.getHue());
+        if (control.isHueAutoEnable()) {
+            isbHue.setEnabled(false);
+        }
         // Hue Auto
         setCheckBoxParams(
                 cbHueAuto,
@@ -209,6 +215,9 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 control.isWhiteBalanceEnable(),
                 control.updateWhiteBalanceLimit(),
                 control.getWhiteBalance());
+        if (control.isWhiteBalanceAutoEnable()) {
+            isbWhiteBalance.setEnabled(false);
+        }
         // White Balance Auto
         setCheckBoxParams(
                 cbWhiteBalanceAuto,
@@ -235,6 +244,9 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 control.isExposureTimeAbsoluteEnable(),
                 control.updateExposureTimeAbsoluteLimit(),
                 control.getExposureTimeAbsolute());
+        if (control.isAutoExposureModeEnable()) {
+            isbExposureTime.setEnabled(false);
+        }
         // Auto-Exposure Mode
         setCheckBoxParams(
                 cbExposureTimeAuto,
@@ -254,6 +266,9 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 control.isFocusAbsoluteEnable(),
                 control.updateFocusAbsoluteLimit(),
                 control.getFocusAbsolute());
+        if (control.isFocusAutoEnable()) {
+            isbFocus.setEnabled(false);
+        }
         // Focus Auto
         setCheckBoxParams(
                 cbFocusAuto,
@@ -306,6 +321,18 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 (MyOnSeekChangeListener) seekParams -> controls.setContrast(seekParams.progress));
         // Contrast Auto
         cbContrastAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Before enable Contrast Auto, must reset Contrast
+                controls.resetContrast();
+                setSeekBarParams(
+                        isbContrast,
+                        controls.isContrastEnable(),
+                        controls.updateContrastLimit(),
+                        controls.getContrast());
+                isbContrast.setEnabled(false);
+            } else {
+                isbContrast.setEnabled(true);
+            }
             controls.setContrastAuto(isChecked);
         });
 
@@ -314,6 +341,18 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 (MyOnSeekChangeListener) seekParams -> controls.setHue(seekParams.progress));
         // Hue Auto
         cbHueAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Before enable Hue Auto, must reset Hue
+                controls.resetHue();
+                setSeekBarParams(
+                        isbHue,
+                        controls.isHueEnable(),
+                        controls.updateHueLimit(),
+                        controls.getHue());
+                isbHue.setEnabled(false);
+            } else {
+                isbHue.setEnabled(true);
+            }
             controls.setHueAuto(isChecked);
         });
 
@@ -332,6 +371,18 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 (MyOnSeekChangeListener) seekParams -> controls.setWhiteBalance(seekParams.progress));
         // White Balance Auto
         cbWhiteBalanceAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Before enable White Balance Auto, must reset White Balance
+                controls.resetWhiteBalance();
+                setSeekBarParams(
+                        isbWhiteBalance,
+                        controls.isWhiteBalanceEnable(),
+                        controls.updateWhiteBalanceLimit(),
+                        controls.getWhiteBalance());
+                isbWhiteBalance.setEnabled(false);
+            } else {
+                isbWhiteBalance.setEnabled(true);
+            }
             controls.setWhiteBalanceAuto(isChecked);
         });
 
@@ -348,6 +399,18 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 (MyOnSeekChangeListener) seekParams -> controls.setExposureTimeAbsolute(seekParams.progress));
         // Exposure Time Auto
         cbExposureTimeAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Before enable Exposure Time Auto, must reset Exposure Time
+                controls.resetExposureTimeAbsolute();
+                setSeekBarParams(
+                        isbExposureTime,
+                        controls.isExposureTimeAbsoluteEnable(),
+                        controls.updateExposureTimeAbsoluteLimit(),
+                        controls.getExposureTimeAbsolute());
+                isbExposureTime.setEnabled(false);
+            } else {
+                isbExposureTime.setEnabled(true);
+            }
             controls.setExposureTimeAuto(isChecked);
         });
 
@@ -360,6 +423,18 @@ public class CameraControlsDialogFragment extends DialogFragment {
                 (MyOnSeekChangeListener) seekParams -> controls.setFocusAbsolute(seekParams.progress));
         // Focus Auto
         cbFocusAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                // Before enable Focus Auto, must reset Focus absolute
+                controls.resetFocusAbsolute();
+                setSeekBarParams(
+                        isbFocus,
+                        controls.isFocusAbsoluteEnable(),
+                        controls.updateFocusAbsoluteLimit(),
+                        controls.getFocusAbsolute());
+                isbFocus.setEnabled(false);
+            } else {
+                isbFocus.setEnabled(true);
+            }
             controls.setFocusAuto(isChecked);
         });
 

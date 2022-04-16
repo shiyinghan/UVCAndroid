@@ -29,6 +29,7 @@ UVCControl::UVCControl(uvc_device_handle_t *devh)
 
     ENTER();
     clearControlParams();
+    pthread_mutex_init(&mRequestMutex, NULL);
     EXIT();
 }
 
@@ -39,6 +40,7 @@ UVCControl::~UVCControl() {
     ENTER();
     clearControlParams();
     mDeviceHandle = NULL;
+    pthread_mutex_destroy(&mRequestMutex);
     EXIT();
 }
 
@@ -459,7 +461,7 @@ update_ctrl_values(uvc_device_handle_t *devh, control_value_t &values1, control_
 
 
 int UVCControl::internalSetCtrlValue(control_value_t &values, int8_t value,
-                                    paramget_func_i8 get_func, paramset_func_i8 set_func) {
+                                     paramget_func_i8 get_func, paramset_func_i8 set_func) {
     int ret = update_ctrl_values(mDeviceHandle, values, get_func);
     // When the minimum and maximum values are obtained successfully
     if (LIKELY(!ret)) {
@@ -472,7 +474,7 @@ int UVCControl::internalSetCtrlValue(control_value_t &values, int8_t value,
 }
 
 int UVCControl::internalSetCtrlValue(control_value_t &values, uint8_t value,
-                                    paramget_func_u8 get_func, paramset_func_u8 set_func) {
+                                     paramget_func_u8 get_func, paramset_func_u8 set_func) {
     int ret = update_ctrl_values(mDeviceHandle, values, get_func);
     // When the minimum and maximum values are obtained successfully
     if (LIKELY(!ret)) {
@@ -485,7 +487,7 @@ int UVCControl::internalSetCtrlValue(control_value_t &values, uint8_t value,
 }
 
 int UVCControl::internalSetCtrlValue(control_value_t &values, uint8_t value1, uint8_t value2,
-                                    paramget_func_u8u8 get_func, paramset_func_u8u8 set_func) {
+                                     paramget_func_u8u8 get_func, paramset_func_u8u8 set_func) {
     int ret = update_ctrl_values(mDeviceHandle, values, get_func);
     // When the minimum and maximum values are obtained successfully
     if (LIKELY(!ret)) {
@@ -505,7 +507,7 @@ int UVCControl::internalSetCtrlValue(control_value_t &values, uint8_t value1, ui
 }
 
 int UVCControl::internalSetCtrlValue(control_value_t &values, int8_t value1, uint8_t value2,
-                                    paramget_func_i8u8 get_func, paramset_func_i8u8 set_func) {
+                                     paramget_func_i8u8 get_func, paramset_func_i8u8 set_func) {
     int ret = update_ctrl_values(mDeviceHandle, values, get_func);
     // When the minimum and maximum values are obtained successfully
     if (LIKELY(!ret)) {
@@ -525,8 +527,8 @@ int UVCControl::internalSetCtrlValue(control_value_t &values, int8_t value1, uin
 }
 
 int UVCControl::internalSetCtrlValue(control_value_t &values, int8_t value1, uint8_t value2,
-                                    uint8_t value3,
-                                    paramget_func_i8u8u8 get_func, paramset_func_i8u8u8 set_func) {
+                                     uint8_t value3,
+                                     paramget_func_i8u8u8 get_func, paramset_func_i8u8u8 set_func) {
     int ret = update_ctrl_values(mDeviceHandle, values, get_func);
     // When the minimum and maximum values are obtained successfully
     if (LIKELY(!ret)) {
@@ -551,7 +553,7 @@ int UVCControl::internalSetCtrlValue(control_value_t &values, int8_t value1, uin
 }
 
 int UVCControl::internalSetCtrlValue(control_value_t &values, int16_t value,
-                                    paramget_func_i16 get_func, paramset_func_i16 set_func) {
+                                     paramget_func_i16 get_func, paramset_func_i16 set_func) {
     int ret = update_ctrl_values(mDeviceHandle, values, get_func);
     // When the minimum and maximum values are obtained successfully
     if (LIKELY(!ret)) {
@@ -564,7 +566,7 @@ int UVCControl::internalSetCtrlValue(control_value_t &values, int16_t value,
 }
 
 int UVCControl::internalSetCtrlValue(control_value_t &values, uint16_t value,
-                                    paramget_func_u16 get_func, paramset_func_u16 set_func) {
+                                     paramget_func_u16 get_func, paramset_func_u16 set_func) {
     int ret = update_ctrl_values(mDeviceHandle, values, get_func);
     // When the minimum and maximum values are obtained successfully
     if (LIKELY(!ret)) {
@@ -577,7 +579,7 @@ int UVCControl::internalSetCtrlValue(control_value_t &values, uint16_t value,
 }
 
 int UVCControl::internalSetCtrlValue(control_value_t &values, int32_t value,
-                                    paramget_func_i32 get_func, paramset_func_i32 set_func) {
+                                     paramget_func_i32 get_func, paramset_func_i32 set_func) {
     int ret = update_ctrl_values(mDeviceHandle, values, get_func);
     // When the minimum and maximum values are obtained successfully
     if (LIKELY(!ret)) {
@@ -590,7 +592,7 @@ int UVCControl::internalSetCtrlValue(control_value_t &values, int32_t value,
 }
 
 int UVCControl::internalSetCtrlValue(control_value_t &values, uint32_t value,
-                                    paramget_func_u32 get_func, paramset_func_u32 set_func) {
+                                     paramget_func_u32 get_func, paramset_func_u32 set_func) {
     int ret = update_ctrl_values(mDeviceHandle, values, get_func);
     // When the minimum and maximum values are obtained successfully
     if (LIKELY(!ret)) {
@@ -606,7 +608,7 @@ int UVCControl::internalSetCtrlValue(control_value_t &values, uint32_t value,
 // Obtain limit of Scanning Mode
 int UVCControl::obtainScanningModeLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mCTControls & CT_SCANNING_MODE_CONTROL) {
         UPDATE_CTRL_VALUES(mScanningMode, uvc_get_scanning_mode);
     }
@@ -617,10 +619,16 @@ int UVCControl::obtainScanningModeLimit(int &min, int &max, int &def) {
 int UVCControl::setScanningMode(int mode) {
     ENTER();
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mCTControls & CT_SCANNING_MODE_CONTROL)) {
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mCTControls & CT_SCANNING_MODE_CONTROL)) {
 //		LOGI("ae:%d", mode);
-        r = uvc_set_scanning_mode(mDeviceHandle, mode/* & 0xff*/);
+            r = uvc_set_scanning_mode(mDeviceHandle, mode/* & 0xff*/);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 
@@ -644,7 +652,7 @@ int UVCControl::getScanningMode() {
 // Obtain limit of Auto Exposure Mode
 int UVCControl::obtainAutoExposureModeLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mCTControls & CT_AE_MODE_CONTROL) {
         UPDATE_CTRL_VALUES(mAutoExposureMode, uvc_get_ae_mode);
     }
@@ -655,10 +663,16 @@ int UVCControl::obtainAutoExposureModeLimit(int &min, int &max, int &def) {
 int UVCControl::setAutoExposureMode(int mode) {
     ENTER();
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mCTControls & CT_AE_MODE_CONTROL)) {
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mCTControls & CT_AE_MODE_CONTROL)) {
 //		LOGI("ae:%d", mode);
-        r = uvc_set_ae_mode(mDeviceHandle, mode/* & 0xff*/);
+            r = uvc_set_ae_mode(mDeviceHandle, mode/* & 0xff*/);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 
@@ -682,7 +696,7 @@ int UVCControl::getAutoExposureMode() {
 // Obtain limit of Auto Exposure Priority
 int UVCControl::obtainAutoExposurePriorityLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mCTControls & CT_AE_PRIORITY_CONTROL) {
         UPDATE_CTRL_VALUES(mAutoExposurePriority, uvc_get_ae_priority);
     }
@@ -693,10 +707,16 @@ int UVCControl::obtainAutoExposurePriorityLimit(int &min, int &max, int &def) {
 int UVCControl::setAutoExposurePriority(int priority) {
     ENTER();
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mCTControls & CT_AE_PRIORITY_CONTROL)) {
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mCTControls & CT_AE_PRIORITY_CONTROL)) {
 //		LOGI("ae priority:%d", priority);
-        r = uvc_set_ae_priority(mDeviceHandle, priority/* & 0xff*/);
+            r = uvc_set_ae_priority(mDeviceHandle, priority/* & 0xff*/);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 
@@ -720,7 +740,7 @@ int UVCControl::getAutoExposurePriority() {
 // Obtain limit of Exposure Time (Absolute)
 int UVCControl::obtainExposureTimeAbsoluteLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mCTControls & CT_EXPOSURE_TIME_ABSOLUTE_CONTROL) {
         UPDATE_CTRL_VALUES(mExposureTimeAbsolute, uvc_get_exposure_abs);
     }
@@ -731,10 +751,16 @@ int UVCControl::obtainExposureTimeAbsoluteLimit(int &min, int &max, int &def) {
 int UVCControl::setExposureTimeAbsolute(int time) {
     ENTER();
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mCTControls & CT_EXPOSURE_TIME_ABSOLUTE_CONTROL)) {
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mCTControls & CT_EXPOSURE_TIME_ABSOLUTE_CONTROL)) {
 //		LOGI("time:%d", time);
-        r = uvc_set_exposure_abs(mDeviceHandle, time/* & 0xff*/);
+            r = uvc_set_exposure_abs(mDeviceHandle, time/* & 0xff*/);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 
@@ -758,7 +784,7 @@ int UVCControl::getExposureTimeAbsolute() {
 // Obtain limit of Exposure Time (Relative)
 int UVCControl::obtainExposureTimeRelativeLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mCTControls & CT_EXPOSURE_TIME_RELATIVE_CONTROL) {
         UPDATE_CTRL_VALUES(mExposureTimeRelative, uvc_get_exposure_rel);
     }
@@ -769,10 +795,16 @@ int UVCControl::obtainExposureTimeRelativeLimit(int &min, int &max, int &def) {
 int UVCControl::setExposureTimeRelative(int ae_rel) {
     ENTER();
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mCTControls & CT_EXPOSURE_TIME_RELATIVE_CONTROL)) {
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mCTControls & CT_EXPOSURE_TIME_RELATIVE_CONTROL)) {
 //		LOGI("ae_rel:%d", ae_rel);
-        r = uvc_set_exposure_rel(mDeviceHandle, ae_rel/* & 0xff*/);
+            r = uvc_set_exposure_rel(mDeviceHandle, ae_rel/* & 0xff*/);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 
@@ -807,9 +839,15 @@ int UVCControl::obtainFocusAbsoluteLimit(int &min, int &max, int &def) {
 int UVCControl::setFocusAbsolute(int focus) {
     ENTER();
     int ret = UVC_ERROR_ACCESS;
-    if (mCTControls & CT_FOCUS_ABSOLUTE_CONTROL) {
-        ret = internalSetCtrlValue(mFocusAbsolute, focus, uvc_get_focus_abs, uvc_set_focus_abs);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_FOCUS_ABSOLUTE_CONTROL) {
+            ret = internalSetCtrlValue(mFocusAbsolute, focus, uvc_get_focus_abs, uvc_set_focus_abs);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -843,11 +881,17 @@ int UVCControl::obtainFocusRelativeLimit(int &min, int &max, int &def) {
 int UVCControl::setFocusRelative(int focus_rel) {
     ENTER();
     int ret = UVC_ERROR_ACCESS;
-    if (mCTControls & CT_FOCUS_RELATIVE_CONTROL) {
-        ret = internalSetCtrlValue(mFocusRelative, (int8_t) ((focus_rel >> 8) & 0xff),
-                                   (uint8_t) (focus_rel & 0xff), uvc_get_focus_rel,
-                                   uvc_set_focus_rel);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_FOCUS_RELATIVE_CONTROL) {
+            ret = internalSetCtrlValue(mFocusRelative, (int8_t) ((focus_rel >> 8) & 0xff),
+                                       (uint8_t) (focus_rel & 0xff), uvc_get_focus_rel,
+                                       uvc_set_focus_rel);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -882,9 +926,15 @@ int UVCControl::obtainIrisAbsoluteLimit(int &min, int &max, int &def) {
 int UVCControl::setIrisAbsolute(int iris) {
     ENTER();
     int ret = UVC_ERROR_ACCESS;
-    if (mCTControls & CT_IRIS_ABSOLUTE_CONTROL) {
-        ret = internalSetCtrlValue(mIrisAbsolute, iris, uvc_get_iris_abs, uvc_set_iris_abs);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_IRIS_ABSOLUTE_CONTROL) {
+            ret = internalSetCtrlValue(mIrisAbsolute, iris, uvc_get_iris_abs, uvc_set_iris_abs);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -918,9 +968,15 @@ int UVCControl::obtainIrisRelativeLimit(int &min, int &max, int &def) {
 int UVCControl::setIrisRelative(int iris_rel) {
     ENTER();
     int ret = UVC_ERROR_ACCESS;
-    if (mCTControls & CT_IRIS_RELATIVE_CONTROL) {
-        ret = internalSetCtrlValue(mIrisAbsolute, iris_rel, uvc_get_iris_rel, uvc_set_iris_rel);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_IRIS_RELATIVE_CONTROL) {
+            ret = internalSetCtrlValue(mIrisAbsolute, iris_rel, uvc_get_iris_rel, uvc_set_iris_rel);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -943,7 +999,7 @@ int UVCControl::getIrisRelative() {
 // Obtain limit of Zoom (Absolute)
 int UVCControl::obtainZoomAbsoluteLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mCTControls & CT_ZOOM_ABSOLUTE_CONTROL) {
         UPDATE_CTRL_VALUES(mZoomAbsolute, uvc_get_zoom_abs)
     }
@@ -953,10 +1009,16 @@ int UVCControl::obtainZoomAbsoluteLimit(int &min, int &max, int &def) {
 // Set Zoom (Absolute)
 int UVCControl::setZoomAbsolute(int zoom) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mCTControls & CT_ZOOM_ABSOLUTE_CONTROL) {
-        ret = internalSetCtrlValue(mZoomAbsolute, zoom, uvc_get_zoom_abs, uvc_set_zoom_abs);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_ZOOM_ABSOLUTE_CONTROL) {
+            ret = internalSetCtrlValue(mZoomAbsolute, zoom, uvc_get_zoom_abs, uvc_set_zoom_abs);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -979,7 +1041,7 @@ int UVCControl::getZoomAbsolute() {
 // Obtain limit of Zoom (Relative)
 int UVCControl::obtainZoomRelativeLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mCTControls & CT_ZOOM_RELATIVE_CONTROL) {
         UPDATE_CTRL_VALUES(mZoomRelative, uvc_get_zoom_rel)
     }
@@ -989,13 +1051,19 @@ int UVCControl::obtainZoomRelativeLimit(int &min, int &max, int &def) {
 // Set Zoom (Relative)
 int UVCControl::setZoomRelative(int zoom) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mCTControls & CT_ZOOM_RELATIVE_CONTROL) {
-        ret = internalSetCtrlValue(mZoomRelative,
-                                   (int8_t) ((zoom >> 16) & 0xff), (uint8_t) ((zoom >> 8) & 0xff),
-                                   (uint8_t) (zoom & 0xff),
-                                   uvc_get_zoom_rel, uvc_set_zoom_rel);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_ZOOM_RELATIVE_CONTROL) {
+            ret = internalSetCtrlValue(mZoomRelative,
+                                       (int8_t) ((zoom >> 16) & 0xff), (uint8_t) ((zoom >> 8) & 0xff),
+                                       (uint8_t) (zoom & 0xff),
+                                       uvc_get_zoom_rel, uvc_set_zoom_rel);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1038,28 +1106,34 @@ int UVCControl::obtainPanAbsoluteLimit(int &min, int &max, int &def) {
 int UVCControl::setPanAbsolute(int pan) {
     ENTER();
     int ret = UVC_ERROR_ACCESS;
-    if (mCTControls & CT_PANTILT_ABSOLUTE_CONTROL) {
-        ret = update_ctrl_values(mDeviceHandle, mPanAbsolute, mTiltAbsolute, uvc_get_pantilt_abs);
-        if (LIKELY(!ret)) {
-            pan = pan < mPanAbsolute.min
-                  ? mPanAbsolute.min
-                  : (pan > mPanAbsolute.max ? mPanAbsolute.max : pan);
 
-            int32_t _pan, tilt;
-            ret = uvc_get_pantilt_abs(mDeviceHandle, &_pan, &tilt, UVC_GET_CUR);
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_PANTILT_ABSOLUTE_CONTROL) {
+            ret = update_ctrl_values(mDeviceHandle, mPanAbsolute, mTiltAbsolute, uvc_get_pantilt_abs);
             if (LIKELY(!ret)) {
-                mPanAbsolute.current = _pan;
-                mTiltAbsolute.current = tilt;
-            } else {
-                RETURN(ret, int);
-            }
+                pan = pan < mPanAbsolute.min
+                      ? mPanAbsolute.min
+                      : (pan > mPanAbsolute.max ? mPanAbsolute.max : pan);
 
-            ret = uvc_set_pantilt_abs(mDeviceHandle, pan, tilt);
-            if (LIKELY(!ret)) {
-                mPanAbsolute.current = pan;
+                int32_t _pan, tilt;
+                ret = uvc_get_pantilt_abs(mDeviceHandle, &_pan, &tilt, UVC_GET_CUR);
+                if (LIKELY(!ret)) {
+                    mPanAbsolute.current = _pan;
+                    mTiltAbsolute.current = tilt;
+                } else {
+                    RETURN(ret, int);
+                }
+
+                ret = uvc_set_pantilt_abs(mDeviceHandle, pan, tilt);
+                if (LIKELY(!ret)) {
+                    mPanAbsolute.current = pan;
+                }
             }
         }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1104,28 +1178,34 @@ int UVCControl::obtainTiltAbsoluteLimit(int &min, int &max, int &def) {
 int UVCControl::setTiltAbsolute(int tilt) {
     ENTER();
     int ret = UVC_ERROR_ACCESS;
-    if (mCTControls & CT_PANTILT_ABSOLUTE_CONTROL) {
-        ret = update_ctrl_values(mDeviceHandle, mPanAbsolute, mTiltAbsolute, uvc_get_pantilt_abs);
-        if (LIKELY(!ret)) {
-            tilt = tilt < mTiltAbsolute.min
-                   ? mTiltAbsolute.min
-                   : (tilt > mTiltAbsolute.max ? mTiltAbsolute.max : tilt);
 
-            int32_t pan, _tilt;
-            ret = uvc_get_pantilt_abs(mDeviceHandle, &pan, &_tilt, UVC_GET_CUR);
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_PANTILT_ABSOLUTE_CONTROL) {
+            ret = update_ctrl_values(mDeviceHandle, mPanAbsolute, mTiltAbsolute, uvc_get_pantilt_abs);
             if (LIKELY(!ret)) {
-                mPanAbsolute.current = pan;
-                mTiltAbsolute.current = _tilt;
-            } else {
-                RETURN(ret, int);
-            }
+                tilt = tilt < mTiltAbsolute.min
+                       ? mTiltAbsolute.min
+                       : (tilt > mTiltAbsolute.max ? mTiltAbsolute.max : tilt);
 
-            ret = uvc_set_pantilt_abs(mDeviceHandle, pan, tilt);
-            if (LIKELY(!ret)) {
-                mTiltAbsolute.current = tilt;
+                int32_t pan, _tilt;
+                ret = uvc_get_pantilt_abs(mDeviceHandle, &pan, &_tilt, UVC_GET_CUR);
+                if (LIKELY(!ret)) {
+                    mPanAbsolute.current = pan;
+                    mTiltAbsolute.current = _tilt;
+                } else {
+                    RETURN(ret, int);
+                }
+
+                ret = uvc_set_pantilt_abs(mDeviceHandle, pan, tilt);
+                if (LIKELY(!ret)) {
+                    mTiltAbsolute.current = tilt;
+                }
             }
         }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1201,9 +1281,15 @@ int UVCControl::obtainRollAbsoluteLimit(int &min, int &max, int &def) {
 int UVCControl::setRollAbsolute(int roll) {
     ENTER();
     int ret = UVC_ERROR_ACCESS;
-    if (mCTControls & CT_ROLL_ABSOLUTE_CONTROL) {
-        ret = internalSetCtrlValue(mRollAbsolute, roll, uvc_get_roll_abs, uvc_set_roll_abs);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_ROLL_ABSOLUTE_CONTROL) {
+            ret = internalSetCtrlValue(mRollAbsolute, roll, uvc_get_roll_abs, uvc_set_roll_abs);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1247,7 +1333,7 @@ int UVCControl::getRollRelative() {
 // Obtain limit of Focus, Auto
 int UVCControl::obtainFocusAutoLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mCTControls & CT_FOCUS_AUTO_CONTROL) {
         UPDATE_CTRL_VALUES(mFocusAuto, uvc_get_focus_auto);
     }
@@ -1259,9 +1345,15 @@ int UVCControl::setFocusAuto(bool autoFocus) {
     ENTER();
 
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mCTControls & CT_FOCUS_AUTO_CONTROL)) {
-        r = uvc_set_focus_auto(mDeviceHandle, autoFocus);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mCTControls & CT_FOCUS_AUTO_CONTROL)) {
+            r = uvc_set_focus_auto(mDeviceHandle, autoFocus);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 
@@ -1293,9 +1385,15 @@ int UVCControl::obtainPrivacyLimit(int &min, int &max, int &def) {
 int UVCControl::setPrivacy(int privacy) {
     ENTER();
     int ret = UVC_ERROR_ACCESS;
-    if (mCTControls & CT_PRIVACY_CONTROL) {
-        ret = internalSetCtrlValue(mPrivacy, privacy, uvc_get_privacy, uvc_set_privacy);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mCTControls & CT_PRIVACY_CONTROL) {
+            ret = internalSetCtrlValue(mPrivacy, privacy, uvc_get_privacy, uvc_set_privacy);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1405,7 +1503,7 @@ int UVCControl::getDigitalRoi(int &top, int &reft, int &bottom, int &right) {
 // Obtain limit of Brightness
 int UVCControl::obtainBrightnessLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_BRIGHTNESS_CONTROL) {
         UPDATE_CTRL_VALUES(mBrightness, uvc_get_brightness);
     }
@@ -1415,10 +1513,16 @@ int UVCControl::obtainBrightnessLimit(int &min, int &max, int &def) {
 //Set Brightness
 int UVCControl::setBrightness(int brightness) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_BRIGHTNESS_CONTROL) {
-        ret = internalSetCtrlValue(mBrightness, brightness, uvc_get_brightness, uvc_set_brightness);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_BRIGHTNESS_CONTROL) {
+            ret = internalSetCtrlValue(mBrightness, brightness, uvc_get_brightness, uvc_set_brightness);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1441,7 +1545,7 @@ int UVCControl::getBrightness() {
 // Obtain limit of Contrast
 int UVCControl::obtainContrastLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_CONTRAST_CONTROL) {
         UPDATE_CTRL_VALUES(mContrast, uvc_get_contrast);
     }
@@ -1451,10 +1555,16 @@ int UVCControl::obtainContrastLimit(int &min, int &max, int &def) {
 // Set Contrast
 int UVCControl::setContrast(uint16_t contrast) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_CONTRAST_CONTROL) {
-        ret = internalSetCtrlValue(mContrast, contrast, uvc_get_contrast, uvc_set_contrast);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_CONTRAST_CONTROL) {
+            ret = internalSetCtrlValue(mContrast, contrast, uvc_get_contrast, uvc_set_contrast);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1477,7 +1587,7 @@ int UVCControl::getContrast() {
 // Obtain limit of Hue
 int UVCControl::obtainHueLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_HUE_CONTROL) {
         UPDATE_CTRL_VALUES(mHue, uvc_get_hue)
     }
@@ -1487,10 +1597,16 @@ int UVCControl::obtainHueLimit(int &min, int &max, int &def) {
 // Set Hue
 int UVCControl::setHue(int hue) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_HUE_CONTROL) {
-        ret = internalSetCtrlValue(mHue, hue, uvc_get_hue, uvc_set_hue);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_HUE_CONTROL) {
+            ret = internalSetCtrlValue(mHue, hue, uvc_get_hue, uvc_set_hue);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1513,7 +1629,7 @@ int UVCControl::getHue() {
 // Obtain limit of Saturation
 int UVCControl::obtainSaturationLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_SATURATION_CONTROL) {
         UPDATE_CTRL_VALUES(mSaturation, uvc_get_saturation)
     }
@@ -1523,10 +1639,16 @@ int UVCControl::obtainSaturationLimit(int &min, int &max, int &def) {
 // Set Saturation
 int UVCControl::setSaturation(int saturation) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_SATURATION_CONTROL) {
-        ret = internalSetCtrlValue(mSaturation, saturation, uvc_get_saturation, uvc_set_saturation);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_SATURATION_CONTROL) {
+            ret = internalSetCtrlValue(mSaturation, saturation, uvc_get_saturation, uvc_set_saturation);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1549,7 +1671,7 @@ int UVCControl::getSaturation() {
 // Obtain limit of Sharpness
 int UVCControl::obtainSharpnessLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_SHARPNESS_CONTROL) {
         UPDATE_CTRL_VALUES(mSharpness, uvc_get_sharpness);
     }
@@ -1559,10 +1681,16 @@ int UVCControl::obtainSharpnessLimit(int &min, int &max, int &def) {
 // Set Sharpness
 int UVCControl::setSharpness(int sharpness) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_SHARPNESS_CONTROL) {
-        ret = internalSetCtrlValue(mSharpness, sharpness, uvc_get_sharpness, uvc_set_sharpness);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_SHARPNESS_CONTROL) {
+            ret = internalSetCtrlValue(mSharpness, sharpness, uvc_get_sharpness, uvc_set_sharpness);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1585,7 +1713,7 @@ int UVCControl::getSharpness() {
 // Obtain limit of Gamma
 int UVCControl::obtainGammaLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_GAMMA_CONTROL) {
         UPDATE_CTRL_VALUES(mGamma, uvc_get_gamma)
     }
@@ -1595,11 +1723,17 @@ int UVCControl::obtainGammaLimit(int &min, int &max, int &def) {
 // Set Gamma
 int UVCControl::setGamma(int gamma) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_GAMMA_CONTROL) {
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_GAMMA_CONTROL) {
 //		LOGI("gamma:%d", gamma);
-        ret = internalSetCtrlValue(mGamma, gamma, uvc_get_gamma, uvc_set_gamma);
+            ret = internalSetCtrlValue(mGamma, gamma, uvc_get_gamma, uvc_set_gamma);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1623,7 +1757,7 @@ int UVCControl::getGamma() {
 // Obtain limit of White Balance Temperature
 int UVCControl::obtainWhiteBalanceLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_WHITE_BALANCE_TEMPERATURE_CONTROL) {
         UPDATE_CTRL_VALUES(mWhiteBalance, uvc_get_white_balance_temperature)
     }
@@ -1633,12 +1767,18 @@ int UVCControl::obtainWhiteBalanceLimit(int &min, int &max, int &def) {
 // Set White Balance Temperature
 int UVCControl::setWhiteBalance(int white_balance) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_WHITE_BALANCE_TEMPERATURE_CONTROL) {
-        ret = internalSetCtrlValue(mWhiteBalance, white_balance,
-                                   uvc_get_white_balance_temperature,
-                                   uvc_set_white_balance_temperature);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_WHITE_BALANCE_TEMPERATURE_CONTROL) {
+            ret = internalSetCtrlValue(mWhiteBalance, white_balance,
+                                       uvc_get_white_balance_temperature,
+                                       uvc_set_white_balance_temperature);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1662,7 +1802,7 @@ int UVCControl::getWhiteBalance() {
 // Obtain limit of White Balance Component
 int UVCControl::obtainWhiteBalanceCompoLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_WHITE_BALANCE_COMPONENT_CONTROL) {
         UPDATE_CTRL_VALUES(mWhiteBalanceCompo, uvc_get_white_balance_component2)
     }
@@ -1672,12 +1812,18 @@ int UVCControl::obtainWhiteBalanceCompoLimit(int &min, int &max, int &def) {
 // Set White Balance Component
 int UVCControl::setWhiteBalanceCompo(int white_balance_compo) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_WHITE_BALANCE_COMPONENT_CONTROL) {
-        ret = internalSetCtrlValue(mWhiteBalanceCompo, white_balance_compo,
-                                   uvc_get_white_balance_component2,
-                                   uvc_set_white_balance_component2);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_WHITE_BALANCE_COMPONENT_CONTROL) {
+            ret = internalSetCtrlValue(mWhiteBalanceCompo, white_balance_compo,
+                                       uvc_get_white_balance_component2,
+                                       uvc_set_white_balance_component2);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1702,7 +1848,7 @@ int UVCControl::getWhiteBalanceCompo() {
 // Obtain limit of Backlight Compensation
 int UVCControl::obtainBacklightCompLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_BACKLIGHT_COMPENSATION_CONTROL) {
         UPDATE_CTRL_VALUES(mBacklightComp, uvc_get_backlight_compensation);
     }
@@ -1712,11 +1858,17 @@ int UVCControl::obtainBacklightCompLimit(int &min, int &max, int &def) {
 // Set Backlight Compensation
 int UVCControl::setBacklightComp(int backlight) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_BACKLIGHT_COMPENSATION_CONTROL) {
-        ret = internalSetCtrlValue(mBacklightComp, backlight, uvc_get_backlight_compensation,
-                                   uvc_set_backlight_compensation);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_BACKLIGHT_COMPENSATION_CONTROL) {
+            ret = internalSetCtrlValue(mBacklightComp, backlight, uvc_get_backlight_compensation,
+                                       uvc_set_backlight_compensation);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1739,7 +1891,7 @@ int UVCControl::getBacklightComp() {
 // Obtain limit of Gain
 int UVCControl::obtainGainLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_GAIN_CONTROL) {
         UPDATE_CTRL_VALUES(mGain, uvc_get_gain)
     }
@@ -1749,11 +1901,17 @@ int UVCControl::obtainGainLimit(int &min, int &max, int &def) {
 // Set Gain
 int UVCControl::setGain(int gain) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_GAIN_CONTROL) {
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_GAIN_CONTROL) {
 //		LOGI("gain:%d", gain);
-        ret = internalSetCtrlValue(mGain, gain, uvc_get_gain, uvc_set_gain);
+            ret = internalSetCtrlValue(mGain, gain, uvc_get_gain, uvc_set_gain);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1777,7 +1935,7 @@ int UVCControl::getGain() {
 // Obtain limit of Power Line Frequency
 int UVCControl::obtainPowerlineFrequencyLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_POWER_LINE_FREQUENCY_CONTROL) {
         UPDATE_CTRL_VALUES(mPowerlineFrequency, uvc_get_power_line_frequency)
     }
@@ -1787,18 +1945,24 @@ int UVCControl::obtainPowerlineFrequencyLimit(int &min, int &max, int &def) {
 // Set Power Line Frequency
 int UVCControl::setPowerlineFrequency(int frequency) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_POWER_LINE_FREQUENCY_CONTROL) {
-        if (frequency < 0) {
-            uint8_t value;
-            ret = uvc_get_power_line_frequency(mDeviceHandle, &value, UVC_GET_DEF);
-            if LIKELY(ret)
-                frequency = value;
-            else RETURN(ret, int);
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_POWER_LINE_FREQUENCY_CONTROL) {
+            if (frequency < 0) {
+                uint8_t value;
+                ret = uvc_get_power_line_frequency(mDeviceHandle, &value, UVC_GET_DEF);
+                if LIKELY(ret)
+                    frequency = value;
+                else RETURN(ret, int);
+            }
+            LOGD("frequency:%d", frequency);
+            ret = uvc_set_power_line_frequency(mDeviceHandle, frequency);
         }
-        LOGD("frequency:%d", frequency);
-        ret = uvc_set_power_line_frequency(mDeviceHandle, frequency);
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
 
     RETURN(ret, int);
 }
@@ -1820,7 +1984,7 @@ int UVCControl::getPowerlineFrequency() {
 // Obtain limit of Hue, Auto
 int UVCControl::obtainHueAutoLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_HUE_AUTO_CONTROL) {
         UPDATE_CTRL_VALUES(mHueAuto, uvc_get_hue_auto);
     }
@@ -1830,11 +1994,16 @@ int UVCControl::obtainHueAutoLimit(int &min, int &max, int &def) {
 // Set on/off to Hue, Auto
 int UVCControl::setHueAuto(bool hueAuto) {
     ENTER();
-
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mPUControls & PU_HUE_AUTO_CONTROL)) {
-        r = uvc_set_hue_auto(mDeviceHandle, hueAuto);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mPUControls & PU_HUE_AUTO_CONTROL)) {
+            r = uvc_set_hue_auto(mDeviceHandle, hueAuto);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 
@@ -1855,7 +2024,7 @@ bool UVCControl::getHueAuto() {
 // Obtain limit of White Balance Temperature, Auto
 int UVCControl::obtainWhiteBalanceAutoLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL) {
         UPDATE_CTRL_VALUES(mWhiteBalanceAuto, uvc_get_white_balance_temperature_auto);
     }
@@ -1866,9 +2035,15 @@ int UVCControl::obtainWhiteBalanceAutoLimit(int &min, int &max, int &def) {
 int UVCControl::setWhiteBalanceAuto(bool whiteBalanceAuto) {
     ENTER();
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mPUControls & PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL)) {
-        r = uvc_set_white_balance_temperature_auto(mDeviceHandle, whiteBalanceAuto);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mPUControls & PU_WHITE_BALANCE_TEMPERATURE_AUTO_CONTROL)) {
+            r = uvc_set_white_balance_temperature_auto(mDeviceHandle, whiteBalanceAuto);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 
@@ -1889,7 +2064,7 @@ bool UVCControl::getWhiteBalanceAuto() {
 // Obtain limit of White Balance Component, Auto
 int UVCControl::obtainWhiteBalanceCompoAutoLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_WHITE_BALANCE_COMPONENT_AUTO_CONTROL) {
         UPDATE_CTRL_VALUES(mWhiteBalanceCompoAuto, uvc_get_white_balance_component_auto);
     }
@@ -1900,9 +2075,15 @@ int UVCControl::obtainWhiteBalanceCompoAutoLimit(int &min, int &max, int &def) {
 int UVCControl::setWhiteBalanceCompoAuto(bool whiteBalanceCompoAuto) {
     ENTER();
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mPUControls & PU_WHITE_BALANCE_COMPONENT_AUTO_CONTROL)) {
-        r = uvc_set_white_balance_component_auto(mDeviceHandle, whiteBalanceCompoAuto);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mPUControls & PU_WHITE_BALANCE_COMPONENT_AUTO_CONTROL)) {
+            r = uvc_set_white_balance_component_auto(mDeviceHandle, whiteBalanceCompoAuto);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 
@@ -1924,7 +2105,7 @@ bool UVCControl::getWhiteBalanceCompoAuto() {
 // Obtain limit of Digital Multiplier
 int UVCControl::obtainDigitalMultiplierLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_DIGITAL_MULTIPLIER_CONTROL) {
         UPDATE_CTRL_VALUES(mMultiplier, uvc_get_digital_multiplier)
     }
@@ -1934,12 +2115,18 @@ int UVCControl::obtainDigitalMultiplierLimit(int &min, int &max, int &def) {
 // Set Digital Multiplier
 int UVCControl::setDigitalMultiplier(int multiplier) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_DIGITAL_MULTIPLIER_CONTROL) {
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_DIGITAL_MULTIPLIER_CONTROL) {
 //		LOGI("multiplier:%d", multiplier);
-        ret = internalSetCtrlValue(mMultiplier, multiplier, uvc_get_digital_multiplier,
-                                   uvc_set_digital_multiplier);
+            ret = internalSetCtrlValue(mMultiplier, multiplier, uvc_get_digital_multiplier,
+                                       uvc_set_digital_multiplier);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -1963,7 +2150,7 @@ int UVCControl::getDigitalMultiplier() {
 // Obtain limit of Digital Multiplier Limit
 int UVCControl::obtainDigitalMultiplierLimitLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_DIGITAL_MULTIPLIER_LIMIT_CONTROL) {
         UPDATE_CTRL_VALUES(mMultiplierLimit, uvc_get_digital_multiplier_limit)
     }
@@ -1973,13 +2160,19 @@ int UVCControl::obtainDigitalMultiplierLimitLimit(int &min, int &max, int &def) 
 // Set Digital Multiplier Limit
 int UVCControl::setDigitalMultiplierLimit(int multiplier_limit) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_DIGITAL_MULTIPLIER_LIMIT_CONTROL) {
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_DIGITAL_MULTIPLIER_LIMIT_CONTROL) {
 //		LOGI("multiplier limit:%d", multiplier_limit);
-        ret = internalSetCtrlValue(mMultiplierLimit, multiplier_limit,
-                                   uvc_get_digital_multiplier_limit,
-                                   uvc_set_digital_multiplier_limit);
+            ret = internalSetCtrlValue(mMultiplierLimit, multiplier_limit,
+                                       uvc_get_digital_multiplier_limit,
+                                       uvc_set_digital_multiplier_limit);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -2004,7 +2197,7 @@ int UVCControl::getDigitalMultiplierLimit() {
 // Obtain limit of Analog Video Standard
 int UVCControl::obtainAnalogVideoStandardLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_ANALOG_VIDEO_STANDARD_CONTROL) {
         UPDATE_CTRL_VALUES(mAnalogVideoStandard, uvc_get_analog_video_standard)
     }
@@ -2014,12 +2207,18 @@ int UVCControl::obtainAnalogVideoStandardLimit(int &min, int &max, int &def) {
 // Set Analog Video Standard
 int UVCControl::setAnalogVideoStandard(int standard) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_ANALOG_VIDEO_STANDARD_CONTROL) {
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_ANALOG_VIDEO_STANDARD_CONTROL) {
 //		LOGI("standard:%d", standard);
-        ret = internalSetCtrlValue(mAnalogVideoStandard, standard, uvc_get_analog_video_standard,
-                                   uvc_set_analog_video_standard);
+            ret = internalSetCtrlValue(mAnalogVideoStandard, standard, uvc_get_analog_video_standard,
+                                       uvc_set_analog_video_standard);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -2044,7 +2243,7 @@ int UVCControl::getAnalogVideoStandard() {
 // Obtain limit of Analog Video Lock Status
 int UVCControl::obtainAnalogVideoLockStateLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_ANALOG_LOCK_STATUS_CONTROL) {
         UPDATE_CTRL_VALUES(mAnalogVideoLockState, uvc_get_analog_video_lock_status)
     }
@@ -2054,12 +2253,18 @@ int UVCControl::obtainAnalogVideoLockStateLimit(int &min, int &max, int &def) {
 // Set Analog Video Lock Status
 int UVCControl::setAnalogVideoLockState(int state) {
     ENTER();
-    int ret = UVC_ERROR_IO;
-    if (mPUControls & PU_ANALOG_LOCK_STATUS_CONTROL) {
+    int ret = UVC_ERROR_ACCESS;
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if (mPUControls & PU_ANALOG_LOCK_STATUS_CONTROL) {
 //		LOGI("status:%d", status);
-        ret = internalSetCtrlValue(mAnalogVideoLockState, state, uvc_get_analog_video_lock_status,
-                                   uvc_set_analog_video_lock_status);
+            ret = internalSetCtrlValue(mAnalogVideoLockState, state, uvc_get_analog_video_lock_status,
+                                       uvc_set_analog_video_lock_status);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(ret, int);
 }
 
@@ -2084,7 +2289,7 @@ int UVCControl::getAnalogVideoLockState() {
 // Obtain limit of Contrast, Auto
 int UVCControl::obtainContrastAutoLimit(int &min, int &max, int &def) {
     ENTER();
-    int ret = UVC_ERROR_IO;
+    int ret = UVC_ERROR_ACCESS;
     if (mPUControls & PU_CONTRAST_AUTO_CONTROL) {
         UPDATE_CTRL_VALUES(mFocusAuto, uvc_get_contrast_auto);
     }
@@ -2094,11 +2299,16 @@ int UVCControl::obtainContrastAutoLimit(int &min, int &max, int &def) {
 // Set Contrast, Auto
 int UVCControl::setContrastAuto(bool contrastAuto) {
     ENTER();
-
     int r = UVC_ERROR_ACCESS;
-    if LIKELY((mDeviceHandle) && (mPUControls & PU_CONTRAST_AUTO_CONTROL)) {
-        r = uvc_set_contrast_auto(mDeviceHandle, contrastAuto);
+
+    pthread_mutex_lock(&mRequestMutex);
+    {
+        if LIKELY((mDeviceHandle) && (mPUControls & PU_CONTRAST_AUTO_CONTROL)) {
+            r = uvc_set_contrast_auto(mDeviceHandle, contrastAuto);
+        }
     }
+    pthread_mutex_unlock(&mRequestMutex);
+
     RETURN(r, int);
 }
 

@@ -120,6 +120,7 @@ private:
     uint64_t mCTControls;
     // indicating the availability of certain processing Controls
     uint64_t mPUControls;
+    pthread_mutex_t mRequestMutex;
     control_value_t mScanningMode;
     control_value_t mAutoExposureMode;
     control_value_t mAutoExposurePriority;
