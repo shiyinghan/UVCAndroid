@@ -158,26 +158,25 @@ public class CustomPreviewActivity extends AppCompatActivity implements View.OnC
     }
 
     private void showVideoFormatDialog() {
-        if (mVideoFormatDialog == null) {
-            mVideoFormatDialog = new VideoFormatDialogFragment(
-                    mCameraHelper.getSupportedFormatList(),
-                    mCameraHelper.getPreviewSize());
-
-            mVideoFormatDialog.setOnVideoFormatSelectListener(size -> {
-                if (mCameraHelper != null && mCameraHelper.isCameraOpened()) {
-                    mCameraHelper.stopPreview();
-                    mCameraHelper.setPreviewSize(size);
-                    mCameraHelper.startPreview();
-
-                    resizePreviewView(size);
-                }
-            });
+        if (mVideoFormatDialog != null && mVideoFormatDialog.isAdded()) {
+            return;
         }
 
-        // When DialogFragment is not showing
-        if (!mVideoFormatDialog.isAdded()) {
-            mVideoFormatDialog.show(getSupportFragmentManager(), "video_format_dialog");
-        }
+        mVideoFormatDialog = new VideoFormatDialogFragment(
+                mCameraHelper.getSupportedFormatList(),
+                mCameraHelper.getPreviewSize());
+
+        mVideoFormatDialog.setOnVideoFormatSelectListener(size -> {
+            if (mCameraHelper != null && mCameraHelper.isCameraOpened()) {
+                mCameraHelper.stopPreview();
+                mCameraHelper.setPreviewSize(size);
+                mCameraHelper.startPreview();
+
+                resizePreviewView(size);
+            }
+        });
+
+        mVideoFormatDialog.show(getSupportFragmentManager(), "video_format_dialog");
     }
 
     private void resizePreviewView(Size size) {

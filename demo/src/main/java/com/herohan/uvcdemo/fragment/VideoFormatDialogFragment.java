@@ -193,6 +193,7 @@ public class VideoFormatDialogFragment extends DialogFragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 int fps = mFrameRateList.get(position);
                 if (mSize.fps != fps) {
+                    mSize.fps = fps;
                     refreshFrameRateSpinner();
                 }
             }

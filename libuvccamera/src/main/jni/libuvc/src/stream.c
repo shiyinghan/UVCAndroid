@@ -820,21 +820,28 @@ void _uvc_process_payload(uvc_stream_handle_t *strmh, uint8_t *payload, size_t p
 
         if (header_len > variable_offset) {
             // Metadata is attached to header
-            memcpy(strmh->meta_outbuf + strmh->meta_got_bytes, payload + variable_offset,
-                   header_len - variable_offset);
-            strmh->meta_got_bytes += header_len - variable_offset;
+            size_t meta_len = header_len - variable_offset;
+            if (strmh->meta_got_bytes + meta_len > LIBUVC_XFER_META_BUF_SIZE)
+                meta_len = LIBUVC_XFER_META_BUF_SIZE - strmh->meta_got_bytes; /* Avoid overflow. */
+            memcpy(strmh->meta_outbuf + strmh->meta_got_bytes, payload + variable_offset, meta_len);
+            strmh->meta_got_bytes += meta_len;
         }
     }
 
     if (data_len > 0) {
-        if (LIKELY(strmh->got_bytes + data_len < strmh->cur_ctrl.dwMaxVideoFrameSize)) {
-            memcpy(strmh->outbuf + strmh->got_bytes, payload + header_len, data_len);
-            strmh->got_bytes += data_len;
-        } else {
-            UVC_DEBUG("bad packet: error bit set");
-        }
+//        if (LIKELY(strmh->got_bytes + data_len < strmh->cur_ctrl.dwMaxVideoFrameSize)) {
+//            memcpy(strmh->outbuf + strmh->got_bytes, payload + header_len, data_len);
+//            strmh->got_bytes += data_len;
+//        } else {
+//            UVC_DEBUG("bad packet: error bit set");
+//        }
+        if (LIKELY(strmh->got_bytes + data_len > strmh->cur_ctrl.dwMaxVideoFrameSize))
+            data_len = strmh->cur_ctrl.dwMaxVideoFrameSize - strmh->got_bytes; /* Avoid overflow. */
+        memcpy(strmh->outbuf + strmh->got_bytes, payload + header_len, data_len);
+        strmh->got_bytes += data_len;
 
-        if (header_info & UVC_STREAM_EOF) {
+        if (header_info & UVC_STREAM_EOF ||
+            strmh->got_bytes == strmh->cur_ctrl.dwMaxVideoFrameSize) {
             /* The EOF bit is set, so publish the complete frame */
             _uvc_swap_buffers(strmh);
         }
@@ -1092,8 +1099,8 @@ uvc_error_t uvc_stream_open_ctrl(uvc_device_handle_t *devh, uvc_stream_handle_t 
     strmh->outbuf = malloc(ctrl->dwMaxVideoFrameSize);
     strmh->holdbuf = malloc(ctrl->dwMaxVideoFrameSize);
 
-    strmh->meta_outbuf = malloc(ctrl->dwMaxVideoFrameSize);
-    strmh->meta_holdbuf = malloc(ctrl->dwMaxVideoFrameSize);
+    strmh->meta_outbuf = malloc(LIBUVC_XFER_META_BUF_SIZE);
+    strmh->meta_holdbuf = malloc(LIBUVC_XFER_META_BUF_SIZE);
 
     pthread_mutex_init(&strmh->cb_mutex, NULL);
     pthread_cond_init(&strmh->cb_cond, NULL);
@@ -1551,7 +1558,14 @@ uvc_error_t uvc_stream_stop(uvc_stream_handle_t *strmh) {
                 strmh->transfers[i] = NULL;
             }
         }
-    }
+        // When result of LIBUSB_ERROR is LIBUSB_ERROR, libusb_free_transfer is needed
+//    /* Attempt to cancel any running transfers, we can't free them just yet because they aren't
+//      *   necessarily completed but they will be free'd in _uvc_stream_callback().
+//      */
+//    for(i=0; i < LIBUVC_NUM_TRANSFER_BUFS; i++) {
+//        if(strmh->transfers[i] != NULL)
+//            libusb_cancel_transfer(strmh->transfers[i]);
+//    }
 
     /* Wait for transfers to complete/cancel */
     do {

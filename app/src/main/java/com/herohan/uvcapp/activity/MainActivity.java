@@ -220,6 +220,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDeviceListDialog() {
+        if (mDeviceListDialog != null && mDeviceListDialog.isAdded()) {
+            return;
+        }
+
         mDeviceListDialog = new DeviceListDialogFragment(mCameraHelper, mIsCameraConnected ? mUsbDevice : null);
         mDeviceListDialog.setOnDeviceItemSelectListener(usbDevice -> {
             if (mIsCameraConnected) {
@@ -233,23 +237,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showVideoFormatDialog() {
-        if (mFormatDialog == null) {
-            mFormatDialog = new VideoFormatDialogFragment(mCameraHelper.getSupportedFormatList(), mCameraHelper.getPreviewSize());
-            mFormatDialog.setOnVideoFormatSelectListener(size -> {
-                if (mIsCameraConnected && !mCameraHelper.isRecording()) {
-                    mCameraHelper.stopPreview();
-                    mCameraHelper.setPreviewSize(size);
-                    mCameraHelper.startPreview();
-                    resizePreviewView(size);
-                    // save selected preview size
-                    setSavedPreviewSize(size);
-                }
-            });
+        if (mFormatDialog != null && mFormatDialog.isAdded()) {
+            return;
         }
 
-        if (!mFormatDialog.isAdded()) {
-            mFormatDialog.show(getSupportFragmentManager(), "video_format");
-        }
+        mFormatDialog = new VideoFormatDialogFragment(mCameraHelper.getSupportedFormatList(), mCameraHelper.getPreviewSize());
+        mFormatDialog.setOnVideoFormatSelectListener(size -> {
+            if (mIsCameraConnected && !mCameraHelper.isRecording()) {
+                mCameraHelper.stopPreview();
+                mCameraHelper.setPreviewSize(size);
+                mCameraHelper.startPreview();
+                resizePreviewView(size);
+                // save selected preview size
+                setSavedPreviewSize(size);
+            }
+        });
+
+        mFormatDialog.show(getSupportFragmentManager(), "video_format");
     }
 
     private void closeAllDialogFragment() {

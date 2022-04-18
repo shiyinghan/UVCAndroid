@@ -144,7 +144,8 @@ public class UVCCamera {
             }
         }
 
-        nativeSetPreviewSize(mNativePtr, size.width, size.height, size.type, size.fps);
+        int r = nativeSetPreviewSize(mNativePtr, size.width, size.height, size.type, size.fps);
+        if (DEBUG) Log.d(TAG, "setPreviewSize:" + r);
 
         mCurrentSize = size;
 
@@ -412,28 +413,7 @@ public class UVCCamera {
      * @param fps
      */
     public void setPreviewSize(final int width, final int height, final int frameType, final int fps) {
-        if ((width == 0) || (height == 0)) {
-            throw new IllegalArgumentException("invalid preview size");
-        }
-        if (mNativePtr != 0) {
-            // find support size
-            Size supportSize = null;
-            if (checkSizeValid(width, height, frameType, fps)) {
-                supportSize = new Size(frameType, width, height, fps, new ArrayList<>(fps));
-            }
-
-            if (supportSize == null) {
-                throw new IllegalArgumentException("Failed to find support size");
-            }
-
-            //set preview size
-            final int result = nativeSetPreviewSize(mNativePtr, width, height, frameType, fps);
-            if (result != 0) {
-                throw new IllegalArgumentException("Failed to set preview size");
-            }
-
-            mCurrentSize = supportSize;
-        }
+        setPreviewSize(new Size(frameType, width, height, fps, new ArrayList<>(fps)));
     }
 
     /**
@@ -447,13 +427,18 @@ public class UVCCamera {
         }
 
         if (mNativePtr != 0) {
-
             if (!checkSizeValid(size.width, size.height, size.type, size.fps)) {
                 throw new IllegalArgumentException("invalid preview size");
             }
 
             //set preview size
-            final int result = nativeSetPreviewSize(mNativePtr, size.width, size.height, size.type, size.fps);
+            int result = nativeSetPreviewSize(mNativePtr, size.width, size.height, size.type, size.fps);
+            if (result != 0) {
+                // Because _uvc_stream_params_negotiated method use dwMaxPayloadTransferSize to confirm result of format negotiation.
+                // If frameType is changed, result of nativeSetPreviewSize will be UVC_ERROR_INVALID_MODE, we need try again
+                result = nativeSetPreviewSize(mNativePtr, size.width, size.height, size.type, size.fps);
+            }
+
             if (result != 0) {
                 throw new IllegalArgumentException("Failed to set preview size");
             }
