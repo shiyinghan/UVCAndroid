@@ -254,6 +254,7 @@ typedef struct uvc_device_info {
 #else
 #define LIBUVC_NUM_TRANSFER_BUFS 100
 #endif
+#endif
 
 /*
  Make a limit number of packets per transfer.

@@ -1558,7 +1558,8 @@ uvc_error_t uvc_stream_stop(uvc_stream_handle_t *strmh) {
                 strmh->transfers[i] = NULL;
             }
         }
-        // When result of LIBUSB_ERROR is LIBUSB_ERROR, libusb_free_transfer is needed
+    }
+    // When result of LIBUSB_ERROR is LIBUSB_ERROR, libusb_free_transfer is needed
 //    /* Attempt to cancel any running transfers, we can't free them just yet because they aren't
 //      *   necessarily completed but they will be free'd in _uvc_stream_callback().
 //      */
