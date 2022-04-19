@@ -5,6 +5,8 @@ UVCAndroid
 
 Library and sample to access UVC camera on non-rooted Android device
 
+[中文文档： UVCAndroid，安卓UVC相机通用开发库](https://blog.csdn.net/hanshiying007/article/details/124118486)
+
 How do I use it?
 ---
 
