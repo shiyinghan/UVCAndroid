@@ -1332,15 +1332,6 @@ uvc_error_t uvc_scan_streaming(uvc_device_t *dev,
   buffer = if_desc->extra;
   buffer_left = if_desc->extra_length;
 
-    // XXX some device have it's format descriptions after the endpoint descriptor
-    if (UNLIKELY(!buffer || !buffer_left)) {
-        if (if_desc->bNumEndpoints && if_desc->endpoint) {
-            // try to use extra data in endpoint[0]
-            buffer = if_desc->endpoint[0].extra;
-            buffer_left = if_desc->endpoint[0].extra_length;
-        }
-    }
-
   stream_if = calloc(1, sizeof(*stream_if));
   stream_if->parent = info;
   stream_if->bInterfaceNumber = if_desc->bInterfaceNumber;
@@ -1852,12 +1843,12 @@ void uvc_process_control_status(uvc_device_handle_t *devh, unsigned char *data, 
                     content, content_len,
                     devh->status_user_ptr);
   }
-
+  
   UVC_EXIT_VOID();
 }
 
 void uvc_process_streaming_status(uvc_device_handle_t *devh, unsigned char *data, int len) {
-
+  
   UVC_ENTER();
 
   if (len < 3) {
@@ -1873,7 +1864,7 @@ void uvc_process_streaming_status(uvc_device_handle_t *devh, unsigned char *data
       return;
     }
     UVC_DEBUG("Button (intf %u) %s len %d\n", data[1], data[3] ? "pressed" : "released", len);
-
+    
     if(devh->button_cb) {
       UVC_DEBUG("Running user-supplied button callback");
       devh->button_cb(data[1],
@@ -1888,7 +1879,7 @@ void uvc_process_streaming_status(uvc_device_handle_t *devh, unsigned char *data
 }
 
 void uvc_process_status_xfer(uvc_device_handle_t *devh, struct libusb_transfer *transfer) {
-
+  
   UVC_ENTER();
 
   /* printf("Got transfer of aLen = %d\n", transfer->actual_length); */

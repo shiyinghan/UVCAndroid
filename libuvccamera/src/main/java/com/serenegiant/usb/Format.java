@@ -3,10 +3,13 @@ package com.serenegiant.usb;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class Format  implements Parcelable {
+public class Format implements Parcelable, Cloneable {
 
     public int index;
     /**
@@ -51,7 +54,33 @@ public class Format  implements Parcelable {
         dest.writeTypedList(frameDescriptors);
     }
 
-    public static class Descriptor implements Parcelable {
+    @Override
+    public Format clone() {
+        Format format = null;
+
+        try {
+            format = (Format) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
+        if (format == null) {
+            format = new Format(index, type, new ArrayList<>());
+        }
+
+        List<Descriptor> descriptorList = new ArrayList<>();
+        if (frameDescriptors != null) {
+            for (Descriptor descriptor :
+                    frameDescriptors) {
+                descriptorList.add(descriptor.clone());
+            }
+        }
+        format.frameDescriptors = descriptorList;
+
+        return format;
+    }
+
+    public static class Descriptor implements Parcelable, Cloneable {
 
         public int index;
         /**
@@ -119,9 +148,36 @@ public class Format  implements Parcelable {
         public String toString() {
             return String.format(Locale.US, "Size(%dx%d@%d,type:%d,index:%d)", width, height, fps, type, index);
         }
+
+        @NonNull
+        @Override
+        public Descriptor clone() {
+            Descriptor descriptor = null;
+
+            try {
+                descriptor = (Descriptor) super.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+
+            if (descriptor == null) {
+                descriptor = new Descriptor(index, type, width, height, fps, frameInterval, new ArrayList<>());
+            }
+
+            List<Interval> intervalList = new ArrayList<>();
+            if (intervals != null) {
+                for (Interval interval :
+                        intervals) {
+                    intervalList.add(interval.clone());
+                }
+            }
+            descriptor.intervals = intervalList;
+
+            return descriptor;
+        }
     }
 
-    public static class Interval implements Parcelable {
+    public static class Interval implements Parcelable, Cloneable {
         public int index;
         public int value;
         public int fps;
@@ -161,5 +217,21 @@ public class Format  implements Parcelable {
                 return new Interval[size];
             }
         };
+
+        @Override
+        public Interval clone() {
+            Interval interval = null;
+
+            try {
+                interval = (Interval) super.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+
+            if (interval == null) {
+                interval = new Interval(index, value, fps);
+            }
+            return interval;
+        }
     }
 }

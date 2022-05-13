@@ -237,11 +237,25 @@ public class UVCCamera {
     }
 
     public List<Format> getSupportedFormatList() {
-        return mSupportedFormatList;
+        List<Format> list = new ArrayList<>();
+        if (mSupportedFormatList != null) {
+            for (Format format :
+                    mSupportedFormatList) {
+                list.add(format.clone());
+            }
+        }
+        return list;
     }
 
     public List<Size> getSupportedSizeList() {
-        return mSupportedSizeList;
+        List<Size> list = new ArrayList<>();
+        if (mSupportedSizeList != null) {
+            for (Size size :
+                    mSupportedSizeList) {
+                list.add(size.clone());
+            }
+        }
+        return list;
     }
 
     /**
