@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.serenegiant.opengl.renderer.RendererHolderCallback;
 import com.serenegiant.usb.Format;
+import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor.UsbControlBlock;
@@ -160,12 +161,22 @@ final class CameraInternal implements ICameraInternal {
     }
 
     @Override
+    public void setButtonCallback(IButtonCallback callback) {
+        if (DEBUG) Log.d(TAG, "setButtonCallback:callback=" + callback);
+        try {
+            mUVCCamera.setButtonCallback(callback);
+        } catch (final Exception e) {
+            Log.e(TAG, "setButtonCallback:", e);
+        }
+    }
+
+    @Override
     public void setFrameCallback(final IFrameCallback callback, final int pixelFormat) {
         if (DEBUG) Log.d(TAG, "setFrameCallback:surface=" + callback);
         try {
             mUVCCamera.setFrameCallback(callback, pixelFormat);
         } catch (final Exception e) {
-            Log.e(TAG, "handleSetFrameCallback:", e);
+            Log.e(TAG, "setFrameCallback:", e);
         }
     }
 

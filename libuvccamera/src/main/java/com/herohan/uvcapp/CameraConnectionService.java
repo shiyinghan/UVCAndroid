@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.serenegiant.usb.DeviceFilter;
 import com.serenegiant.usb.Format;
+import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor;
@@ -142,7 +143,7 @@ class CameraConnectionService {
         private WeakReference<ICameraHelper.StateCallback> mWeakStateCallback;
 
         CameraConnection() {
-            mListenerHandlerThread = new HandlerThread(LOG_PREFIX +hashCode());
+            mListenerHandlerThread = new HandlerThread(LOG_PREFIX + hashCode());
             mListenerHandlerThread.start();
             mListenerHandler = new Handler(mListenerHandlerThread.getLooper());
 
@@ -265,6 +266,16 @@ class CameraConnectionService {
             final CameraInternal cameraInternal = getCamera(device, false);
             if (cameraInternal != null) {
                 cameraInternal.removeSurface(surface);
+            }
+        }
+
+        @Override
+        public void setButtonCallback(UsbDevice device, IButtonCallback callback) {
+            if (DEBUG)
+                Log.d(TAG, LOG_PREFIX + "setButtonCallback:callback=" + callback);
+            final CameraInternal cameraInternal = getCamera(device);
+            if (cameraInternal != null) {
+                cameraInternal.setButtonCallback(callback);
             }
         }
 

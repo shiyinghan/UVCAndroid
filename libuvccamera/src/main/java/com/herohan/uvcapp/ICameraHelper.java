@@ -3,6 +3,7 @@ package com.herohan.uvcapp;
 import android.hardware.usb.UsbDevice;
 
 import com.serenegiant.usb.Format;
+import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
@@ -28,6 +29,8 @@ public interface ICameraHelper {
     void addSurface(Object surface, boolean isRecordable);
 
     void removeSurface(Object surface);
+
+    void setButtonCallback(IButtonCallback callback);
 
     void setFrameCallback(IFrameCallback callback, int pixelFormat);
 
@@ -56,6 +59,8 @@ public interface ICameraHelper {
     boolean isCameraOpened();
 
     void release();
+
+    void releaseAll();
 
     /**
      * Returns the current preview settings for this Camera.

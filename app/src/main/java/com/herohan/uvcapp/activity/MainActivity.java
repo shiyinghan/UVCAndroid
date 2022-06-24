@@ -19,6 +19,7 @@ import com.hjq.permissions.XXPermissions;
 import com.serenegiant.opengl.renderer.MirrorMode;
 import com.herohan.uvcapp.CameraHelper;
 import com.herohan.uvcapp.ICameraHelper;
+import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor;
 import com.serenegiant.utils.UriHelper;
@@ -404,6 +405,14 @@ public class MainActivity extends AppCompatActivity {
             if (DEBUG) Log.v(TAG, "onDeviceOpen:device=" + device.getDeviceName());
 
             mCameraHelper.openCamera(getSavedPreviewSize());
+
+            mCameraHelper.setButtonCallback(new IButtonCallback() {
+                @Override
+                public void onButton(int button, int state) {
+                    Toast.makeText(MainActivity.this, "onButton(button=" + button + "; " +
+                            "state=" + state + ")", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         @Override

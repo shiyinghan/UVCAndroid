@@ -12,6 +12,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.serenegiant.usb.Format;
+import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
@@ -204,6 +205,20 @@ public class CameraHelper implements ICameraHelper {
     }
 
     @Override
+    public void setButtonCallback(IButtonCallback callback) {
+        if (DEBUG) Log.d(TAG, "setButtonCallback:" + callback);
+        mAsyncHandler.post(() -> {
+            if (mService != null && mUsbDevice != null) {
+                try {
+                    mService.setButtonCallback(mUsbDevice, callback);
+                } catch (final Exception e) {
+                    if (DEBUG) Log.e(TAG, "setButtonCallback:", e);
+                }
+            }
+        });
+    }
+
+    @Override
     public void setFrameCallback(IFrameCallback callback, int pixelFormat) {
         if (DEBUG) Log.d(TAG, "setFrameCallback:" + pixelFormat);
         mAsyncHandler.post(() -> {
@@ -381,6 +396,27 @@ public class CameraHelper implements ICameraHelper {
                     if (mUsbDevice != null) {
                         mService.releaseCamera(mUsbDevice);
                     }
+                    mService.release();
+                } catch (final Exception e) {
+                    if (DEBUG) Log.e(TAG, "release:", e);
+                }
+
+                mCallbackWrapper = null;
+                mService = null;
+            }
+
+            mUsbDevice = null;
+            mAsyncHandlerThread.quitSafely();
+        });
+    }
+
+    @Override
+    public void releaseAll() {
+        if (DEBUG) Log.d(TAG, "releaseAll:" + this);
+        mAsyncHandler.post(() -> {
+            if (mService != null) {
+                try {
+                    mService.releaseAllCamera();
                     mService.release();
                 } catch (final Exception e) {
                     if (DEBUG) Log.e(TAG, "release:", e);

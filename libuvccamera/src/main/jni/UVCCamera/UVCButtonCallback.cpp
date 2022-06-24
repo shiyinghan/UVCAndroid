@@ -22,6 +22,8 @@ UVCButtonCallback::~UVCButtonCallback() {
 
 	ENTER();
 	pthread_mutex_destroy(&button_mutex);
+	mButtonCallbackObj = NULL;
+	ibuttoncallback_fields.onButton = NULL;
 	EXIT();
 }
 
