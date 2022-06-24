@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.herohan:UVCAndroid:1.0.2'
+    implementation 'com.herohan:UVCAndroid:1.0.3'
 }
 ```
 Requirements
