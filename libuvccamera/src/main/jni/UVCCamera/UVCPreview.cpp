@@ -83,6 +83,8 @@ UVCPreview::~UVCPreview() {
     if (mCaptureWindow)
         ANativeWindow_release(mCaptureWindow);
     mCaptureWindow = NULL;
+    mFrameCallbackObj = NULL;
+    iframecallback_fields.onFrame = NULL;
     clearPreviewFrame();
     clearCaptureFrame();
     clear_pool();

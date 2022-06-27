@@ -15,10 +15,9 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
-################UVCCamera##################
--keepclassmembers class com.serenegiant.usb.UVCCamera{
-    <fields>;
-}
--keepclasseswithmembers class * {
-    native <methods>;
-}
+################libuvccamera##################
+-keep class com.herohan.uvcapp.** { *; }
+-keep class com.serenegiant.usb.** { *; }
+-keepclassmembers class * implements com.serenegiant.usb.IButtonCallback {*;}
+-keepclassmembers class * implements com.serenegiant.usb.IFrameCallback {*;}
+-keepclassmembers class * implements com.serenegiant.usb.IStatusCallback {*;}
