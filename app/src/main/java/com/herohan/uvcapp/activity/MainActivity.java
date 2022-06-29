@@ -339,9 +339,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height) {
-                if (mCameraHelper != null) {
-                    mCameraHelper.addSurface(surface, false);
-                }
             }
 
             @Override

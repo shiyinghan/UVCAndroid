@@ -254,7 +254,7 @@ class CameraConnectionService {
         public void addSurface(final UsbDevice device, final Object surface, final boolean isRecordable) {
             if (DEBUG)
                 Log.d(TAG, LOG_PREFIX + "addSurface:surface=" + surface);
-            final CameraInternal cameraInternal = getCamera(device);
+            final CameraInternal cameraInternal = getCamera(device, false);
             if (cameraInternal != null) {
                 cameraInternal.addSurface(surface, isRecordable);
             }
