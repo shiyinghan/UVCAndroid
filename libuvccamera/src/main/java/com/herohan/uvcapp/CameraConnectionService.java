@@ -29,9 +29,6 @@ class CameraConnectionService {
 
     private static volatile CameraConnectionService mInstance;
 
-    private final Object mServiceSync = new Object();
-    private final HashMap<String, CameraInternal> mCameras = new HashMap<>();
-
     CameraConnectionService() {
     }
 
@@ -50,94 +47,12 @@ class CameraConnectionService {
         return new CameraConnection();
     }
 
-    //********************************************************************************
-
-    private CameraInternal addCamera(final UsbDevice device, UsbControlBlock ctrlBlock) {
-        if (DEBUG) Log.d(TAG, "addCamera:device=" + device.getDeviceName());
-        final String key = getCameraKey(device);
-        CameraInternal cameraInternal;
-        synchronized (mServiceSync) {
-            cameraInternal = mCameras.get(key);
-            if (cameraInternal == null) {
-                cameraInternal = new CameraInternal(UVCUtils.getApplication(), ctrlBlock, device.getVendorId(), device.getProductId());
-                mCameras.put(key, cameraInternal);
-            } else {
-                if (DEBUG) Log.d(TAG, "Camera already exist");
-            }
-            mServiceSync.notifyAll();
-        }
-        checkExistCamera();
-        return cameraInternal;
-    }
-
-    private void removeCamera(final UsbDevice device) {
-        if (DEBUG) Log.d(TAG, "removeCamera:device=" + device.getDeviceName());
-        final String key = getCameraKey(device);
-        synchronized (mServiceSync) {
-            final CameraInternal service = mCameras.get(key);
-            if (service != null) {
-                service.release();
-            }
-            mCameras.remove(key);
-            mServiceSync.notifyAll();
-        }
-        checkExistCamera();
-    }
-
-    /**
-     * get CameraService that has specific key<br>
-     * if device is null, just return top of CameraInternal instance(non-blocking method) if exists or null.<br>
-     * if device is non-null, return specific CameraService if exist. block if not exists.<br>
-     * return null if not exist matched specific device<br>
-     *
-     * @param device
-     * @param isBlocking
-     * @return
-     */
-    private CameraInternal getCamera(final UsbDevice device, boolean isBlocking) {
-        synchronized (mServiceSync) {
-            CameraInternal cameraInternal = null;
-            if (device == null) {
-                if (mCameras.size() > 0) {
-                    cameraInternal = (CameraInternal) mCameras.values().toArray()[0];
-                }
-            } else {
-                String cameraKey = getCameraKey(device);
-                cameraInternal = mCameras.get(cameraKey);
-                if (cameraInternal == null) {
-                    if (isBlocking) {
-                        Log.i(TAG, "wait for service is ready");
-                        try {
-                            mServiceSync.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                cameraInternal = mCameras.get(cameraKey);
-            }
-            return cameraInternal;
-        }
-    }
-
-    private CameraInternal getCamera(final UsbDevice device) {
-        return getCamera(device, true);
-    }
-
-    private boolean checkExistCamera() {
-        synchronized (mServiceSync) {
-            final int n = mCameras.size();
-            if (DEBUG) Log.d(TAG, "number of existed camera=" + n);
-            return n == 0;
-        }
-    }
-
-    private String getCameraKey(UsbDevice device) {
-        return USBMonitor.getDeviceKey(device);
-    }
-
     private final class CameraConnection implements ICameraConnection {
         private final String LOG_PREFIX = "CameraConnection#";
+
+        private final Object mConnectionSync = new Object();
+        private final HashMap<String, CameraInternal> mCameras = new HashMap<>();
+
         private USBMonitor mUSBMonitor;
         private HandlerThread mListenerHandlerThread;
         private Handler mListenerHandler;
@@ -153,6 +68,92 @@ class CameraConnectionService {
                     new MyOnDeviceConnectListener(),
                     mListenerHandler);
         }
+
+        //********************************************************************************
+        private CameraInternal addCamera(final UsbDevice device, UsbControlBlock ctrlBlock) {
+            if (DEBUG) Log.d(TAG, "addCamera:device=" + device.getDeviceName());
+            final String key = getCameraKey(device);
+            CameraInternal cameraInternal;
+            synchronized (mConnectionSync) {
+                cameraInternal = mCameras.get(key);
+                if (cameraInternal == null) {
+                    cameraInternal = new CameraInternal(UVCUtils.getApplication(), ctrlBlock, device.getVendorId(), device.getProductId());
+                    mCameras.put(key, cameraInternal);
+                } else {
+                    if (DEBUG) Log.d(TAG, "Camera already exist");
+                }
+                mConnectionSync.notifyAll();
+            }
+            checkExistCamera();
+            return cameraInternal;
+        }
+
+        private void removeCamera(final UsbDevice device) {
+            if (DEBUG) Log.d(TAG, "removeCamera:device=" + device.getDeviceName());
+            final String key = getCameraKey(device);
+            synchronized (mConnectionSync) {
+                final CameraInternal service = mCameras.get(key);
+                if (service != null) {
+                    service.release();
+                }
+                mCameras.remove(key);
+                mConnectionSync.notifyAll();
+            }
+            checkExistCamera();
+        }
+
+        /**
+         * get CameraService that has specific key<br>
+         * if device is null, just return top of CameraInternal instance(non-blocking method) if exists or null.<br>
+         * if device is non-null, return specific CameraService if exist. block if not exists.<br>
+         * return null if not exist matched specific device<br>
+         *
+         * @param device
+         * @param isBlocking
+         * @return
+         */
+        private CameraInternal getCamera(final UsbDevice device, boolean isBlocking) {
+            synchronized (mConnectionSync) {
+                CameraInternal cameraInternal = null;
+                if (device == null) {
+                    if (mCameras.size() > 0) {
+                        cameraInternal = (CameraInternal) mCameras.values().toArray()[0];
+                    }
+                } else {
+                    String cameraKey = getCameraKey(device);
+                    cameraInternal = mCameras.get(cameraKey);
+                    if (cameraInternal == null) {
+                        if (isBlocking) {
+                            Log.i(TAG, "wait for service is ready");
+                            try {
+                                mConnectionSync.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    cameraInternal = mCameras.get(cameraKey);
+                }
+                return cameraInternal;
+            }
+        }
+
+        private CameraInternal getCamera(final UsbDevice device) {
+            return getCamera(device, true);
+        }
+
+        private boolean checkExistCamera() {
+            synchronized (mConnectionSync) {
+                final int n = mCameras.size();
+                if (DEBUG) Log.d(TAG, "number of existed camera=" + n);
+                return n == 0;
+            }
+        }
+
+        private String getCameraKey(UsbDevice device) {
+            return USBMonitor.getDeviceKey(device);
+        }
+        //********************************************************************************
 
         @Override
         public void register(final ICameraHelper.StateCallback callback) {
@@ -193,14 +194,14 @@ class CameraConnectionService {
                 Log.d(TAG, LOG_PREFIX + "selectDevice:device=" + (device != null ? device.getDeviceName() : null));
             final String cameraKey = getCameraKey(device);
             CameraInternal cameraInternal = null;
-            synchronized (mServiceSync) {
+            synchronized (mConnectionSync) {
                 Log.i(TAG, "request permission");
                 mUSBMonitor.requestPermission(device);
                 cameraInternal = mCameras.get(cameraKey);
                 if (cameraInternal == null) {
                     Log.i(TAG, "wait for getting permission");
                     try {
-                        mServiceSync.wait();
+                        mConnectionSync.wait();
                     } catch (Exception e) {
                         Log.e(TAG, "selectDevice:", e);
                     }
@@ -413,7 +414,7 @@ class CameraConnectionService {
         public void releaseCamera(final UsbDevice device) {
             if (DEBUG) Log.d(TAG, LOG_PREFIX + "release:");
             String cameraKey = getCameraKey(device);
-            synchronized (mServiceSync) {
+            synchronized (mConnectionSync) {
                 final CameraInternal cameraInternal = mCameras.get(cameraKey);
                 if (cameraInternal != null) {
                     cameraInternal.release();
@@ -425,7 +426,7 @@ class CameraConnectionService {
         @Override
         public void releaseAllCamera() {
             if (DEBUG) Log.d(TAG, LOG_PREFIX + "releaseAll:");
-            synchronized (mServiceSync) {
+            synchronized (mConnectionSync) {
                 for (CameraInternal cameraInternal : mCameras.values()) {
                     if (cameraInternal != null) {
                         cameraInternal.release();
@@ -439,7 +440,7 @@ class CameraConnectionService {
         public void setPreviewConfig(UsbDevice device, CameraPreviewConfig config) {
             if (DEBUG) Log.d(TAG, LOG_PREFIX + "setCameraPreviewConfig:");
             String cameraKey = getCameraKey(device);
-            synchronized (mServiceSync) {
+            synchronized (mConnectionSync) {
                 final CameraInternal cameraInternal = mCameras.get(cameraKey);
                 if (cameraInternal != null) {
                     cameraInternal.setPreviewConfig(config);
@@ -451,7 +452,7 @@ class CameraConnectionService {
         public void setImageCaptureConfig(UsbDevice device, ImageCaptureConfig config) {
             if (DEBUG) Log.d(TAG, LOG_PREFIX + "setImageCaptureConfig:");
             String cameraKey = getCameraKey(device);
-            synchronized (mServiceSync) {
+            synchronized (mConnectionSync) {
                 final CameraInternal cameraInternal = mCameras.get(cameraKey);
                 if (cameraInternal != null) {
                     cameraInternal.setImageCaptureConfig(config);
@@ -463,7 +464,7 @@ class CameraConnectionService {
         public void setVideoCaptureConfig(UsbDevice device, VideoCaptureConfig config) {
             if (DEBUG) Log.d(TAG, LOG_PREFIX + "setVideoCaptureConfig:");
             String cameraKey = getCameraKey(device);
-            synchronized (mServiceSync) {
+            synchronized (mConnectionSync) {
                 final CameraInternal cameraInternal = mCameras.get(cameraKey);
                 if (cameraInternal != null) {
                     cameraInternal.setVideoCaptureConfig(config);
@@ -587,8 +588,8 @@ class CameraConnectionService {
                     }
                 }
 
-                synchronized (mServiceSync) {
-                    mServiceSync.notifyAll();
+                synchronized (mConnectionSync) {
+                    mConnectionSync.notifyAll();
                 }
             }
         }
