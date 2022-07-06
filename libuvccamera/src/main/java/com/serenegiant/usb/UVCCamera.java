@@ -73,6 +73,12 @@ public class UVCCamera {
     public static final int PIXEL_FORMAT_RGBX = 6;
     public static final int PIXEL_FORMAT_BGR = 7;
 
+    /**
+     * This quirk makes the assumption that the device calculated bandwidth is wrong
+     * and instead the library calculates its own value based off the frame size, frame rate and bits per pixel.
+     */
+    public static final int UVC_QUIRK_FIX_BANDWIDTH = 0x00000080;
+
     static {
         System.loadLibrary("jpeg-turbo212");
         System.loadLibrary("usb1.0");
@@ -89,14 +95,16 @@ public class UVCCamera {
     protected List<Format> mSupportedFormatList;
     protected List<Size> mSupportedSizeList;
     protected Size mCurrentSize;
+    protected UVCParam mParam;
     // until here
 
     /**
      * the constructor of this class should be call within the thread that has a looper
      * (UI thread or a thread that called Looper.prepare)
      */
-    public UVCCamera() {
+    public UVCCamera(UVCParam param) {
         mNativePtr = nativeCreate();
+        mParam = param != null ? (UVCParam) param.clone() : new UVCParam();
     }
 
     /**
@@ -106,21 +114,11 @@ public class UVCCamera {
      * @param ctrlBlock
      */
     public synchronized int open(final UsbControlBlock ctrlBlock) {
-        return open(ctrlBlock, null);
-    }
-
-    /**
-     * connect to a UVC camera
-     * USB permission is necessary before this method is called
-     *
-     * @param ctrlBlock
-     */
-    public synchronized int open(final UsbControlBlock ctrlBlock, Size size) {
         int result;
         try {
             mCtrlBlock = ctrlBlock.clone();
             mCtrlBlock.open();
-            result = nativeConnect(mNativePtr, mCtrlBlock.getFileDescriptor());
+            result = nativeConnect(mNativePtr, mCtrlBlock.getFileDescriptor(), mParam.getQuirks());
         } catch (final Exception e) {
             Log.w(TAG, e);
             result = -1;
@@ -132,6 +130,7 @@ public class UVCCamera {
 
         updateSupportedFormats();
 
+        Size size = mParam.getPreviewSize();
         if (size == null || !checkSizeValid(size.width, size.height, size.type, size.fps)) {
             size = getSupportedSizeOne();
             if (size == null) {
@@ -145,13 +144,24 @@ public class UVCCamera {
         }
 
         int r = nativeSetPreviewSize(mNativePtr, size.width, size.height, size.type, size.fps);
-        if (DEBUG) Log.d(TAG, "setPreviewSize:" + r);
+        if (DEBUG) Log.d(TAG, "setPreviewSize:" + r + ":" + size);
 
         mCurrentSize = size;
 
         mControl = new UVCControl(nativeGetControl(mNativePtr));
 
         return result;
+    }
+
+    /**
+     * set status callback
+     *
+     * @param callback
+     */
+    public void setQuirks(final IStatusCallback callback) {
+        if (mNativePtr != 0) {
+            nativeSetStatusCallback(mNativePtr, callback);
+        }
     }
 
     /**
@@ -578,7 +588,7 @@ public class UVCCamera {
 
     private native void nativeDestroy(final long id_camera);
 
-    private native int nativeConnect(long id_camera, int fileDescriptor);
+    private native int nativeConnect(long id_camera, int fileDescriptor, int quirks);
 
     private native int nativeRelease(final long id_camera);
 

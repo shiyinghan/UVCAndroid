@@ -14,6 +14,8 @@ import com.herohan.uvcapp.CameraHelper;
 import com.herohan.uvcapp.ICameraHelper;
 import com.herohan.uvcdemo.fragment.DeviceListDialogFragment;
 import com.serenegiant.usb.Size;
+import com.serenegiant.usb.UVCCamera;
+import com.serenegiant.usb.UVCParam;
 import com.serenegiant.widget.AspectRatioSurfaceView;
 
 import java.util.List;
@@ -193,7 +195,9 @@ public class MultiCameraActivity extends AppCompatActivity implements View.OnCli
         public void onDeviceOpen(UsbDevice device, boolean isFirstOpen) {
             if (DEBUG) Log.v(TAG, LOG_PREFIX + "onDeviceOpen:");
             if (device.equals(mUsbDeviceLeft)) {
-                mCameraHelperLeft.openCamera();
+                UVCParam param = new UVCParam();
+                param.setQuirks(UVCCamera.UVC_QUIRK_FIX_BANDWIDTH);
+                mCameraHelperLeft.openCamera(param);
             }
         }
 
@@ -269,7 +273,9 @@ public class MultiCameraActivity extends AppCompatActivity implements View.OnCli
         public void onDeviceOpen(UsbDevice device, boolean isFirstOpen) {
             if (DEBUG) Log.v(TAG, LOG_PREFIX + "onDeviceOpen:");
             if (device.equals(mUsbDeviceRight)) {
-                mCameraHelperRight.openCamera();
+                UVCParam param = new UVCParam();
+                param.setQuirks(UVCCamera.UVC_QUIRK_FIX_BANDWIDTH);
+                mCameraHelperRight.openCamera(param);
             }
         }
 

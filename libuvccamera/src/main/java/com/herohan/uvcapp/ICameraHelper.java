@@ -7,6 +7,7 @@ import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
+import com.serenegiant.usb.UVCParam;
 
 import java.util.List;
 
@@ -37,6 +38,8 @@ public interface ICameraHelper {
     void openCamera();
 
     void openCamera(Size size);
+
+    void openCamera(UVCParam param);
 
     void closeCamera();
 

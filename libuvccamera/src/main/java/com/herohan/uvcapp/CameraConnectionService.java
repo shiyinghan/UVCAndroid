@@ -14,6 +14,7 @@ import com.serenegiant.usb.USBMonitor;
 import com.serenegiant.usb.USBMonitor.OnDeviceConnectListener;
 import com.serenegiant.usb.USBMonitor.UsbControlBlock;
 import com.serenegiant.usb.UVCControl;
+import com.serenegiant.usb.UVCParam;
 import com.serenegiant.utils.UVCUtils;
 import com.serenegiant.uvccamera.BuildConfig;
 import com.serenegiant.uvccamera.R;
@@ -296,7 +297,7 @@ class CameraConnectionService {
          * @param size
          */
         @Override
-        public void openCamera(final UsbDevice device, Size size,
+        public void openCamera(final UsbDevice device, UVCParam param,
                                CameraPreviewConfig previewConfig,
                                ImageCaptureConfig imageCaptureConfig,
                                VideoCaptureConfig videoCaptureConfig) {
@@ -305,7 +306,7 @@ class CameraConnectionService {
             if (cameraInternal == null) {
                 throw new IllegalArgumentException("invalid device");
             }
-            cameraInternal.openCamera(size,
+            cameraInternal.openCamera(param,
                     previewConfig, imageCaptureConfig, videoCaptureConfig);
         }
 

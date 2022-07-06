@@ -189,6 +189,13 @@ enum uvc_status_type {
 #define UVC_CONTROL_CAP_AUTOUPDATE (1 << 3)
 #define UVC_CONTROL_CAP_ASYNCHRONOUS (1 << 4)
 
+/* Devices quirks */
+#define UVC_QUIRK_FIX_BANDWIDTH		0x00000080
+
+/* Format flags */
+#define UVC_FMT_FLAG_COMPRESSED		0x00000001
+#define UVC_FMT_FLAG_STREAM		0x00000002
+
 struct uvc_streaming_interface;
 struct uvc_device_info;
 
@@ -324,6 +331,8 @@ struct uvc_device_handle {
     /** Whether the camera is an iSight that sends one header per frame */
     uint8_t is_isight;
     uint32_t claimed;
+    /** Enable some quirks to resolve specific issues */
+    uint32_t quirks;
 };
 
 /** Context within which we communicate with devices */

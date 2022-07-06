@@ -183,6 +183,119 @@ static enum uvc_frame_format uvc_frame_format_for_guid(uint8_t guid[16]) {
     return UVC_FRAME_FORMAT_UNKNOWN;
 }
 
+static void uvc_fixup_video_ctrl(uvc_device_handle_t *devh,
+                                 uvc_stream_ctrl_t *ctrl) {
+    struct libusb_device_descriptor usb_desc;
+    uvc_streaming_interface_t *stream_if;
+    uvc_format_desc_t *format = NULL;
+    uvc_frame_desc_t *frame = NULL;
+    const struct libusb_interface *interface;
+    int interface_id;
+    char isochronous;
+    unsigned int i;
+
+    /*
+     * The response of the Elgato Cam Link 4K is incorrect: The second byte
+     * contains bFormatIndex (instead of being the second byte of bmHint).
+     * The first byte is always zero. The third byte is always 1.
+     *
+     * The UVC 1.5 class specification defines the first five bits in the
+     * bmHint bitfield. The remaining bits are reserved and should be zero.
+     * Therefore a valid bmHint will be less than 32.
+     *
+     * Latest Elgato Cam Link 4K firmware as of 2021-03-23 needs this fix.
+     * MCU: 20.02.19, FPGA: 67
+     */
+    uvc_error_t ret1 = libusb_get_device_descriptor(devh->dev->usb_dev, &usb_desc);
+    if (ret1 == UVC_SUCCESS && usb_desc.idVendor == 0x0fd9 && usb_desc.idProduct == 0x0066 &&
+        ctrl->bmHint > 255) {
+        uint8_t corrected_format_index = ctrl->bmHint >> 8;
+
+        UVC_DEBUG(
+                "Correct USB video probe response from {bmHint: 0x%04x, bFormatIndex: %u} to {bmHint: 0x%04x, bFormatIndex: %u}\n",
+                ctrl->bmHint, ctrl->bFormatIndex,
+                1, corrected_format_index);
+        ctrl->bmHint = 1;
+        ctrl->bFormatIndex = corrected_format_index;
+    }
+
+    DL_FOREACH(devh->info->stream_ifs, stream_if) {
+        DL_FOREACH(stream_if->format_descs, format) {
+            if (format->bFormatIndex == ctrl->bFormatIndex) {
+                DL_FOREACH(format->frame_descs, frame) {
+                    if (frame->bFrameIndex == ctrl->bFrameIndex)
+                        break;
+                }
+                if (frame)
+                    break;
+            }
+        }
+        if (frame)
+            break;
+    }
+
+    if (format == NULL || frame == NULL)
+        return;
+
+    if (ctrl->dwMaxVideoFrameSize == 0) {
+        LOGW("fix up block for cameras that fail to set dwMax");
+        ctrl->dwMaxVideoFrameSize =
+                frame->dwMaxVideoFrameBufferSize;
+    }
+
+
+    /* The "TOSHIBA Web Camera - 5M" Chicony device (04f2:b50b) seems to
+     * compute the bandwidth on 16 bits and erroneously sign-extend it to
+     * 32 bits, resulting in a huge bandwidth value. Detect and fix that
+     * condition by setting the 16 MSBs to 0 when they're all equal to 1.
+     */
+    if ((ctrl->dwMaxPayloadTransferSize & 0xffff0000) == 0xffff0000)
+        ctrl->dwMaxPayloadTransferSize &= ~0xffff0000;
+
+    // Get the interface that provides the chosen format and frame configuration
+    interface_id = stream_if->bInterfaceNumber;
+    interface = &devh->info->config->interface[interface_id];
+
+    /* A VS interface uses isochronous transfers iff it has multiple altsettings.
+     * (UVC 1.5: 2.4.3. VideoStreaming Interface) */
+    isochronous = interface->num_altsetting > 1;
+
+    if (!(format->bmFlags & UVC_FMT_FLAG_COMPRESSED) &&
+        devh->quirks & UVC_QUIRK_FIX_BANDWIDTH &&
+        isochronous) {
+        uint32_t interval;
+        uint32_t bandwidth;
+
+        interval = (ctrl->dwFrameInterval > 100000)
+                   ? ctrl->dwFrameInterval
+                   : frame->intervals[0];
+
+        /* Compute a bandwidth estimation by multiplying the frame
+         * size by the number of video frames per second, divide the
+         * result by the number of USB frames (or micro-frames for
+         * high-speed devices) per second and add the UVC header size
+         * (assumed to be 12 bytes long).
+         */
+        bandwidth = frame->wWidth * frame->wHeight / 8 * format->bBitsPerPixel;
+        bandwidth *= 10000000 / interval + 1;
+        bandwidth /= 1000;
+        if (libusb_get_device_speed(devh->dev->usb_dev) == LIBUSB_SPEED_HIGH)
+            bandwidth /= 8;
+        bandwidth += 12;
+
+        /* The bandwidth estimate is too low for many cameras. Don't use
+         * maximum packet sizes lower than 1024 bytes to try and work
+         * around the problem. According to measurements done on two
+         * different camera models, the value is high enough to get most
+         * resolutions working while not preventing two simultaneous
+         * VGA streams at 15 fps.
+         */
+        bandwidth = MAX(bandwidth, 1024);
+
+        ctrl->dwMaxPayloadTransferSize = bandwidth;
+    }
+}
+
 /** @internal
  * Run a streaming control query
  * @param[in] devh UVC device
@@ -302,16 +415,21 @@ uvc_error_t uvc_query_stream_ctrl(
             ctrl->dwClockFrequency = devh->info->ctrl_if.dwClockFrequency;
         }
 
-        /* fix up block for cameras that fail to set dwMax* */
-        if (!ctrl->dwMaxVideoFrameSize) {
-            LOGW("fix up block for cameras that fail to set dwMax");
-            uvc_frame_desc_t *frame = uvc_find_frame_desc(devh, ctrl->bFormatIndex,
-                                                          ctrl->bFrameIndex);
-
-            if (frame) {
-                ctrl->dwMaxVideoFrameSize = frame->dwMaxVideoFrameBufferSize;
-            }
-        }
+//        /* fix up block for cameras that fail to set dwMax* */
+//        if (!ctrl->dwMaxVideoFrameSize) {
+//            LOGW("fix up block for cameras that fail to set dwMax");
+//            uvc_frame_desc_t *frame = uvc_find_frame_desc(devh, ctrl->bFormatIndex,
+//                                                          ctrl->bFrameIndex);
+//
+//            if (frame) {
+//                ctrl->dwMaxVideoFrameSize = frame->dwMaxVideoFrameBufferSize;
+//            }
+//        }
+        /* Some broken devices return null or wrong dwMaxVideoFrameSize and
+         * dwMaxPayloadTransferSize fields. Try to get the value from the
+         * format and frame descriptors.
+         */
+        uvc_fixup_video_ctrl(devh, ctrl);
     }
 
     return UVC_SUCCESS;

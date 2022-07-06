@@ -16,6 +16,7 @@ import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
+import com.serenegiant.usb.UVCParam;
 import com.serenegiant.utils.UVCUtils;
 import com.serenegiant.uvccamera.BuildConfig;
 
@@ -234,17 +235,22 @@ public class CameraHelper implements ICameraHelper {
 
     @Override
     public void openCamera() {
-        openCamera(null);
+        openCamera(new UVCParam());
     }
 
     @Override
     public void openCamera(Size size) {
+        openCamera(new UVCParam(size, 0));
+    }
+
+    @Override
+    public void openCamera(UVCParam param) {
         if (DEBUG) Log.d(TAG, "openCamera:");
         mAsyncHandler.post(() -> {
             if (mService != null && mUsbDevice != null) {
                 try {
                     if (!mService.isCameraOpened(mUsbDevice)) {
-                        mService.openCamera(mUsbDevice, size,
+                        mService.openCamera(mUsbDevice, param,
                                 mCameraPreviewConfig,
                                 mImageCaptureConfig,
                                 mVideoCaptureConfig);

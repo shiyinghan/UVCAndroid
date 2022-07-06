@@ -5,6 +5,7 @@ import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
+import com.serenegiant.usb.UVCParam;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ interface ICameraInternal {
 
     void setFrameCallback(final IFrameCallback callback, final int pixelFormat);
 
-    void openCamera(Size size,
+    void openCamera(UVCParam param,
                     CameraPreviewConfig previewConfig,
                     ImageCaptureConfig imageCaptureConfig,
                     VideoCaptureConfig videoCaptureConfig);

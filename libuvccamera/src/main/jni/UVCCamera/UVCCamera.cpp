@@ -54,7 +54,7 @@ UVCCamera::UVCCamera()
           mStatusCallback(NULL),
           mButtonCallback(NULL),
           mPreview(NULL),
-          mControl(NULL){
+          mControl(NULL) {
 
     ENTER();
     EXIT();
@@ -81,7 +81,7 @@ UVCControl *UVCCamera::getControl() {
 /**
  * connect uvc camera
  */
-int UVCCamera::connect(int fd) {
+int UVCCamera::connect(int fd, int quirks) {
     ENTER();
     uvc_error_t result = UVC_ERROR_BUSY;
     if (!mDeviceHandle && fd) {
@@ -106,6 +106,8 @@ int UVCCamera::connect(int fd) {
             mButtonCallback = new UVCButtonCallback(mDeviceHandle);
             mPreview = new UVCPreview(mDeviceHandle);
             mControl = new UVCControl(mDeviceHandle);
+
+            mDeviceHandle->quirks = quirks;
         } else {
             LOGE("could not find camera:err=%d", result);
             close(fd);

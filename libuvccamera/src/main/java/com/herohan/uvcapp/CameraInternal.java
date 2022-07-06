@@ -13,6 +13,7 @@ import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor.UsbControlBlock;
 import com.serenegiant.usb.UVCCamera;
 import com.serenegiant.usb.UVCControl;
+import com.serenegiant.usb.UVCParam;
 import com.serenegiant.uvccamera.BuildConfig;
 import com.serenegiant.uvccamera.R;
 
@@ -181,13 +182,13 @@ final class CameraInternal implements ICameraInternal {
     }
 
     @Override
-    public void openCamera(Size size,
+    public void openCamera(UVCParam param,
                            CameraPreviewConfig previewConfig,
                            ImageCaptureConfig imageCaptureConfig,
                            VideoCaptureConfig videoCaptureConfig) {
         if (DEBUG) Log.d(TAG, "openCamera:");
         if (!isCameraOpened()) {
-            openUVCCamera(size,
+            openUVCCamera(param,
                     previewConfig, imageCaptureConfig, videoCaptureConfig);
         } else {
             if (DEBUG) Log.d(TAG, "have already opened camera, just call callback");
@@ -209,7 +210,7 @@ final class CameraInternal implements ICameraInternal {
         }
     }
 
-    private void openUVCCamera(Size size,
+    private void openUVCCamera(UVCParam param,
                                CameraPreviewConfig previewConfig,
                                ImageCaptureConfig imageCaptureConfig,
                                VideoCaptureConfig videoCaptureConfig) {
@@ -217,8 +218,8 @@ final class CameraInternal implements ICameraInternal {
         if (DEBUG) Log.d(TAG, "openUVCCamera:");
         try {
             synchronized (mSync) {
-                mUVCCamera = new UVCCamera();
-                int result = mUVCCamera.open(mCtrlBlock, size);
+                mUVCCamera = new UVCCamera(param);
+                int result = mUVCCamera.open(mCtrlBlock);
                 if (result != 0) {
                     // show tip according to error
                     Context context = mWeakContext.get();

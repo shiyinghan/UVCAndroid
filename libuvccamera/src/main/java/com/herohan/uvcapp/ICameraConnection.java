@@ -5,6 +5,7 @@ import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
+import com.serenegiant.usb.UVCParam;
 
 import android.hardware.usb.UsbDevice;
 
@@ -41,7 +42,7 @@ interface ICameraConnection {
 
     void setFrameCallback(UsbDevice device, IFrameCallback callback, int pixelFormat);
 
-    void openCamera(UsbDevice device, Size size,
+    void openCamera(UsbDevice device, UVCParam param,
                     CameraPreviewConfig previewConfig,
                     ImageCaptureConfig imageCaptureConfig,
                     VideoCaptureConfig videoCaptureConfig);

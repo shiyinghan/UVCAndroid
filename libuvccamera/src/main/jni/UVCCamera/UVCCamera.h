@@ -52,7 +52,7 @@ public:
 
     UVCControl *getControl();
 
-    int connect(int fd);
+    int connect(int fd, int quirks);
 
     int release();
 

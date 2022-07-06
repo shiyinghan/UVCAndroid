@@ -139,14 +139,14 @@ static void nativeDestroy(JNIEnv *env, jobject thiz,
 
 //======================================================================
 // connect camera
-static jint nativeConnect(JNIEnv *env, jobject thiz, ID_TYPE id_camera, jint fd) {
+static jint nativeConnect(JNIEnv *env, jobject thiz, ID_TYPE id_camera, jint fd, jint quirks) {
 
     ENTER();
     int result = JNI_ERR;
     UVCCamera *camera = reinterpret_cast<UVCCamera *>(id_camera);
     if (LIKELY(camera && (fd > 0))) {
 //		libusb_set_debug(NULL, LIBUSB_LOG_LEVEL_DEBUG);
-        result = camera->connect(fd);
+        result = camera->connect(fd, quirks);
     }
     RETURN(result, jint);
 }
@@ -163,6 +163,7 @@ static jint nativeRelease(JNIEnv *env, jobject thiz,
     }
     RETURN(result, jint);
 }
+
 //======================================================================
 static ID_TYPE nativeGetControl(JNIEnv *env, jobject thiz,
                                 ID_TYPE id_camera) {
@@ -175,6 +176,7 @@ static ID_TYPE nativeGetControl(JNIEnv *env, jobject thiz,
     }
     RETURN(reinterpret_cast<ID_TYPE>(control), ID_TYPE);
 }
+
 //======================================================================
 static jint nativeSetStatusCallback(JNIEnv *env, jobject thiz,
                                     ID_TYPE id_camera, jobject jIStatusCallback) {
@@ -294,11 +296,12 @@ static jint nativeSetCaptureDisplay(JNIEnv *env, jobject thiz,
     }
     RETURN(result, jint);
 }
+
 //**********************************************************************
 //
 //**********************************************************************
 static jint registerNativeMethods(JNIEnv *env, const char *class_name, JNINativeMethod *methods,
-                           int num_methods) {
+                                  int num_methods) {
     int result = 0;
 
     jclass clazz = env->FindClass(class_name);
@@ -314,25 +317,25 @@ static jint registerNativeMethods(JNIEnv *env, const char *class_name, JNINative
 }
 
 static JNINativeMethod methods[] = {
-        {"nativeCreate",                            "()J",                                       (void *) nativeCreate},
-        {"nativeDestroy",                           "(J)V",                                      (void *) nativeDestroy},
+        {"nativeCreate",              "()J",                                       (void *) nativeCreate},
+        {"nativeDestroy",             "(J)V",                                      (void *) nativeDestroy},
 
-        {"nativeConnect",                           "(JI)I",                                     (void *) nativeConnect},
-        {"nativeRelease",                           "(J)I",                                      (void *) nativeRelease},
+        {"nativeConnect",             "(JII)I",                                    (void *) nativeConnect},
+        {"nativeRelease",             "(J)I",                                      (void *) nativeRelease},
 
-        {"nativeGetControl",                            "(J)J",                                       (void *) nativeGetControl},
+        {"nativeGetControl",          "(J)J",                                      (void *) nativeGetControl},
 
-        {"nativeSetStatusCallback",                 "(JLcom/serenegiant/usb/IStatusCallback;)I", (void *) nativeSetStatusCallback},
-        {"nativeSetButtonCallback",                 "(JLcom/serenegiant/usb/IButtonCallback;)I", (void *) nativeSetButtonCallback},
+        {"nativeSetStatusCallback",   "(JLcom/serenegiant/usb/IStatusCallback;)I", (void *) nativeSetStatusCallback},
+        {"nativeSetButtonCallback",   "(JLcom/serenegiant/usb/IButtonCallback;)I", (void *) nativeSetButtonCallback},
 
-        {"nativeGetSupportedFormats",               "(J)Ljava/lang/String;",                     (void *) nativeGetSupportedFormats},
-        {"nativeSetPreviewSize",                    "(JIIII)I",                                  (void *) nativeSetPreviewSize},
-        {"nativeStartPreview",                      "(J)I",                                      (void *) nativeStartPreview},
-        {"nativeStopPreview",                       "(J)I",                                      (void *) nativeStopPreview},
-        {"nativeSetPreviewDisplay",                 "(JLandroid/view/Surface;)I",                (void *) nativeSetPreviewDisplay},
-        {"nativeSetFrameCallback",                  "(JLcom/serenegiant/usb/IFrameCallback;I)I", (void *) nativeSetFrameCallback},
+        {"nativeGetSupportedFormats", "(J)Ljava/lang/String;",                     (void *) nativeGetSupportedFormats},
+        {"nativeSetPreviewSize",      "(JIIII)I",                                  (void *) nativeSetPreviewSize},
+        {"nativeStartPreview",        "(J)I",                                      (void *) nativeStartPreview},
+        {"nativeStopPreview",         "(J)I",                                      (void *) nativeStopPreview},
+        {"nativeSetPreviewDisplay",   "(JLandroid/view/Surface;)I",                (void *) nativeSetPreviewDisplay},
+        {"nativeSetFrameCallback",    "(JLcom/serenegiant/usb/IFrameCallback;I)I", (void *) nativeSetFrameCallback},
 
-        {"nativeSetCaptureDisplay",                 "(JLandroid/view/Surface;)I",                (void *) nativeSetCaptureDisplay},
+        {"nativeSetCaptureDisplay",   "(JLandroid/view/Surface;)I",                (void *) nativeSetCaptureDisplay},
 };
 
 int register_uvccamera(JNIEnv *env) {
