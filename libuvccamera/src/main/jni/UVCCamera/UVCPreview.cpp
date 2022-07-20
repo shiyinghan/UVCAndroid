@@ -575,14 +575,14 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
 //                    c_start = clock();
                     result = uvc_mjpeg2yuyv(frame_mjpeg, frame);   // MJPEG => yuyv
 //                    c_end = clock();
-//                    LOGI("uvc_mjpeg2yuyv time: %f", difftime(c_end, c_start));
+//                    LOGI("uvc_mjpeg2yuyv time: %f", (double) (c_end - c_start) / CLOCKS_PER_SEC);
                     recycle_frame(frame_mjpeg);
                     if (LIKELY(!result)) {
 //                        c_start = clock();
                         frame = draw_preview_one(frame, &mPreviewWindow, uvc_any2rgbx,
                                                  PREVIEW_PIXEL_BYTES);
 //                        c_end = clock();
-//                        LOGI("uvc_any2rgbx time: %f", difftime(c_end, c_start));
+//                        LOGI("uvc_any2rgbx time: %f", (double) (c_end - c_start) / CLOCKS_PER_SEC);
                         addCaptureFrame(frame);
                     } else {
                         recycle_frame(frame);
@@ -598,7 +598,7 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
                     frame = draw_preview_one(frame, &mPreviewWindow, uvc_any2rgbx,
                                              PREVIEW_PIXEL_BYTES);
 //                    c_end = clock();
-//                    LOGI("uvc_any2rgbx time: %f", difftime(c_end, c_start));
+//                    LOGI("uvc_any2rgbx time: %f", (double) (c_end - c_start) / CLOCKS_PER_SEC);
                     addCaptureFrame(frame);
                 }
             }
