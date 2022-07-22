@@ -126,12 +126,14 @@ public class MultiCameraActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     protected void onStart() {
+        if (DEBUG) Log.d(TAG, "onStart:");
         super.onStart();
         initCameraHelper();
     }
 
     @Override
     protected void onStop() {
+        if (DEBUG) Log.d(TAG, "onStop:");
         super.onStop();
         clearCameraHelper();
     }
@@ -194,7 +196,7 @@ public class MultiCameraActivity extends AppCompatActivity implements View.OnCli
         @Override
         public void onDeviceOpen(UsbDevice device, boolean isFirstOpen) {
             if (DEBUG) Log.v(TAG, LOG_PREFIX + "onDeviceOpen:");
-            if (device.equals(mUsbDeviceLeft)) {
+            if (mCameraHelperLeft != null && device.equals(mUsbDeviceLeft)) {
                 UVCParam param = new UVCParam();
                 param.setQuirks(UVCCamera.UVC_QUIRK_FIX_BANDWIDTH);
                 mCameraHelperLeft.openCamera(param);
@@ -204,7 +206,7 @@ public class MultiCameraActivity extends AppCompatActivity implements View.OnCli
         @Override
         public void onCameraOpen(UsbDevice device) {
             if (DEBUG) Log.v(TAG, LOG_PREFIX + "onCameraOpen:");
-            if (device.equals(mUsbDeviceLeft)) {
+            if (mCameraHelperLeft != null && device.equals(mUsbDeviceLeft)) {
                 mCameraHelperLeft.startPreview();
 
                 Size size = mCameraHelperLeft.getPreviewSize();
@@ -272,7 +274,7 @@ public class MultiCameraActivity extends AppCompatActivity implements View.OnCli
         @Override
         public void onDeviceOpen(UsbDevice device, boolean isFirstOpen) {
             if (DEBUG) Log.v(TAG, LOG_PREFIX + "onDeviceOpen:");
-            if (device.equals(mUsbDeviceRight)) {
+            if (mCameraHelperRight != null && device.equals(mUsbDeviceRight)) {
                 UVCParam param = new UVCParam();
                 param.setQuirks(UVCCamera.UVC_QUIRK_FIX_BANDWIDTH);
                 mCameraHelperRight.openCamera(param);
@@ -282,7 +284,7 @@ public class MultiCameraActivity extends AppCompatActivity implements View.OnCli
         @Override
         public void onCameraOpen(UsbDevice device) {
             if (DEBUG) Log.v(TAG, LOG_PREFIX + "onCameraOpen:");
-            if (device.equals(mUsbDeviceRight)) {
+            if (mCameraHelperRight != null && device.equals(mUsbDeviceRight)) {
                 mCameraHelperRight.startPreview();
 
                 Size size = mCameraHelperRight.getPreviewSize();
