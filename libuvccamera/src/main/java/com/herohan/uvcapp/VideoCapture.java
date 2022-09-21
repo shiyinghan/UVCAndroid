@@ -245,18 +245,27 @@ public class VideoCapture {
 
     private void initVideoAudioEncoder() {
         if (mCameraSurface != null) {
-            mVideoEncoder.stop();
-            mVideoEncoder.release();
-            mAudioEncoder.stop();
-            mAudioEncoder.release();
+            if (mVideoEncoder != null) {
+                mVideoEncoder.stop();
+                mVideoEncoder.release();
+            }
+            if (mAudioEncoder != null) {
+                mAudioEncoder.stop();
+                mAudioEncoder.release();
+            }
             releaseCameraSurface(false);
         }
 
         try {
             mVideoEncoder = MediaCodec.createEncoderByType(VIDEO_MIME_TYPE);
-            mAudioEncoder = MediaCodec.createEncoderByType(AUDIO_MIME_TYPE);
         } catch (IOException e) {
-            throw new IllegalStateException("Unable to create MediaCodec due to: " + e.getCause());
+            throw new IllegalStateException("Unable to create Video MediaCodec due to: " + e.getCause());
+        }
+        try {
+            mAudioEncoder = MediaCodec.createEncoderByType(AUDIO_MIME_TYPE);
+        } catch (Exception e) {
+            mIsAudioEnabled.set(false);
+            Log.e(TAG, "Unable to create Audio MediaCodec, disable audio." + e.getMessage(), e);
         }
 
         setupEncoder();
