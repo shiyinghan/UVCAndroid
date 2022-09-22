@@ -7,6 +7,7 @@
     <string name="entry_multi_camera">Multi Camera</string>
     <string name="entry_take_picture">Take Picture</string>
     <string name="entry_record_video">Record Video</string>
+    <string name="entry_set_frame_callback">Set Frame Callback</string>
     <string name="btn_open_camera">Open Camera</string>
     <string name="btn_close_camera">Close Camera</string>
 

@@ -36,6 +36,8 @@ public class EntryActivity extends AppCompatActivity implements View.OnClickList
         btnTakePicture.setOnClickListener(this);
         Button btnRecordVideo = findViewById(R.id.btnRecordVideo);
         btnRecordVideo.setOnClickListener(this);
+        Button btnSetFrameCallback = findViewById(R.id.btnSetFrameCallback);
+        btnSetFrameCallback.setOnClickListener(this);
     }
 
     @Override
@@ -53,7 +55,7 @@ public class EntryActivity extends AppCompatActivity implements View.OnClickList
         XXPermissions.with(this)
                 .permission(needPermissions)
                 .request((permissions, all) -> {
-                    if(!all){
+                    if (!all) {
                         return;
                     }
 
@@ -69,6 +71,8 @@ public class EntryActivity extends AppCompatActivity implements View.OnClickList
                         startActivity(new Intent(this, TakePictureActivity.class));
                     } else if (v.getId() == R.id.btnRecordVideo) {
                         startActivity(new Intent(this, RecordVideoActivity.class));
+                    } else if (v.getId() == R.id.btnSetFrameCallback) {
+                        startActivity(new Intent(this, SetFrameCallbackActivity.class));
                     }
 
                 });

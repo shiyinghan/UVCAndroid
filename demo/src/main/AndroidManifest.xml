@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UVCAndroid">
         <activity
+            android:name=".SetFrameCallbackActivity"
+            android:exported="false" />
+        <activity
             android:name=".RecordVideoActivity"
             android:exported="false" />
         <activity

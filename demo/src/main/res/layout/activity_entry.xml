@@ -36,4 +36,9 @@
         android:id="@+id/btnRecordVideo"
         style="@style/EntryButton"
         android:text="@string/entry_record_video" />
+
+    <Button
+        android:id="@+id/btnSetFrameCallback"
+        style="@style/EntryButton"
+        android:text="@string/entry_set_frame_callback" />
 </LinearLayout>
