@@ -23,6 +23,11 @@
         android:text="@string/entry_multi_preview" />
 
     <Button
+        android:id="@+id/btnMultiCameraNew"
+        style="@style/EntryButton"
+        android:text="@string/entry_multi_camera_new" />
+
+    <Button
         android:id="@+id/btnMultiCamera"
         style="@style/EntryButton"
         android:text="@string/entry_multi_camera" />

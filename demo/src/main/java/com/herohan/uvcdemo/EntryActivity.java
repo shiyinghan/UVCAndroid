@@ -32,6 +32,8 @@ public class EntryActivity extends AppCompatActivity implements View.OnClickList
         btnMultiPreview.setOnClickListener(this);
         Button btnMultiCamera = findViewById(R.id.btnMultiCamera);
         btnMultiCamera.setOnClickListener(this);
+        Button btnMultiCameraNew = findViewById(R.id.btnMultiCameraNew);
+        btnMultiCameraNew.setOnClickListener(this);
         Button btnTakePicture = findViewById(R.id.btnTakePicture);
         btnTakePicture.setOnClickListener(this);
         Button btnRecordVideo = findViewById(R.id.btnRecordVideo);
@@ -67,6 +69,8 @@ public class EntryActivity extends AppCompatActivity implements View.OnClickList
                         startActivity(new Intent(this, MultiPreviewActivity.class));
                     } else if (v.getId() == R.id.btnMultiCamera) {
                         startActivity(new Intent(this, MultiCameraActivity.class));
+                    } else if (v.getId() == R.id.btnMultiCameraNew) {
+                        startActivity(new Intent(this, MultiCameraNewActivity.class));
                     } else if (v.getId() == R.id.btnTakePicture) {
                         startActivity(new Intent(this, TakePictureActivity.class));
                     } else if (v.getId() == R.id.btnRecordVideo) {
