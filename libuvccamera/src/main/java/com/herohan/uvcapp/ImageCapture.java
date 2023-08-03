@@ -15,6 +15,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.herohan.uvcapp.ICameraRendererHolder.OnImageCapturedCallback;
 import com.serenegiant.utils.UVCUtils;
 import com.serenegiant.utils.UriHelper;
 
@@ -161,14 +162,28 @@ public class ImageCapture {
             }
         };
 
-        if (mRendererHolderWeak.get() == null) {
+        ICameraRendererHolder cameraRendererHolder = mRendererHolderWeak.get();
+
+        if (cameraRendererHolder == null) {
             imageSavedCallback.onError(ERROR_INVALID_CAMERA,
                     "Not bound to a Camera", null);
         } else {
             int outputJpegQuality = getJpegQualityInternal();
-            mRendererHolderWeak.get().captureImage(image -> {
-                mExecutor.execute(new ImageSaver(image, outputJpegQuality, outputFileOptions,
-                        imageSavedCallbackWrapper));
+            cameraRendererHolder.captureImage(new OnImageCapturedCallback() {
+                @Override
+                public void onCaptureSuccess(ImageRawData image) {
+                    mExecutor.execute(new ImageSaver(image, outputJpegQuality, outputFileOptions,
+                            imageSavedCallbackWrapper));
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    String message = e.getMessage();
+                    if (message == null) {
+                        message = "captureImage failed with an unknown exception";
+                    }
+                    imageSavedCallback.onError(ERROR_UNKNOWN, message, e);
+                }
             });
         }
     }

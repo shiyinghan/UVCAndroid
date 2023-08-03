@@ -1,5 +1,7 @@
 package com.herohan.uvcapp;
 
+import static com.herohan.uvcapp.ImageCapture.ERROR_INVALID_CAMERA;
+
 import android.hardware.usb.UsbDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -371,6 +373,9 @@ class CameraConnectionService {
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal != null) {
                 cameraInternal.takePicture(options, callback);
+            } else {
+                String message = "Camera not available";
+                callback.onError(ERROR_INVALID_CAMERA, message, new IllegalStateException(message));
             }
         }
 
