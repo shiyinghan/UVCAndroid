@@ -56,8 +56,12 @@ class CameraRendererHolder extends RendererHolder implements ICameraRendererHold
     public void captureImage(OnImageCapturedCallback callback) {
         mRendererHandler.post(() -> {
             // Capture still image
-            ImageRawData data = mCaptureHolder.captureImageRawData();
-            callback.onCaptureSuccess(data);
+            try {
+                ImageRawData data = mCaptureHolder.captureImageRawData();
+                callback.onCaptureSuccess(data);
+            } catch (Exception e) {
+                callback.onError(e);
+            }
         });
     }
 

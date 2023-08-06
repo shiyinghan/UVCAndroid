@@ -12,5 +12,7 @@ interface ICameraRendererHolder extends IRendererHolder {
 
     interface OnImageCapturedCallback{
         void onCaptureSuccess(ImageRawData image);
+
+        void onError(Exception e);
     }
 }

@@ -1,5 +1,8 @@
 package com.herohan.uvcapp;
 
+import static com.herohan.uvcapp.ImageCapture.ERROR_CAMERA_CLOSED;
+import static com.herohan.uvcapp.ImageCapture.ERROR_UNKNOWN;
+
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.hardware.usb.UsbDevice;
@@ -332,7 +335,15 @@ public class CameraHelper implements ICameraHelper {
                     mService.takePicture(mUsbDevice, options, callback);
                 } catch (final Exception e) {
                     if (DEBUG) Log.e(TAG, "takePicture", e);
+                    String message = e.getMessage();
+                    if (message == null) {
+                        message = "takePicture failed with an unknown exception";
+                    }
+                    callback.onError(ERROR_UNKNOWN, message, e);
                 }
+            } else {
+                String message = "Camera is released";
+                callback.onError(ERROR_CAMERA_CLOSED, message, new IllegalStateException(message));
             }
         });
     }
