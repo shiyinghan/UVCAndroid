@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.herohan:UVCAndroid:1.0.4'
+    implementation 'com.herohan:UVCAndroid:1.0.5'
 }
 ```
 R8 / ProGuard
