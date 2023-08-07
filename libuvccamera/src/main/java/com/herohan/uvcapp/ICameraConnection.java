@@ -24,7 +24,7 @@ interface ICameraConnection {
 
     List<UsbDevice> getDeviceList();
 
-    void selectDevice(UsbDevice device);
+    void selectDevice(UsbDevice device) throws Exception;
 
     List<Format> getSupportedFormatList(UsbDevice device);
 

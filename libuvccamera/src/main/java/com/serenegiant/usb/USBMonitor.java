@@ -59,6 +59,11 @@ public final class USBMonitor {
     private static final String TAG = USBMonitor.class.getSimpleName();
 
     /**
+     * Unknown error occurred  when open camera
+     */
+    public static int USB_OPEN_ERROR_UNKNOWN = 1;
+
+    /**
      * check device interval 150ms
      */
     private static final int CHECK_DEVICE_RUNNABLE_DELAY = 150;
@@ -139,6 +144,10 @@ public final class USBMonitor {
          * @param device
          */
         void onCancel(UsbDevice device);
+
+        default void onError(UsbDevice device, USBException e) {
+            Log.w(TAG, e);
+        }
     }
 
     public USBMonitor(final Context context, final OnDeviceConnectListener listener, final Handler handler) {
@@ -198,11 +207,12 @@ public final class USBMonitor {
 
     /**
      * register BroadcastReceiver to monitor USB events
-     *
-     * @throws IllegalStateException
      */
-    public synchronized void register() throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public synchronized void register() {
+        if (mDestroyed) {
+            Log.e(TAG, "register: already destroyed");
+            return;
+        }
         if (mPermissionIntent == null) {
             if (DEBUG) Log.i(TAG, "register:");
             final Context context = mWeakContext.get();
@@ -227,10 +237,8 @@ public final class USBMonitor {
 
     /**
      * unregister BroadcastReceiver
-     *
-     * @throws IllegalStateException
      */
-    public synchronized void unregister() throws IllegalStateException {
+    public synchronized void unregister() {
         // remove Runnable of connection check
         mDetectedDeviceKeys.clear();
         if (!mDestroyed) {
@@ -258,10 +266,12 @@ public final class USBMonitor {
      * set device filter
      *
      * @param filter
-     * @throws IllegalStateException
      */
-    public void setDeviceFilter(final DeviceFilter filter) throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public void setDeviceFilter(final DeviceFilter filter) {
+        if (mDestroyed) {
+            Log.e(TAG, "setDeviceFilter: already destroyed");
+            return;
+        }
         mDeviceFilters.clear();
         mDeviceFilters.add(filter);
     }
@@ -270,10 +280,12 @@ public final class USBMonitor {
      * add device filter
      *
      * @param filter
-     * @throws IllegalStateException
      */
-    public void addDeviceFilter(final DeviceFilter filter) throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public void addDeviceFilter(final DeviceFilter filter) {
+        if (mDestroyed) {
+            Log.e(TAG, "addDeviceFilter: already destroyed");
+            return;
+        }
         mDeviceFilters.add(filter);
     }
 
@@ -281,10 +293,12 @@ public final class USBMonitor {
      * remove device filter
      *
      * @param filter
-     * @throws IllegalStateException
      */
-    public void removeDeviceFilter(final DeviceFilter filter) throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public void removeDeviceFilter(final DeviceFilter filter) {
+        if (mDestroyed) {
+            Log.e(TAG, "removeDeviceFilter: already destroyed");
+            return;
+        }
         mDeviceFilters.remove(filter);
     }
 
@@ -292,10 +306,12 @@ public final class USBMonitor {
      * set device filters
      *
      * @param filters
-     * @throws IllegalStateException
      */
-    public void setDeviceFilter(final List<DeviceFilter> filters) throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public void setDeviceFilter(final List<DeviceFilter> filters) {
+        if (mDestroyed) {
+            Log.e(TAG, "setDeviceFilter: already destroyed");
+            return;
+        }
         mDeviceFilters.clear();
         mDeviceFilters.addAll(filters);
     }
@@ -304,20 +320,23 @@ public final class USBMonitor {
      * add device filters
      *
      * @param filters
-     * @throws IllegalStateException
      */
-    public void addDeviceFilter(final List<DeviceFilter> filters) throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public void addDeviceFilter(final List<DeviceFilter> filters) {
+        if (mDestroyed) {
+            Log.e(TAG, "addDeviceFilter: already destroyed");
+            return;
+        }
         mDeviceFilters.addAll(filters);
     }
 
     /**
      * remove device filters
-     *
-     * @param filters
      */
-    public void removeDeviceFilter(final List<DeviceFilter> filters) throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public void removeDeviceFilter(final List<DeviceFilter> filters) {
+        if (mDestroyed) {
+            Log.e(TAG, "removeDeviceFilter: already destroyed");
+            return;
+        }
         mDeviceFilters.removeAll(filters);
     }
 
@@ -340,23 +359,23 @@ public final class USBMonitor {
 
     /**
      * return the number of connected USB devices that matched device filter
-     *
-     * @return
-     * @throws IllegalStateException
      */
-    public int getDeviceCount() throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public int getDeviceCount() {
+        if (mDestroyed) {
+            Log.e(TAG, "getDeviceCount: already destroyed");
+            return 0;
+        }
         return getDeviceList().size();
     }
 
     /**
      * return device list, return empty list if no device matched
-     *
-     * @return
-     * @throws IllegalStateException
      */
-    public List<UsbDevice> getDeviceList() throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public List<UsbDevice> getDeviceList() {
+        if (mDestroyed) {
+            Log.e(TAG, "getDeviceList: already destroyed");
+            return new ArrayList<>();
+        }
         return getDeviceList(mDeviceFilters);
     }
 
@@ -364,11 +383,12 @@ public final class USBMonitor {
      * return device list, return empty list if no device matched
      *
      * @param filters
-     * @return
-     * @throws IllegalStateException
      */
-    public List<UsbDevice> getDeviceList(final List<DeviceFilter> filters) throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public List<UsbDevice> getDeviceList(final List<DeviceFilter> filters) {
+        if (mDestroyed) {
+            Log.e(TAG, "getDeviceList: already destroyed");
+            return new ArrayList<>();
+        }
         final HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         final List<UsbDevice> result = new ArrayList<UsbDevice>();
         if (deviceList != null) {
@@ -395,11 +415,12 @@ public final class USBMonitor {
      * return device list, return empty list if no device matched
      *
      * @param filter
-     * @return
-     * @throws IllegalStateException
      */
-    public List<UsbDevice> getDeviceList(final DeviceFilter filter) throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public List<UsbDevice> getDeviceList(final DeviceFilter filter) {
+        if (mDestroyed) {
+            Log.e(TAG, "getDeviceList: already destroyed");
+            return new ArrayList<>();
+        }
         final HashMap<String, UsbDevice> deviceList = mUsbManager.getDeviceList();
         final List<UsbDevice> result = new ArrayList<UsbDevice>();
         if (deviceList != null) {
@@ -414,12 +435,12 @@ public final class USBMonitor {
 
     /**
      * get USB device list, without filter
-     *
-     * @return
-     * @throws IllegalStateException
      */
-    public Iterator<UsbDevice> getDevices() throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public Iterator<UsbDevice> getDevices() {
+        if (mDestroyed) {
+            Log.e(TAG, "getDevices: already destroyed");
+            return null;
+        }
         Iterator<UsbDevice> iterator = null;
         final HashMap<String, UsbDevice> list = mUsbManager.getDeviceList();
         if (list != null)
@@ -458,10 +479,12 @@ public final class USBMonitor {
      *
      * @param device
      * @return true: if specified usb device has permission
-     * @throws IllegalStateException
      */
-    public final boolean hasPermission(final UsbDevice device) throws IllegalStateException {
-        if (mDestroyed) throw new IllegalStateException("already destroyed");
+    public boolean hasPermission(final UsbDevice device) {
+        if (mDestroyed) {
+            Log.e(TAG, "hasPermission: already destroyed");
+            return false;
+        }
         return device != null && mUsbManager.hasPermission(device);
     }
 
@@ -605,7 +628,7 @@ public final class USBMonitor {
                     updateDeviceKeys(deviceKey, hasPermission);
                 }
             }
-            if (mOnDeviceConnectListener != null) {
+            if (mOnDeviceConnectListener != null && needNotifyDevices.size() > 0) {
                 mListenerHandler.post(() -> {
                     for (final UsbDevice device : needNotifyDevices) {
                         if (DEBUG)
@@ -632,7 +655,23 @@ public final class USBMonitor {
         synchronized (mOpenedCtrlBlocks) {
             if (!mOpenedCtrlBlocks.containsKey(device)) {
                 ctrlBlock = new UsbControlBlock(USBMonitor.this, device);
-                ctrlBlock.open();
+                try {
+                    ctrlBlock.open();
+                } catch (Exception e) {
+                    Log.w(TAG, e);
+                    if (mOnDeviceConnectListener != null) {
+                        mListenerHandler.post(() -> {
+                            USBException ex;
+                            if (e instanceof USBException) {
+                                ex = (USBException) e;
+                            } else {
+                                ex = new USBException(USB_OPEN_ERROR_UNKNOWN, e.getLocalizedMessage());
+                            }
+                            mOnDeviceConnectListener.onError(device, ex);
+                        });
+                    }
+                    return;
+                }
                 mOpenedCtrlBlocks.put(device, ctrlBlock);
                 createNew = true;
             } else {
@@ -954,38 +993,40 @@ public final class USBMonitor {
                 UsbDeviceConnection connection = null;
                 try {
                     connection = manager.openDevice(device);
-                    final byte[] desc = connection.getRawDescriptors();
+                    if (connection != null) {
+                        final byte[] desc = connection.getRawDescriptors();
 
-                    if (TextUtils.isEmpty(info.usb_version) && desc != null) {
-                        info.usb_version = String.format("%x.%02x", ((int) desc[3] & 0xff), ((int) desc[2] & 0xff));
-                    }
-                    if (TextUtils.isEmpty(info.version) && desc != null) {
-                        info.version = String.format("%x.%02x", ((int) desc[13] & 0xff), ((int) desc[12] & 0xff));
-                    }
-                    if (TextUtils.isEmpty(info.serial)) {
-                        info.serial = connection.getSerial();
-                    }
-
-                    final byte[] languages = new byte[256];
-                    int languageCount = 0;
-                    // controlTransfer(int requestType, int request, int value, int index, byte[] buffer, int length, int timeout)
-
-                    int result = connection.controlTransfer(
-                            USB_REQ_STANDARD_DEVICE_GET, // USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_DEVICE
-                            USB_REQ_GET_DESCRIPTOR,
-                            (USB_DT_STRING << 8) | 0, 0, languages, 256, 0);
-                    if (result > 0) {
-                        languageCount = (result - 2) / 2;
-                    }
-                    if (languageCount > 0 && desc != null) {
-                        if (TextUtils.isEmpty(info.manufacturer)) {
-                            info.manufacturer = getString(connection, desc[14], languageCount, languages);
+                        if (TextUtils.isEmpty(info.usb_version) && desc != null) {
+                            info.usb_version = String.format("%x.%02x", ((int) desc[3] & 0xff), ((int) desc[2] & 0xff));
                         }
-                        if (TextUtils.isEmpty(info.product)) {
-                            info.product = getString(connection, desc[15], languageCount, languages);
+                        if (TextUtils.isEmpty(info.version) && desc != null) {
+                            info.version = String.format("%x.%02x", ((int) desc[13] & 0xff), ((int) desc[12] & 0xff));
                         }
                         if (TextUtils.isEmpty(info.serial)) {
-                            info.serial = getString(connection, desc[16], languageCount, languages);
+                            info.serial = connection.getSerial();
+                        }
+
+                        final byte[] languages = new byte[256];
+                        int languageCount = 0;
+                        // controlTransfer(int requestType, int request, int value, int index, byte[] buffer, int length, int timeout)
+
+                        int result = connection.controlTransfer(
+                                USB_REQ_STANDARD_DEVICE_GET, // USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_DEVICE
+                                USB_REQ_GET_DESCRIPTOR,
+                                (USB_DT_STRING << 8) | 0, 0, languages, 256, 0);
+                        if (result > 0) {
+                            languageCount = (result - 2) / 2;
+                        }
+                        if (languageCount > 0 && desc != null) {
+                            if (TextUtils.isEmpty(info.manufacturer)) {
+                                info.manufacturer = getString(connection, desc[14], languageCount, languages);
+                            }
+                            if (TextUtils.isEmpty(info.product)) {
+                                info.product = getString(connection, desc[15], languageCount, languages);
+                            }
+                            if (TextUtils.isEmpty(info.serial)) {
+                                info.serial = getString(connection, desc[16], languageCount, languages);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -1042,7 +1083,7 @@ public final class USBMonitor {
          * Open device
          * This method needs permission to access USB device
          */
-        public synchronized void open() {
+        public synchronized void open() throws Exception {
             if (DEBUG) Log.i(TAG, "UsbControlBlock#open:");
 
             final USBMonitor monitor = mWeakMonitor.get();
@@ -1059,14 +1100,15 @@ public final class USBMonitor {
             }
             mBusNum = busnum;
             mDevNum = devnum;
-            if (DEBUG) {
-                if (mConnection != null) {
+
+            if (mConnection != null) {
+                if (DEBUG) {
                     final int desc = mConnection.getFileDescriptor();
-                    final byte[] rawDesc = mConnection.getRawDescriptors();
-                    Log.i(TAG, String.format(Locale.US, "name=%s,desc=%d,busnum=%d,devnum=%d,rawDesc=", name, desc, busnum, devnum) + rawDesc);
-                } else {
-                    Log.e(TAG, "could not connect to device " + name);
+                    Log.i(TAG, String.format(Locale.US, "name=%s,desc=%d,busnum=%d,devnum=%d", name, desc, busnum, devnum));
                 }
+            } else {
+                Log.e(TAG, "could not connect to device " + name);
+                throw new USBException(USB_OPEN_ERROR_UNKNOWN, "failed to open usb device");
             }
         }
 
@@ -1362,4 +1404,16 @@ public final class USBMonitor {
         }
     }
 
+    public static class USBException extends Exception {
+        private int code;
+
+        public USBException(int code, String message) {
+            super(message);
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+    }
 }

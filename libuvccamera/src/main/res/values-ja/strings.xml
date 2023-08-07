@@ -28,4 +28,6 @@
     <string name="no_device">USBカメラが見つかりません</string>
     <string name="error_busy_need_replug">デバイスが占有されています。 もう一度デバイスを抜き差ししてください！ </string>
     <string name="error_unknown_need_replug">不明なエラーが発生しました。 もう一度デバイスを抜き差ししてください！</string>
+    <string name="error_messge_camera_open_unknown">デバイスが占有されています。 </string>
+    <string name="error_messge_camera_open_busy">不明なエラーが発生しました。</string>
 </resources>

@@ -25,6 +25,7 @@ import com.serenegiant.uvccamera.BuildConfig;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.WeakHashMap;
 
 public class CameraHelper implements ICameraHelper {
     private static final boolean DEBUG = BuildConfig.DEBUG;
@@ -41,6 +42,7 @@ public class CameraHelper implements ICameraHelper {
     protected StateCallback mCallbackWrapper;
 
     private UsbDevice mUsbDevice;
+    private final WeakHashMap<UsbDevice, Object> mDetachedDeviceMap = new WeakHashMap<>();
 
     private CameraPreviewConfig mCameraPreviewConfig = new CameraPreviewConfig();
     private ImageCaptureConfig mImageCaptureConfig = new ImageCaptureConfig();
@@ -81,12 +83,16 @@ public class CameraHelper implements ICameraHelper {
         return null;
     }
 
+    private boolean isDetached(UsbDevice usbDevice) {
+        return mDetachedDeviceMap.containsKey(usbDevice);
+    }
+
     @Override
     public void selectDevice(final UsbDevice device) {
         if (DEBUG)
-            Log.d(TAG, "selectDevice:device=" + (device != null ? device.getDeviceName() : null));
+            Log.d(TAG, "selectDevice:device=" + (device != null ? device.getDeviceName() : null) + " "  + this);
         mAsyncHandler.post(() -> {
-            if (mService != null) {
+            if (mService != null && !isDetached(device)) {
                 mUsbDevice = device;
                 try {
                     mService.selectDevice(device);
@@ -248,9 +254,9 @@ public class CameraHelper implements ICameraHelper {
 
     @Override
     public void openCamera(UVCParam param) {
-        if (DEBUG) Log.d(TAG, "openCamera:");
+        if (DEBUG) Log.d(TAG, "openCamera: "  + this);
         mAsyncHandler.post(() -> {
-            if (mService != null && mUsbDevice != null) {
+            if (mService != null && mUsbDevice != null && !isDetached(mUsbDevice)) {
                 try {
                     if (!mService.isCameraOpened(mUsbDevice)) {
                         mService.openCamera(mUsbDevice, param,
@@ -269,7 +275,7 @@ public class CameraHelper implements ICameraHelper {
 
     @Override
     public void closeCamera() {
-        if (DEBUG) Log.d(TAG, "closeCamera:" + this);
+        if (DEBUG) Log.d(TAG, "closeCamera: " + this);
         mAsyncHandler.post(() -> {
             if (mService != null && mUsbDevice != null) {
                 try {
@@ -287,7 +293,7 @@ public class CameraHelper implements ICameraHelper {
 
     @Override
     public void startPreview() {
-        if (DEBUG) Log.d(TAG, "startPreview:");
+        if (DEBUG) Log.d(TAG, "startPreview: "  + this);
         mAsyncHandler.post(() -> {
             if (mService != null && mUsbDevice != null) {
                 try {
@@ -301,7 +307,7 @@ public class CameraHelper implements ICameraHelper {
 
     @Override
     public void stopPreview() {
-        if (DEBUG) Log.d(TAG, "stopPreview:");
+        if (DEBUG) Log.d(TAG, "stopPreview: "  + this);
         mAsyncHandler.post(() -> {
             if (mService != null && mUsbDevice != null) {
                 try {
@@ -406,7 +412,7 @@ public class CameraHelper implements ICameraHelper {
 
     @Override
     public void release() {
-        if (DEBUG) Log.d(TAG, "release:" + this);
+        if (DEBUG) Log.d(TAG, "release: " + this);
         mAsyncHandler.post(() -> {
             if (mService != null) {
                 try {
@@ -424,12 +430,13 @@ public class CameraHelper implements ICameraHelper {
 
             mUsbDevice = null;
             mAsyncHandlerThread.quitSafely();
+            mDetachedDeviceMap.clear();
         });
     }
 
     @Override
     public void releaseAll() {
-        if (DEBUG) Log.d(TAG, "releaseAll:" + this);
+        if (DEBUG) Log.d(TAG, "releaseAll: " + this);
         mAsyncHandler.post(() -> {
             if (mService != null) {
                 try {
@@ -445,6 +452,7 @@ public class CameraHelper implements ICameraHelper {
 
             mUsbDevice = null;
             mAsyncHandlerThread.quitSafely();
+            mDetachedDeviceMap.clear();
         });
     }
 
@@ -575,37 +583,53 @@ public class CameraHelper implements ICameraHelper {
 
         @Override
         public void onAttach(UsbDevice device) {
+            if (DEBUG) Log.d(TAG, "onAttach:");
             mMainHandler.post(() -> mCallback.onAttach(device));
         }
 
         @Override
         public void onDeviceOpen(UsbDevice device, boolean isFirstOpen) {
+            if (DEBUG) Log.d(TAG, "onDeviceOpen:");
             mMainHandler.post(() -> mCallback.onDeviceOpen(device, isFirstOpen));
         }
 
         @Override
         public void onCameraOpen(UsbDevice device) {
+            if (DEBUG) Log.d(TAG, "onCameraOpen:");
             mMainHandler.post(() -> mCallback.onCameraOpen(device));
         }
 
         @Override
         public void onCameraClose(UsbDevice device) {
+            if (DEBUG) Log.d(TAG, "onCameraClose:");
             mMainHandler.post(() -> mCallback.onCameraClose(device));
         }
 
         @Override
         public void onDeviceClose(UsbDevice device) {
+            if (DEBUG) Log.d(TAG, "onDeviceClose:");
             mMainHandler.post(() -> mCallback.onDeviceClose(device));
         }
 
         @Override
         public void onDetach(UsbDevice device) {
+            if (DEBUG) Log.d(TAG, "onDetach:");
+            synchronized (mDetachedDeviceMap) {
+                mDetachedDeviceMap.put(device, null);
+            }
             mMainHandler.post(() -> mCallback.onDetach(device));
         }
 
         @Override
         public void onCancel(UsbDevice device) {
+            if (DEBUG) Log.d(TAG, "onCancel:");
             mMainHandler.post(() -> mCallback.onCancel(device));
+        }
+
+        @Override
+        public void onError(UsbDevice device, CameraException e) {
+            if (DEBUG) Log.d(TAG, "onError:");
+            mMainHandler.post(() -> mCallback.onError(device, e));
         }
     }
 }

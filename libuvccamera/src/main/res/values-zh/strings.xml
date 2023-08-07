@@ -27,4 +27,6 @@
     <string name="no_device">未找到 USB 摄像头</string>
     <string name="error_busy_need_replug">设备被占用。请重新插拔一下设备！</string>
     <string name="error_unknown_need_replug">发生未知错误。请重新插拔一下设备！</string>
+    <string name="error_messge_camera_open_unknown">打开摄像头时发生未知错误。</string>
+    <string name="error_messge_camera_open_busy">打开摄像头时设备被占用。</string>
 </resources>

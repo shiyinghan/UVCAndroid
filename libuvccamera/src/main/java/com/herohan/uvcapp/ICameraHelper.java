@@ -1,6 +1,8 @@
 package com.herohan.uvcapp;
 
+import android.content.Context;
 import android.hardware.usb.UsbDevice;
+import android.widget.Toast;
 
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IButtonCallback;
@@ -8,6 +10,8 @@ import com.serenegiant.usb.IFrameCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
 import com.serenegiant.usb.UVCParam;
+import com.serenegiant.utils.UVCUtils;
+import com.serenegiant.uvccamera.R;
 
 import java.util.List;
 
@@ -121,5 +125,14 @@ public interface ICameraHelper {
         void onDetach(UsbDevice device);
 
         void onCancel(UsbDevice device);
+
+        default void onError(UsbDevice device, CameraException e) {
+            // show tip according to error
+            Context context = UVCUtils.getApplication();
+            String tip = e.getCode() == CameraException.CAMERA_OPEN_ERROR_BUSY ?
+                    context.getString(R.string.error_busy_need_replug) :
+                    context.getString(R.string.error_unknown_need_replug);
+            Toast.makeText(context, tip, Toast.LENGTH_SHORT).show();
+        }
     }
 }

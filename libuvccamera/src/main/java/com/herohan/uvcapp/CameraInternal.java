@@ -14,6 +14,7 @@ import com.serenegiant.usb.USBMonitor.UsbControlBlock;
 import com.serenegiant.usb.UVCCamera;
 import com.serenegiant.usb.UVCControl;
 import com.serenegiant.usb.UVCParam;
+import com.serenegiant.utils.UVCUtils;
 import com.serenegiant.uvccamera.BuildConfig;
 import com.serenegiant.uvccamera.R;
 
@@ -197,16 +198,15 @@ final class CameraInternal implements ICameraInternal {
     }
 
     private void resetUVCCamera() {
-        if (DEBUG) Log.d(TAG, "resetUVCCamera:");
+        if (DEBUG) Log.d(TAG, "resetUVCCamera: " + this);
         stopRecording();
-        synchronized (mSync) {
+        synchronized (CameraInternal.class) {
             if (mUVCCamera != null) {
                 mUVCCamera.stopPreview();
                 mUVCCamera.destroy(true);
                 mUVCCamera = null;
             }
             mRendererHolder.removeSlaveSurfaceAll();
-            mSync.notifyAll();
         }
     }
 
@@ -215,20 +215,28 @@ final class CameraInternal implements ICameraInternal {
                                ImageCaptureConfig imageCaptureConfig,
                                VideoCaptureConfig videoCaptureConfig) {
         resetUVCCamera();
-        if (DEBUG) Log.d(TAG, "openUVCCamera:");
+        if (DEBUG) Log.d(TAG, "openUVCCamera: " + this);
         try {
             synchronized (mSync) {
                 mUVCCamera = new UVCCamera(param);
                 int result = mUVCCamera.open(mCtrlBlock);
                 if (result != 0) {
-                    // show tip according to error
-                    Context context = mWeakContext.get();
-                    String tip = result == UVCCamera.UVC_ERROR_BUSY ?
-                            context.getString(R.string.error_busy_need_replug) :
-                            context.getString(R.string.error_unknown_need_replug);
-                    Toast.makeText(context, tip, Toast.LENGTH_SHORT).show();
-
-                    throw new IllegalStateException("open failed:result=" + result);
+                    mSync.notifyAll();
+//                    // show tip according to error
+//                    Context context = mWeakContext.get();
+//                    String tip = result == UVCCamera.UVC_ERROR_BUSY ?
+//                            context.getString(R.string.error_busy_need_replug) :
+//                            context.getString(R.string.error_unknown_need_replug);
+//                    Toast.makeText(context, tip, Toast.LENGTH_SHORT).show();
+//
+//                    throw new IllegalStateException("open failed:result=" + result);
+                    Context context = UVCUtils.getApplication();
+                    switch (result) {
+                        case UVCCamera.UVC_ERROR_BUSY:
+                            throw new CameraException(CameraException.CAMERA_OPEN_ERROR_BUSY, context.getString(R.string.error_messge_camera_open_busy));
+                        default:
+                            throw new CameraException(CameraException.CAMERA_OPEN_ERROR_UNKNOWN, context.getString(R.string.error_messge_camera_open_unknown));
+                    }
                 }
                 if (DEBUG) Log.i(TAG, "supportedSize:" + mUVCCamera.getSupportedSize());
             }
@@ -241,15 +249,22 @@ final class CameraInternal implements ICameraInternal {
             processOnCameraOpen();
         } catch (Exception e) {
             if (DEBUG) Log.e(TAG, "openUVCCamera:", e);
+            CameraException ex = null;
+            if (e instanceof CameraException) {
+                ex = (CameraException) e;
+            } else {
+                ex = new CameraException(CameraException.CAMERA_OPEN_ERROR_UNKNOWN, e);
+            }
+            processOnError(ex);
         }
     }
 
     @Override
     public void closeCamera() {
-        if (DEBUG) Log.d(TAG, "closeCamera:");
+        if (DEBUG) Log.d(TAG, "closeCamera: " + this);
         stopRecording();
         boolean closed = false;
-        synchronized (mSync) {
+        synchronized (CameraInternal.class) {
             if (mUVCCamera != null) {
                 mUVCCamera.stopPreview();
                 mUVCCamera.destroy();
@@ -260,8 +275,6 @@ final class CameraInternal implements ICameraInternal {
             if (closed) {
                 processOnCameraClose();
             }
-
-            mSync.notifyAll();
         }
 
         if (mImageCapture != null) {
@@ -276,8 +289,8 @@ final class CameraInternal implements ICameraInternal {
 
     @Override
     public void startPreview() {
-        if (DEBUG) Log.d(TAG, "startPreview:");
-        synchronized (mSync) {
+        if (DEBUG) Log.d(TAG, "startPreview: " + this);
+        synchronized (CameraInternal.class) {
             if (mUVCCamera == null) return;
 
 //				mUVCCamera.setFrameCallback(mIFrameCallback, UVCCamera.PIXEL_FORMAT_YUV);
@@ -296,8 +309,8 @@ final class CameraInternal implements ICameraInternal {
 
     @Override
     public void stopPreview() {
-        if (DEBUG) Log.d(TAG, "stopPreview:");
-        synchronized (mSync) {
+        if (DEBUG) Log.d(TAG, "stopPreview: " + this);
+        synchronized (CameraInternal.class) {
             if (mUVCCamera != null) {
                 mUVCCamera.stopPreview();
             }
@@ -404,16 +417,14 @@ final class CameraInternal implements ICameraInternal {
     }
 
     private void releaseResource() {
-        if (DEBUG) Log.d(TAG, "releaseResource");
-        synchronized (mSync) {
+        if (DEBUG) Log.d(TAG, "releaseResource: " + this);
+        synchronized (CameraInternal.class) {
             clearCallbacks();
 
             if (mRendererHolder != null) {
                 mRendererHolder.release();
                 mRendererHolder = null;
             }
-
-            mSync.notifyAll();
         }
     }
 
@@ -438,6 +449,17 @@ final class CameraInternal implements ICameraInternal {
         for (StateCallback callback : mCallbacks) {
             try {
                 callback.onCameraClose();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void processOnError(CameraException ex) {
+        if (DEBUG) Log.d(TAG, "processOnError:" + ex);
+        for (StateCallback callback : mCallbacks) {
+            try {
+                callback.onError(ex);
             } catch (Exception e) {
                 e.printStackTrace();
             }

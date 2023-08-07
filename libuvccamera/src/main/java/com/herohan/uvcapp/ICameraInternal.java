@@ -70,5 +70,7 @@ interface ICameraInternal {
         void onCameraOpen();
 
         void onCameraClose();
+
+        void onError(CameraException e);
     }
 }
