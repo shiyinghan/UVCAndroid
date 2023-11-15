@@ -1,49 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.herohan.uvcdemo.EntryActivity">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/btnBasicPreview"
-        style="@style/EntryButton"
-        android:text="@string/entry_basic_preview" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context="com.herohan.uvcdemo.EntryActivity">
 
-    <Button
-        android:id="@+id/btnCustomPreview"
-        style="@style/EntryButton"
-        android:text="@string/entry_custom_preview" />
+        <Button
+            android:id="@+id/btnBasicPreview"
+            style="@style/EntryButton"
+            android:text="@string/entry_basic_preview" />
 
-    <Button
-        android:id="@+id/btnMultiPreview"
-        style="@style/EntryButton"
-        android:text="@string/entry_multi_preview" />
+        <Button
+            android:id="@+id/btnCustomPreview"
+            style="@style/EntryButton"
+            android:text="@string/entry_custom_preview" />
 
-    <Button
-        android:id="@+id/btnMultiCameraNew"
-        style="@style/EntryButton"
-        android:text="@string/entry_multi_camera_new" />
+        <Button
+            android:id="@+id/btnMultiPreview"
+            style="@style/EntryButton"
+            android:text="@string/entry_multi_preview" />
 
-    <Button
-        android:id="@+id/btnMultiCamera"
-        style="@style/EntryButton"
-        android:text="@string/entry_multi_camera" />
+        <Button
+            android:id="@+id/btnMultiCameraNew"
+            style="@style/EntryButton"
+            android:text="@string/entry_multi_camera_new" />
 
-    <Button
-        android:id="@+id/btnTakePicture"
-        style="@style/EntryButton"
-        android:text="@string/entry_take_picture" />
+        <Button
+            android:id="@+id/btnMultiCamera"
+            style="@style/EntryButton"
+            android:text="@string/entry_multi_camera" />
 
-    <Button
-        android:id="@+id/btnRecordVideo"
-        style="@style/EntryButton"
-        android:text="@string/entry_record_video" />
+        <Button
+            android:id="@+id/btnTakePicture"
+            style="@style/EntryButton"
+            android:text="@string/entry_take_picture" />
 
-    <Button
-        android:id="@+id/btnSetFrameCallback"
-        style="@style/EntryButton"
-        android:text="@string/entry_set_frame_callback" />
-</LinearLayout>
+        <Button
+            android:id="@+id/btnRecordVideo"
+            style="@style/EntryButton"
+            android:text="@string/entry_record_video" />
+
+        <Button
+            android:id="@+id/btnSetFrameCallback"
+            style="@style/EntryButton"
+            android:text="@string/entry_set_frame_callback" />
+    </LinearLayout>
+</ScrollView>
