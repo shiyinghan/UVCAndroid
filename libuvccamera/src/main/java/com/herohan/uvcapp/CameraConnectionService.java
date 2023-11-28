@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.herohan.uvcapp.utils.Watchdog;
 import com.serenegiant.usb.DeviceFilter;
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IButtonCallback;
@@ -54,6 +55,7 @@ class CameraConnectionService {
 
         private final Object mConnectionSync = new Object();
         private final HashMap<String, CameraInternal> mCameras = new HashMap<>();
+        private String mLastCameraKey = null;
 
         private USBMonitor mUSBMonitor;
         private HandlerThread mListenerHandlerThread;
@@ -64,6 +66,7 @@ class CameraConnectionService {
             mListenerHandlerThread = new HandlerThread(LOG_PREFIX + hashCode());
             mListenerHandlerThread.start();
             mListenerHandler = new Handler(mListenerHandlerThread.getLooper());
+//            Watchdog.getInstance().addThread(mListenerHandler);
 
             mUSBMonitor = new USBMonitor(
                     UVCUtils.getApplication(),
@@ -77,6 +80,7 @@ class CameraConnectionService {
             final String key = getCameraKey(device);
             CameraInternal cameraInternal;
             synchronized (mConnectionSync) {
+                mLastCameraKey = null;
                 cameraInternal = mCameras.get(key);
                 if (cameraInternal == null) {
                     cameraInternal = new CameraInternal(UVCUtils.getApplication(), ctrlBlock, device.getVendorId(), device.getProductId());
@@ -94,6 +98,7 @@ class CameraConnectionService {
             if (DEBUG) Log.d(TAG, "removeCamera:device=" + device.getDeviceName());
             final String key = getCameraKey(device);
             synchronized (mConnectionSync) {
+                mLastCameraKey = key;
                 final CameraInternal service = mCameras.get(key);
                 if (service != null) {
                     service.release();
@@ -124,8 +129,9 @@ class CameraConnectionService {
                 } else {
                     String cameraKey = getCameraKey(device);
                     cameraInternal = mCameras.get(cameraKey);
-                    if (cameraInternal == null) {
-                        if (isBlocking) {
+                    if (cameraInternal == null && isBlocking) {
+                        //add this condition to fix async thread deadlock bug
+                        if (!cameraKey.equals(mLastCameraKey)) {
                             Log.i(TAG, "wait for service is ready");
                             try {
                                 mConnectionSync.wait();
@@ -482,6 +488,7 @@ class CameraConnectionService {
                 mUSBMonitor = null;
             }
 
+//            Watchdog.getInstance().removeThread(mListenerHandler);
             mListenerHandlerThread.quitSafely();
 
             mWeakStateCallback.clear();

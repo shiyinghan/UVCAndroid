@@ -93,7 +93,7 @@ uvc_error_t uvc_get_{control_name}(uvc_device_handle_t *devh, {args_signature}, 
     {unit_fn} << 8 | devh->info->ctrl_if.bInterfaceNumber,
     data,
     sizeof(data),
-    0);
+    LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
   if (ret == sizeof(data)) {{
     {unpack}
@@ -122,7 +122,7 @@ uvc_error_t uvc_set_{control_name}(uvc_device_handle_t *devh, {args_signature}) 
     {unit_fn} << 8 | devh->info->ctrl_if.bInterfaceNumber,
     data,
     sizeof(data),
-    0);
+    LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
   if (ret == sizeof(data))
     return UVC_SUCCESS;

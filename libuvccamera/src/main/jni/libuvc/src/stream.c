@@ -362,7 +362,7 @@ uvc_error_t uvc_query_stream_ctrl(
             req,
             probe ? (UVC_VS_PROBE_CONTROL << 8) : (UVC_VS_COMMIT_CONTROL << 8),
             ctrl->bInterfaceNumber,
-            buf, len, 0
+            buf, len, LIBUSB_CONTROL_TRANSFER_TIMEOUT
     );
 
     if (UNLIKELY(err <= 0)) {
@@ -470,7 +470,7 @@ uvc_error_t uvc_query_still_ctrl(
             req,
             probe ? (UVC_VS_STILL_PROBE_CONTROL << 8) : (UVC_VS_STILL_COMMIT_CONTROL << 8),
             still_ctrl->bInterfaceNumber,
-            buf, len, 0
+            buf, len, LIBUSB_CONTROL_TRANSFER_TIMEOUT
     );
 
     if (err <= 0) {
@@ -523,7 +523,7 @@ uvc_error_t uvc_trigger_still(
             UVC_SET_CUR,
             (UVC_VS_STILL_IMAGE_TRIGGER_CONTROL << 8),
             still_ctrl->bInterfaceNumber,
-            &buf, 1, 0);
+            &buf, 1, LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (err <= 0) {
         return err;

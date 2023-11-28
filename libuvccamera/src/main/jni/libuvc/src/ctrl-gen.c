@@ -23,7 +23,7 @@ uvc_get_scanning_mode(uvc_device_handle_t *devh, uint8_t *mode, enum uvc_req_cod
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *mode = data[0];
@@ -52,7 +52,7 @@ uvc_error_t uvc_set_scanning_mode(uvc_device_handle_t *devh, uint8_t mode) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -79,7 +79,7 @@ uvc_error_t uvc_get_ae_mode(uvc_device_handle_t *devh, uint8_t *mode, enum uvc_r
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *mode = data[0];
@@ -116,7 +116,7 @@ uvc_error_t uvc_set_ae_mode(uvc_device_handle_t *devh, uint8_t mode) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -143,7 +143,7 @@ uvc_get_ae_priority(uvc_device_handle_t *devh, uint8_t *priority, enum uvc_req_c
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *priority = data[0];
@@ -175,7 +175,7 @@ uvc_error_t uvc_set_ae_priority(uvc_device_handle_t *devh, uint8_t priority) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -203,7 +203,7 @@ uvc_get_exposure_abs(uvc_device_handle_t *devh, uint32_t *time, enum uvc_req_cod
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *time = DW_TO_INT(data + 0);
@@ -236,7 +236,7 @@ uvc_error_t uvc_set_exposure_abs(uvc_device_handle_t *devh, uint32_t time) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -262,7 +262,7 @@ uvc_get_exposure_rel(uvc_device_handle_t *devh, int8_t *step, enum uvc_req_code 
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *step = data[0];
@@ -291,7 +291,7 @@ uvc_error_t uvc_set_exposure_rel(uvc_device_handle_t *devh, int8_t step) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -317,7 +317,7 @@ uvc_get_focus_abs(uvc_device_handle_t *devh, uint16_t *focus, enum uvc_req_code 
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *focus = SW_TO_SHORT(data + 0);
@@ -346,7 +346,7 @@ uvc_error_t uvc_set_focus_abs(uvc_device_handle_t *devh, uint16_t focus) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -373,7 +373,7 @@ uvc_error_t uvc_get_focus_rel(uvc_device_handle_t *devh, int8_t *focus_rel, uint
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *focus_rel = data[0];
@@ -405,7 +405,7 @@ uvc_error_t uvc_set_focus_rel(uvc_device_handle_t *devh, int8_t focus_rel, uint8
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -431,7 +431,7 @@ uvc_get_focus_simple_range(uvc_device_handle_t *devh, uint8_t *focus, enum uvc_r
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *focus = data[0];
@@ -460,7 +460,7 @@ uvc_error_t uvc_set_focus_simple_range(uvc_device_handle_t *devh, uint8_t focus)
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -486,7 +486,7 @@ uvc_get_focus_auto(uvc_device_handle_t *devh, uint8_t *state, enum uvc_req_code 
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *state = data[0];
@@ -515,7 +515,7 @@ uvc_error_t uvc_set_focus_auto(uvc_device_handle_t *devh, uint8_t state) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -541,7 +541,7 @@ uvc_get_iris_abs(uvc_device_handle_t *devh, uint16_t *iris, enum uvc_req_code re
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *iris = SW_TO_SHORT(data + 0);
@@ -570,7 +570,7 @@ uvc_error_t uvc_set_iris_abs(uvc_device_handle_t *devh, uint16_t iris) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -596,7 +596,7 @@ uvc_get_iris_rel(uvc_device_handle_t *devh, uint8_t *iris_rel, enum uvc_req_code
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *iris_rel = data[0];
@@ -625,7 +625,7 @@ uvc_error_t uvc_set_iris_rel(uvc_device_handle_t *devh, uint8_t iris_rel) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -651,7 +651,7 @@ uvc_get_zoom_abs(uvc_device_handle_t *devh, uint16_t *focal_length, enum uvc_req
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *focal_length = SW_TO_SHORT(data + 0);
@@ -680,7 +680,7 @@ uvc_error_t uvc_set_zoom_abs(uvc_device_handle_t *devh, uint16_t focal_length) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -709,7 +709,7 @@ uvc_get_zoom_rel(uvc_device_handle_t *devh, int8_t *zoom_rel, uint8_t *digital_z
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *zoom_rel = data[0];
@@ -745,7 +745,7 @@ uvc_set_zoom_rel(uvc_device_handle_t *devh, int8_t zoom_rel, uint8_t digital_zoo
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -772,7 +772,7 @@ uvc_error_t uvc_get_pantilt_abs(uvc_device_handle_t *devh, int32_t *pan, int32_t
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *pan = DW_TO_INT(data + 0);
@@ -804,7 +804,7 @@ uvc_error_t uvc_set_pantilt_abs(uvc_device_handle_t *devh, int32_t pan, int32_t 
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -833,7 +833,7 @@ uvc_error_t uvc_get_pantilt_rel(uvc_device_handle_t *devh, int8_t *pan_rel, uint
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *pan_rel = data[0];
@@ -873,7 +873,7 @@ uvc_set_pantilt_rel(uvc_device_handle_t *devh, int8_t pan_rel, uint8_t pan_speed
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -898,7 +898,7 @@ uvc_error_t uvc_get_roll_abs(uvc_device_handle_t *devh, int16_t *roll, enum uvc_
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *roll = SW_TO_SHORT(data + 0);
@@ -927,7 +927,7 @@ uvc_error_t uvc_set_roll_abs(uvc_device_handle_t *devh, int16_t roll) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -954,7 +954,7 @@ uvc_error_t uvc_get_roll_rel(uvc_device_handle_t *devh, int8_t *roll_rel, uint8_
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *roll_rel = data[0];
@@ -986,7 +986,7 @@ uvc_error_t uvc_set_roll_rel(uvc_device_handle_t *devh, int8_t roll_rel, uint8_t
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1012,7 +1012,7 @@ uvc_get_privacy(uvc_device_handle_t *devh, uint8_t *privacy, enum uvc_req_code r
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *privacy = data[0];
@@ -1041,7 +1041,7 @@ uvc_error_t uvc_set_privacy(uvc_device_handle_t *devh, uint8_t privacy) {
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1074,7 +1074,7 @@ uvc_get_digital_window(uvc_device_handle_t *devh, uint16_t *window_top, uint16_t
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *window_top = SW_TO_SHORT(data + 0);
@@ -1121,7 +1121,7 @@ uvc_set_digital_window(uvc_device_handle_t *devh, uint16_t window_top, uint16_t 
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1152,7 +1152,7 @@ uvc_error_t uvc_get_digital_roi(uvc_device_handle_t *devh, uint16_t *roi_top, ui
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *roi_top = SW_TO_SHORT(data + 0);
@@ -1194,7 +1194,7 @@ uvc_error_t uvc_set_digital_roi(uvc_device_handle_t *devh, uint16_t roi_top, uin
             uvc_get_camera_terminal(devh)->bTerminalID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1221,7 +1221,7 @@ uvc_get_backlight_compensation(uvc_device_handle_t *devh, uint16_t *backlight_co
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *backlight_compensation = SW_TO_SHORT(data + 0);
@@ -1251,7 +1251,7 @@ uvc_set_backlight_compensation(uvc_device_handle_t *devh, uint16_t backlight_com
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1277,7 +1277,7 @@ uvc_get_brightness(uvc_device_handle_t *devh, int16_t *brightness, enum uvc_req_
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *brightness = SW_TO_SHORT(data + 0);
@@ -1306,7 +1306,7 @@ uvc_error_t uvc_set_brightness(uvc_device_handle_t *devh, int16_t brightness) {
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1332,7 +1332,7 @@ uvc_get_contrast(uvc_device_handle_t *devh, uint16_t *contrast, enum uvc_req_cod
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *contrast = SW_TO_SHORT(data + 0);
@@ -1361,7 +1361,7 @@ uvc_error_t uvc_set_contrast(uvc_device_handle_t *devh, uint16_t contrast) {
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1387,7 +1387,7 @@ uvc_error_t uvc_get_contrast_auto(uvc_device_handle_t *devh, uint8_t *contrast_a
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *contrast_auto = data[0];
@@ -1416,7 +1416,7 @@ uvc_error_t uvc_set_contrast_auto(uvc_device_handle_t *devh, uint8_t contrast_au
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1441,7 +1441,7 @@ uvc_error_t uvc_get_gain(uvc_device_handle_t *devh, uint16_t *gain, enum uvc_req
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *gain = SW_TO_SHORT(data + 0);
@@ -1470,7 +1470,7 @@ uvc_error_t uvc_set_gain(uvc_device_handle_t *devh, uint16_t gain) {
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1496,7 +1496,7 @@ uvc_error_t uvc_get_power_line_frequency(uvc_device_handle_t *devh, uint8_t *pow
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *power_line_frequency = data[0];
@@ -1525,7 +1525,7 @@ uvc_error_t uvc_set_power_line_frequency(uvc_device_handle_t *devh, uint8_t powe
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1550,7 +1550,7 @@ uvc_error_t uvc_get_hue(uvc_device_handle_t *devh, int16_t *hue, enum uvc_req_co
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *hue = SW_TO_SHORT(data + 0);
@@ -1579,7 +1579,7 @@ uvc_error_t uvc_set_hue(uvc_device_handle_t *devh, int16_t hue) {
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1605,7 +1605,7 @@ uvc_get_hue_auto(uvc_device_handle_t *devh, uint8_t *hue_auto, enum uvc_req_code
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *hue_auto = data[0];
@@ -1634,7 +1634,7 @@ uvc_error_t uvc_set_hue_auto(uvc_device_handle_t *devh, uint8_t hue_auto) {
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1660,7 +1660,7 @@ uvc_get_saturation(uvc_device_handle_t *devh, uint16_t *saturation, enum uvc_req
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *saturation = SW_TO_SHORT(data + 0);
@@ -1689,7 +1689,7 @@ uvc_error_t uvc_set_saturation(uvc_device_handle_t *devh, uint16_t saturation) {
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1715,7 +1715,7 @@ uvc_get_sharpness(uvc_device_handle_t *devh, uint16_t *sharpness, enum uvc_req_c
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *sharpness = SW_TO_SHORT(data + 0);
@@ -1744,7 +1744,7 @@ uvc_error_t uvc_set_sharpness(uvc_device_handle_t *devh, uint16_t sharpness) {
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1769,7 +1769,7 @@ uvc_error_t uvc_get_gamma(uvc_device_handle_t *devh, uint16_t *gamma, enum uvc_r
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *gamma = SW_TO_SHORT(data + 0);
@@ -1798,7 +1798,7 @@ uvc_error_t uvc_set_gamma(uvc_device_handle_t *devh, uint16_t gamma) {
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1824,7 +1824,7 @@ uvc_error_t uvc_get_white_balance_temperature(uvc_device_handle_t *devh, uint16_
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *temperature = SW_TO_SHORT(data + 0);
@@ -1853,7 +1853,7 @@ uvc_error_t uvc_set_white_balance_temperature(uvc_device_handle_t *devh, uint16_
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1880,7 +1880,7 @@ uvc_get_white_balance_temperature_auto(uvc_device_handle_t *devh, uint8_t *tempe
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *temperature_auto = data[0];
@@ -1910,7 +1910,7 @@ uvc_set_white_balance_temperature_auto(uvc_device_handle_t *devh, uint8_t temper
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1938,7 +1938,7 @@ uvc_get_white_balance_component(uvc_device_handle_t *devh, uint16_t *blue, uint1
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *blue = SW_TO_SHORT(data + 0);
@@ -1971,7 +1971,7 @@ uvc_set_white_balance_component(uvc_device_handle_t *devh, uint16_t blue, uint16
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -1998,7 +1998,7 @@ uvc_error_t uvc_get_white_balance_component2(uvc_device_handle_t *devh, uint32_t
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *wb_compo = DW_TO_INT(data);
@@ -2028,7 +2028,7 @@ uvc_error_t uvc_set_white_balance_component2(uvc_device_handle_t *devh, uint32_t
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -2055,7 +2055,7 @@ uvc_error_t uvc_get_white_balance_component_auto(uvc_device_handle_t *devh,
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *white_balance_component_auto = data[0];
@@ -2085,7 +2085,7 @@ uvc_error_t uvc_set_white_balance_component_auto(uvc_device_handle_t *devh,
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -2111,7 +2111,7 @@ uvc_error_t uvc_get_digital_multiplier(uvc_device_handle_t *devh, uint16_t *mult
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *multiplier_step = SW_TO_SHORT(data + 0);
@@ -2140,7 +2140,7 @@ uvc_error_t uvc_set_digital_multiplier(uvc_device_handle_t *devh, uint16_t multi
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -2166,7 +2166,7 @@ uvc_error_t uvc_get_digital_multiplier_limit(uvc_device_handle_t *devh, uint16_t
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *multiplier_step = SW_TO_SHORT(data + 0);
@@ -2195,7 +2195,7 @@ uvc_error_t uvc_set_digital_multiplier_limit(uvc_device_handle_t *devh, uint16_t
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -2221,7 +2221,7 @@ uvc_error_t uvc_get_analog_video_standard(uvc_device_handle_t *devh, uint8_t *vi
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *video_standard = data[0];
@@ -2250,7 +2250,7 @@ uvc_error_t uvc_set_analog_video_standard(uvc_device_handle_t *devh, uint8_t vid
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -2276,7 +2276,7 @@ uvc_error_t uvc_get_analog_video_lock_status(uvc_device_handle_t *devh, uint8_t 
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *status = data[0];
@@ -2305,7 +2305,7 @@ uvc_error_t uvc_set_analog_video_lock_status(uvc_device_handle_t *devh, uint8_t 
             uvc_get_processing_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;
@@ -2331,7 +2331,7 @@ uvc_get_input_select(uvc_device_handle_t *devh, uint8_t *selector, enum uvc_req_
             uvc_get_selector_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data)) {
         *selector = data[0];
@@ -2360,7 +2360,7 @@ uvc_error_t uvc_set_input_select(uvc_device_handle_t *devh, uint8_t selector) {
             uvc_get_selector_units(devh)->bUnitID << 8 | devh->info->ctrl_if.bInterfaceNumber,
             data,
             sizeof(data),
-            0);
+            LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
     if (ret == sizeof(data))
         return UVC_SUCCESS;

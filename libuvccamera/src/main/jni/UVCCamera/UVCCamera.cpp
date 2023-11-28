@@ -70,6 +70,10 @@ UVCCamera::~UVCCamera() {
         uvc_exit(mContext);
         mContext = NULL;
     }
+    if (mFd) {
+        close(mFd);
+        mFd = 0;
+    }
     EXIT();
 }
 
@@ -84,6 +88,10 @@ UVCControl *UVCCamera::getControl() {
 int UVCCamera::connect(int fd, int quirks) {
     ENTER();
     uvc_error_t result = UVC_ERROR_BUSY;
+    if (mFd) {
+        close(mFd);
+        mFd = 0;
+    }
     if (!mDeviceHandle && fd) {
         if (UNLIKELY(!mContext)) {
             result = uvc_init2(&mContext, NULL);
@@ -132,10 +140,10 @@ int UVCCamera::release() {
         uvc_close(mDeviceHandle);
         mDeviceHandle = NULL;
     }
-    if (mFd) {
-        close(mFd);
-        mFd = 0;
-    }
+//    if (mFd) {
+//        close(mFd);
+//        mFd = 0;
+//    }
     RETURN(0, int);
 }
 

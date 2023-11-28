@@ -66,7 +66,7 @@ int uvc_get_ctrl_len(uvc_device_handle_t *devh, uint8_t unit, uint8_t ctrl) {
     unit << 8 | devh->info->ctrl_if.bInterfaceNumber,		// XXX saki
     buf,
     2,
-    0 /* timeout */);
+    LIBUSB_CONTROL_TRANSFER_TIMEOUT /* timeout */);
 
   if (ret < 0)
     return ret;
@@ -95,7 +95,7 @@ int uvc_get_ctrl(uvc_device_handle_t *devh, uint8_t unit, uint8_t ctrl, void *da
     unit << 8 | devh->info->ctrl_if.bInterfaceNumber,		// XXX saki
     data,
     len,
-    0 /* timeout */);
+    LIBUSB_CONTROL_TRANSFER_TIMEOUT /* timeout */);
 }
 
 /**
@@ -118,7 +118,7 @@ int uvc_set_ctrl(uvc_device_handle_t *devh, uint8_t unit, uint8_t ctrl, void *da
     unit << 8 | devh->info->ctrl_if.bInterfaceNumber,		// XXX saki
     data,
     len,
-    0 /* timeout */);
+    LIBUSB_CONTROL_TRANSFER_TIMEOUT /* timeout */);
 }
 
 /***** INTERFACE CONTROLS *****/
@@ -133,7 +133,7 @@ uvc_error_t uvc_get_power_mode(uvc_device_handle_t *devh, enum uvc_device_power_
     devh->info->ctrl_if.bInterfaceNumber,	// XXX saki
     &mode_char,
     sizeof(mode_char),
-    0);
+    LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
   if (ret == 1) {
     *mode = mode_char;
@@ -154,7 +154,7 @@ uvc_error_t uvc_set_power_mode(uvc_device_handle_t *devh, enum uvc_device_power_
     devh->info->ctrl_if.bInterfaceNumber,	// XXX saki
     &mode_char,
     sizeof(mode_char),
-    0);
+    LIBUSB_CONTROL_TRANSFER_TIMEOUT);
 
   if (ret == 1)
     return UVC_SUCCESS;

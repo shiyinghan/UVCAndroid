@@ -217,29 +217,21 @@ final class CameraInternal implements ICameraInternal {
         resetUVCCamera();
         if (DEBUG) Log.d(TAG, "openUVCCamera: " + this);
         try {
-            synchronized (mSync) {
+            int result = 0;
+            synchronized (CameraInternal.class) {
                 mUVCCamera = new UVCCamera(param);
-                int result = mUVCCamera.open(mCtrlBlock);
-                if (result != 0) {
-                    mSync.notifyAll();
-//                    // show tip according to error
-//                    Context context = mWeakContext.get();
-//                    String tip = result == UVCCamera.UVC_ERROR_BUSY ?
-//                            context.getString(R.string.error_busy_need_replug) :
-//                            context.getString(R.string.error_unknown_need_replug);
-//                    Toast.makeText(context, tip, Toast.LENGTH_SHORT).show();
-//
-//                    throw new IllegalStateException("open failed:result=" + result);
-                    Context context = UVCUtils.getApplication();
-                    switch (result) {
-                        case UVCCamera.UVC_ERROR_BUSY:
-                            throw new CameraException(CameraException.CAMERA_OPEN_ERROR_BUSY, context.getString(R.string.error_messge_camera_open_busy));
-                        default:
-                            throw new CameraException(CameraException.CAMERA_OPEN_ERROR_UNKNOWN, context.getString(R.string.error_messge_camera_open_unknown));
-                    }
-                }
-                if (DEBUG) Log.i(TAG, "supportedSize:" + mUVCCamera.getSupportedSize());
+                result = mUVCCamera.open(mCtrlBlock);
             }
+            if (result != 0) {
+                Context context = UVCUtils.getApplication();
+                switch (result) {
+                    case UVCCamera.UVC_ERROR_BUSY:
+                        throw new CameraException(CameraException.CAMERA_OPEN_ERROR_BUSY, context.getString(R.string.error_messge_camera_open_busy));
+                    default:
+                        throw new CameraException(CameraException.CAMERA_OPEN_ERROR_UNKNOWN, context.getString(R.string.error_messge_camera_open_unknown));
+                }
+            }
+            if (DEBUG) Log.i(TAG, "supportedSize:" + mUVCCamera.getSupportedSize());
 
             setPreviewConfig(previewConfig);
 

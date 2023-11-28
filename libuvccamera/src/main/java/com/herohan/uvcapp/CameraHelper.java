@@ -14,6 +14,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.herohan.uvcapp.utils.Watchdog;
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
@@ -55,6 +56,7 @@ public class CameraHelper implements ICameraHelper {
         mAsyncHandlerThread = new HandlerThread(TAG);
         mAsyncHandlerThread.start();
         mAsyncHandler = new Handler(mAsyncHandlerThread.getLooper());
+//        Watchdog.getInstance().addThread(mAsyncHandler);
 
         mService = CameraConnectionService.getInstance().newConnection();
     }
@@ -90,7 +92,7 @@ public class CameraHelper implements ICameraHelper {
     @Override
     public void selectDevice(final UsbDevice device) {
         if (DEBUG)
-            Log.d(TAG, "selectDevice:device=" + (device != null ? device.getDeviceName() : null) + " "  + this);
+            Log.d(TAG, "selectDevice:device=" + (device != null ? device.getDeviceName() : null) + " " + this);
         mAsyncHandler.post(() -> {
             if (mService != null && !isDetached(device)) {
                 mUsbDevice = device;
@@ -254,7 +256,7 @@ public class CameraHelper implements ICameraHelper {
 
     @Override
     public void openCamera(UVCParam param) {
-        if (DEBUG) Log.d(TAG, "openCamera: "  + this);
+        if (DEBUG) Log.d(TAG, "openCamera: " + this);
         mAsyncHandler.post(() -> {
             if (mService != null && mUsbDevice != null && !isDetached(mUsbDevice)) {
                 try {
@@ -293,7 +295,7 @@ public class CameraHelper implements ICameraHelper {
 
     @Override
     public void startPreview() {
-        if (DEBUG) Log.d(TAG, "startPreview: "  + this);
+        if (DEBUG) Log.d(TAG, "startPreview: " + this);
         mAsyncHandler.post(() -> {
             if (mService != null && mUsbDevice != null) {
                 try {
@@ -307,7 +309,7 @@ public class CameraHelper implements ICameraHelper {
 
     @Override
     public void stopPreview() {
-        if (DEBUG) Log.d(TAG, "stopPreview: "  + this);
+        if (DEBUG) Log.d(TAG, "stopPreview: " + this);
         mAsyncHandler.post(() -> {
             if (mService != null && mUsbDevice != null) {
                 try {
@@ -429,6 +431,7 @@ public class CameraHelper implements ICameraHelper {
             }
 
             mUsbDevice = null;
+//            Watchdog.getInstance().removeThread(mAsyncHandler);
             mAsyncHandlerThread.quitSafely();
             mDetachedDeviceMap.clear();
         });
@@ -451,6 +454,7 @@ public class CameraHelper implements ICameraHelper {
             }
 
             mUsbDevice = null;
+//            Watchdog.getInstance().removeThread(mAsyncHandler);
             mAsyncHandlerThread.quitSafely();
             mDetachedDeviceMap.clear();
         });
