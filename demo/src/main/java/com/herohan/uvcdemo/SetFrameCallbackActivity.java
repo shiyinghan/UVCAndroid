@@ -14,11 +14,13 @@ import android.widget.ImageView;
 
 import com.herohan.uvcapp.CameraHelper;
 import com.herohan.uvcapp.ICameraHelper;
+import com.herohan.uvcdemo.utils.CustomFPS;
 import com.herohan.uvcdemo.utils.NV21ToBitmap;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCCamera;
 import com.serenegiant.widget.AspectRatioSurfaceView;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class SetFrameCallbackActivity extends AppCompatActivity implements View.OnClickListener {
@@ -35,6 +37,8 @@ public class SetFrameCallbackActivity extends AppCompatActivity implements View.
     private ImageView mFrameCallbackPreview;
 
     private NV21ToBitmap mNv21ToBitmap;
+
+    private CustomFPS mCustomFPS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,14 +146,21 @@ public class SetFrameCallbackActivity extends AppCompatActivity implements View.
             mCameraHelper.addSurface(mCameraViewMain.getHolder().getSurface(), false);
 
             mCameraHelper.setFrameCallback(frame -> {
+                if (mCustomFPS != null) {
+                    //Refresh FPS
+                    mCustomFPS.doFrame();
+                }
+
                 byte[] nv21 = new byte[frame.remaining()];
-                frame.get(nv21,0,nv21.length);
+                frame.get(nv21, 0, nv21.length);
 
                 Bitmap bitmap = mNv21ToBitmap.nv21ToBitmap(nv21, size.width, size.height);
                 runOnUiThread(() -> {
                     mFrameCallbackPreview.setImageBitmap(bitmap);
                 });
             }, UVCCamera.PIXEL_FORMAT_NV21);
+
+            initFPS();
         }
 
         @Override
@@ -159,6 +170,8 @@ public class SetFrameCallbackActivity extends AppCompatActivity implements View.
             if (mCameraHelper != null) {
                 mCameraHelper.removeSurface(mCameraViewMain.getHolder().getSurface());
             }
+
+            clearFPS();
         }
 
         @Override
@@ -194,5 +207,32 @@ public class SetFrameCallbackActivity extends AppCompatActivity implements View.
                 mCameraHelper.closeCamera();
             }
         }
+    }
+
+    /**
+     * Initialize the FPS display
+     */
+    private void initFPS() {
+        DecimalFormat decimal = new DecimalFormat(" #.0' fps'");
+
+        mCustomFPS = new CustomFPS();
+        mCustomFPS.addListener(fps -> {
+            if (DEBUG) Log.v(TAG, "fps:" + fps);
+            runOnUiThread(() -> {
+                setTitle(decimal.format(fps));
+            });
+        });
+    }
+
+    /**
+     * End FPS display
+     */
+    private void clearFPS() {
+        if (mCustomFPS != null) {
+            mCustomFPS.release();
+            mCustomFPS = null;
+        }
+
+        setTitle(R.string.entry_basic_preview);
     }
 }
