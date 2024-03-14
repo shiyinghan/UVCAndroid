@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.herohan.uvcapp.CameraHelper;
 import com.herohan.uvcapp.ICameraHelper;
+import com.herohan.uvcapp.IImageCapture;
 import com.herohan.uvcapp.ImageCapture;
 import com.serenegiant.usb.Size;
 import com.serenegiant.utils.FileUtils;
@@ -95,6 +96,7 @@ public class TakePictureActivity extends AppCompatActivity implements View.OnCli
         if (mCameraHelper == null) {
             mCameraHelper = new CameraHelper();
             mCameraHelper.setStateCallback(mStateListener);
+//            mCameraHelper.getImageCaptureConfig().setCaptureStrategy(IImageCapture.CAPTURE_STRATEGY_IMAGE_READER);
         }
     }
 

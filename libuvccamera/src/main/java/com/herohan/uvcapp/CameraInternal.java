@@ -3,7 +3,6 @@ package com.herohan.uvcapp;
 import android.content.Context;
 import android.util.Log;
 import android.view.Surface;
-import android.widget.Toast;
 
 import com.serenegiant.opengl.renderer.RendererHolderCallback;
 import com.serenegiant.usb.Format;
@@ -50,7 +49,7 @@ final class CameraInternal implements ICameraInternal {
 
     private final List<StateCallback> mCallbacks = new ArrayList<>();
 
-    private ImageCapture mImageCapture;
+    private IImageCapture mImageCapture;
     private VideoCapture mVideoCapture;
 
     public CameraInternal(final Context context, final UsbControlBlock ctrlBlock, final int vid, final int pid) {
@@ -235,7 +234,7 @@ final class CameraInternal implements ICameraInternal {
 
             setPreviewConfig(previewConfig);
 
-            mImageCapture = new ImageCapture(mRendererHolder, imageCaptureConfig);
+            createImageCapture(imageCaptureConfig);
             mVideoCapture = new VideoCapture(mRendererHolder, videoCaptureConfig, getPreviewSize());
 
             processOnCameraOpen();
@@ -248,6 +247,22 @@ final class CameraInternal implements ICameraInternal {
                 ex = new CameraException(CameraException.CAMERA_OPEN_ERROR_UNKNOWN, e);
             }
             processOnError(ex);
+        }
+    }
+
+    private void createImageCapture(ImageCaptureConfig config) {
+        if (mImageCapture != null) {
+            mImageCapture.release();
+            mImageCapture = null;
+        }
+        switch (config.getCaptureStrategy()) {
+            case IImageCapture.CAPTURE_STRATEGY_IMAGE_READER:
+                mImageCapture = new ImageCapture2(this, config, getPreviewSize());
+                break;
+            case IImageCapture.CAPTURE_STRATEGY_OPENGL_ES:
+            default:
+                mImageCapture = new ImageCapture(mRendererHolder, config);
+                break;
         }
     }
 
@@ -394,9 +409,7 @@ final class CameraInternal implements ICameraInternal {
     public void setImageCaptureConfig(ImageCaptureConfig config) {
         if (DEBUG) Log.d(TAG, "setImageCaptureConfig:");
 
-        if (mImageCapture != null) {
-            mImageCapture.setConfig(config);
-        }
+        createImageCapture(config);
     }
 
     @Override
