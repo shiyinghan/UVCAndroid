@@ -24,10 +24,8 @@
   -->
 
 <usb>
-<!--	<usb-device class="239" subclass="2" />	&lt;!&ndash; all device of UVC &ndash;&gt;-->
 	<!-- Interface Descriptors Base Class 0Eh (Video) -->
 	<usb-device class="14"/>
-	<!--	<usb-device product-id="5120" vendor-id="1409" />-->
-	<!-- IDS Imaging Development Systems GmbH -->
-	<usb-device vendor-id="1409" />
+	<!-- Interface Descriptors Base Class EFh (Miscellaneous), i.e. all other UVC devices -->
+	<usb-device class="239" subclass="2" />
 </usb>
