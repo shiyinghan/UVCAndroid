@@ -588,6 +588,9 @@ public class CameraHelper implements ICameraHelper {
         @Override
         public void onAttach(UsbDevice device) {
             if (DEBUG) Log.d(TAG, "onAttach:");
+            synchronized (mDetachedDeviceMap) {
+                mDetachedDeviceMap.remove(device);
+            }
             mMainHandler.post(() -> mCallback.onAttach(device));
         }
 
