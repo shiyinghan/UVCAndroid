@@ -217,13 +217,11 @@ public final class USBMonitor {
             if (DEBUG) Log.i(TAG, "register:");
             final Context context = mWeakContext.get();
             if (context != null) {
-                int flags = 0;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    // Up until Build.VERSION_CODES.R, PendingIntents are assumed to be mutable by default, unless FLAG_IMMUTABLE is set.
-                    // Starting with Build.VERSION_CODES.S, it will be required to explicitly specify the mutability of PendingIntents on creation with either (@link #FLAG_IMMUTABLE} or FLAG_MUTABLE.
-                    flags = PendingIntent.FLAG_MUTABLE;
-                }
-                mPermissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), flags);
+                mPermissionIntent = PendingIntent.getBroadcast(
+                        context,
+                        0,
+                        new Intent(ACTION_USB_PERMISSION),
+                        PendingIntent.FLAG_IMMUTABLE);
                 final IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
                 // ACTION_USB_DEVICE_ATTACHED never comes on some devices so it should not be added here
                 filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);

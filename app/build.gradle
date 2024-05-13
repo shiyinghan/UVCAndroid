@@ -8,7 +8,7 @@ android {
     defaultConfig {
         applicationId "com.herohan.uvcapp"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 34
         versionCode 3
         versionName "1.0.2"
 
