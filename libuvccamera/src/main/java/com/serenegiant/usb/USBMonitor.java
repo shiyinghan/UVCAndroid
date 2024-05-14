@@ -50,6 +50,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
+import androidx.core.content.ContextCompat;
+
 import com.serenegiant.utils.HandlerThreadHandler;
 import com.serenegiant.uvccamera.BuildConfig;
 
@@ -225,7 +227,7 @@ public final class USBMonitor {
                 final IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
                 // ACTION_USB_DEVICE_ATTACHED never comes on some devices so it should not be added here
                 filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-                context.registerReceiver(mUsbReceiver, filter);
+                ContextCompat.registerReceiver(context, mUsbReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
             }
             // start connection check
             mDetectedDeviceKeys.clear();
