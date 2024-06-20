@@ -47,6 +47,9 @@ android {
             consumerProguardFiles 'consumer-rules.pro'
         }
     }
+    buildFeatures {
+        buildConfig true
+    }
     externalNativeBuild {
         ndkBuild {
             path file('src/main/jni/Android.mk')
@@ -60,6 +63,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation 'androidx.core:core:1.13.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.annotation:annotation:1.3.0'
