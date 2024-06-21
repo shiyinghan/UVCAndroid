@@ -30,7 +30,7 @@ task clean(type: Delete) {
 }
 
 ext {
-	versionCompiler = 31
+	versionCompiler = 34
 	versionTarget = 34
 	versionMin = 19
 

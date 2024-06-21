@@ -23,16 +23,6 @@
 
 package com.serenegiant.usb;
 
-import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -50,10 +40,18 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.core.content.ContextCompat;
-
 import com.serenegiant.utils.HandlerThreadHandler;
 import com.serenegiant.uvccamera.BuildConfig;
+
+import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public final class USBMonitor {
 
@@ -219,15 +217,26 @@ public final class USBMonitor {
             if (DEBUG) Log.i(TAG, "register:");
             final Context context = mWeakContext.get();
             if (context != null) {
-                mPermissionIntent = PendingIntent.getBroadcast(
-                        context,
-                        0,
-                        new Intent(ACTION_USB_PERMISSION),
-                        PendingIntent.FLAG_IMMUTABLE);
+                int flags = 0;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    // Starting with Build. VERSION_CODES. UPSIDE_DOWN_CAKE, for apps that target SDK Build. VERSION_CODES. UPSIDE_DOWN_CAKE or higher,
+                    // creation of a PendingIntent with FLAG_MUTABLE and an implicit Intent within will throw an IllegalArgumentException for security reasons.
+                    // To bypass this check, use FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT when creating a PendingIntent
+                    flags = PendingIntent.FLAG_MUTABLE | PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT;
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    // Up until Build.VERSION_CODES.R, PendingIntents are assumed to be mutable by default, unless FLAG_IMMUTABLE is set.
+                    // Starting with Build.VERSION_CODES.S, it will be required to explicitly specify the mutability of PendingIntents on creation with either (@link #FLAG_IMMUTABLE} or FLAG_MUTABLE.
+                    flags = PendingIntent.FLAG_MUTABLE;
+                }
+                mPermissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), flags);
                 final IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
                 // ACTION_USB_DEVICE_ATTACHED never comes on some devices so it should not be added here
                 filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-                ContextCompat.registerReceiver(context, mUsbReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    context.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_EXPORTED);
+                } else {
+                    context.registerReceiver(mUsbReceiver, filter);
+                }
             }
             // start connection check
             mDetectedDeviceKeys.clear();

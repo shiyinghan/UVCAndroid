@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 34
 
     defaultConfig {
         applicationId "com.herohan.uvcdemo"
@@ -29,9 +29,9 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.material:material:1.10.0'
 
     implementation 'com.github.getActivity:XXPermissions:13.5'
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
