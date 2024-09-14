@@ -150,14 +150,14 @@ public class VideoCapture {
      */
     Surface mCameraSurface;
 
-    volatile Uri mSavedVideoUri;
-    private volatile ParcelFileDescriptor mParcelFileDescriptor;
+    private Uri mSavedVideoUri;
+    private ParcelFileDescriptor mParcelFileDescriptor;
 
     /**
      * audio raw data
      */
     @Nullable
-    private volatile AudioRecord mAudioRecorder;
+    private AudioRecord mAudioRecorder;
     private volatile int mAudioBufferSize;
     private volatile boolean mIsRecording = false;
     private int mAudioChannelCount;
@@ -339,7 +339,7 @@ public class VideoCapture {
         if (mIsAudioEnabled.get()) {
             try {
                 // Audio input start
-                if (mAudioRecorder.getState() == AudioRecord.STATE_INITIALIZED) {
+                if (mAudioRecorder != null && mAudioRecorder.getState() == AudioRecord.STATE_INITIALIZED) {
                     mAudioRecorder.startRecording();
                 }
             } catch (IllegalStateException e) {
@@ -352,7 +352,7 @@ public class VideoCapture {
             }
 
             // Gets the AudioRecorder's state
-            if (mAudioRecorder.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
+            if (mAudioRecorder != null && mAudioRecorder.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
                 Log.i(TAG,
                         "AudioRecorder startRecording failed - incorrect state: "
                                 + mAudioRecorder.getRecordingState());
@@ -407,7 +407,8 @@ public class VideoCapture {
             synchronized (mMuxerLock) {
                 mMuxer = initMediaMuxer(outputFileOptions);
                 if (mMuxer == null) {
-                    throw new NullPointerException();
+                    throw new IllegalArgumentException(
+                            "MediaMuxer creation failed!");
                 }
             }
         } catch (IOException e) {
@@ -933,7 +934,9 @@ public class VideoCapture {
         // Audio Stop
         try {
             Log.i(TAG, "audioRecorder stop");
-            mAudioRecorder.stop();
+            if (mAudioRecorder != null) {
+                mAudioRecorder.stop();
+            }
         } catch (IllegalStateException e) {
             videoSavedCallback.onError(
                     ERROR_ENCODER, "Audio recorder stop failed!", e);
@@ -1065,7 +1068,9 @@ public class VideoCapture {
                 Log.i(TAG, "Delete file.");
                 if (mSavedVideoUri != null) {
                     ContentResolver contentResolver = outputFileOptions.getContentResolver();
-                    contentResolver.delete(mSavedVideoUri, null, null);
+                    if (contentResolver != null) {
+                        contentResolver.delete(mSavedVideoUri, null, null);
+                    }
                 }
             }
         }
@@ -1073,57 +1078,67 @@ public class VideoCapture {
         return checkKeyFrame;
     }
 
-    @NonNull
     private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
             throws IOException {
-        MediaMuxer mediaMuxer;
+        MediaMuxer mediaMuxer = null;
 
         if (outputFileOptions.isSavingToFile()) {
             File savedVideoFile = outputFileOptions.getFile();
             mSavedVideoUri = Uri.fromFile(outputFileOptions.getFile());
 
-            mediaMuxer = new MediaMuxer(savedVideoFile.getAbsolutePath(),
-                    MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            if (savedVideoFile != null) {
+                mediaMuxer = new MediaMuxer(savedVideoFile.getAbsolutePath(),
+                        MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            }
         } else if (outputFileOptions.isSavingToFileDescriptor()) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 throw new IllegalArgumentException("Using a FileDescriptor to record a video is "
                         + "only supported for Android 8.0 or above.");
             }
 
-            mediaMuxer = Api26Impl.createMediaMuxer(outputFileOptions.getFileDescriptor(),
-                    MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            if (outputFileOptions.getFileDescriptor() != null) {
+                mediaMuxer = Api26Impl.createMediaMuxer(outputFileOptions.getFileDescriptor(),
+                        MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            }
         } else if (outputFileOptions.isSavingToMediaStore()) {
+            ContentResolver contentResolver = outputFileOptions.getContentResolver();
+            Uri saveCollection = outputFileOptions.getSaveCollection();
             ContentValues values = outputFileOptions.getContentValues() != null
                     ? new ContentValues(outputFileOptions.getContentValues())
                     : new ContentValues();
 
-            mSavedVideoUri = outputFileOptions.getContentResolver().insert(
-                    outputFileOptions.getSaveCollection(), values);
+            if (contentResolver != null && saveCollection != null) {
+                mSavedVideoUri = contentResolver.insert(saveCollection, values);
 
-            if (mSavedVideoUri == null) {
-                throw new IOException("Invalid Uri!");
-            }
-
-            // Sine API 26, media muxer could be initiated by a FileDescriptor.
-            try {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                    String savedLocationPath = VideoUtil.getAbsolutePathFromUri(
-                            outputFileOptions.getContentResolver(), mSavedVideoUri);
-
-                    Log.i(TAG, "Saved Location Path: " + savedLocationPath);
-                    mediaMuxer = new MediaMuxer(savedLocationPath,
-                            MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-                } else {
-                    mParcelFileDescriptor =
-                            outputFileOptions.getContentResolver().openFileDescriptor(
-                                    mSavedVideoUri, "rw");
-                    mediaMuxer = Api26Impl.createMediaMuxer(
-                            mParcelFileDescriptor.getFileDescriptor(),
-                            MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+                if (mSavedVideoUri == null) {
+                    throw new IOException("Invalid Uri!");
                 }
-            } catch (IOException e) {
-                mSavedVideoUri = null;
-                throw e;
+
+                // Sine API 26, media muxer could be initiated by a FileDescriptor.
+                try {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                        String savedLocationPath = VideoUtil.getAbsolutePathFromUri(
+                                outputFileOptions.getContentResolver(), mSavedVideoUri);
+
+                        Log.i(TAG, "Saved Location Path: " + savedLocationPath);
+                        if (savedLocationPath != null) {
+                            mediaMuxer = new MediaMuxer(savedLocationPath,
+                                    MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+                        }
+                    } else {
+                        mParcelFileDescriptor =
+                                outputFileOptions.getContentResolver().openFileDescriptor(
+                                        mSavedVideoUri, "rw");
+                        if (mParcelFileDescriptor != null) {
+                            mediaMuxer = Api26Impl.createMediaMuxer(
+                                    mParcelFileDescriptor.getFileDescriptor(),
+                                    MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+                        }
+                    }
+                } catch (IOException e) {
+                    mSavedVideoUri = null;
+                    throw e;
+                }
             }
         } else {
             throw new IllegalArgumentException(
@@ -1280,7 +1295,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the File object which is set by the {@link OutputFileOptions.Builder}.
+         * Returns the File object which is set by the {@link Builder}.
          */
         @Nullable
         File getFile() {
@@ -1288,7 +1303,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the FileDescriptor object which is set by the {@link OutputFileOptions.Builder}.
+         * Returns the FileDescriptor object which is set by the {@link Builder}.
          */
         @Nullable
         FileDescriptor getFileDescriptor() {
@@ -1296,7 +1311,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the content resolver which is set by the {@link OutputFileOptions.Builder}.
+         * Returns the content resolver which is set by the {@link Builder}.
          */
         @Nullable
         ContentResolver getContentResolver() {
@@ -1304,7 +1319,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the URI which is set by the {@link OutputFileOptions.Builder}.
+         * Returns the URI which is set by the {@link Builder}.
          */
         @Nullable
         Uri getSaveCollection() {
@@ -1312,7 +1327,7 @@ public class VideoCapture {
         }
 
         /**
-         * Returns the content values which is set by the {@link OutputFileOptions.Builder}.
+         * Returns the content values which is set by the {@link Builder}.
          */
         @Nullable
         ContentValues getContentValues() {
