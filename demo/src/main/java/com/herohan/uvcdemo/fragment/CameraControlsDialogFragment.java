@@ -538,6 +538,8 @@ public class CameraControlsDialogFragment extends DialogFragment {
         if (isEnable) {
             seekBar.setMax(limit[1]);
             seekBar.setMin(limit[0]);
+            int tickCount = limit[1] - limit[0] + 1;
+            seekBar.setTickCount(Math.min(tickCount, 50));
             seekBar.setProgress(value);
         }
     }

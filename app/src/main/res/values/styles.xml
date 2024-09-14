@@ -50,9 +50,9 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">5dp</item>
-        <item name="isb_show_indicator">none</item>
+        <item name="isb_show_indicator">circular_bubble</item>
         <item name="isb_show_thumb_text">true</item>
-        <item name="isb_show_tick_texts">true</item>
+        <item name="isb_show_tick_texts">false</item>
         <item name="isb_ticks_count">2</item>
         <item name="isb_thumb_color">@color/DEEPPINK</item>
         <item name="isb_thumb_text_color">@color/DEEPPINK</item>
