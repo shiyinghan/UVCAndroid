@@ -48,12 +48,15 @@ LOCAL_LDLIBS += -llog
 LOCAL_LDLIBS += -landroid
 
 LOCAL_SHARED_LIBRARIES += usb1.0 uvc
+LOCAL_SHARED_LIBRARIES += jpeg-turbo212
+LOCAL_SHARED_LIBRARIES += yuv
 
 LOCAL_ARM_MODE := arm
 
 LOCAL_SRC_FILES := \
 		_onload.cpp \
 		utilbase.cpp \
+		ConvertHelper.cpp \
 		UVCCamera.cpp \
 		UVCControl.cpp \
 		UVCPreview.cpp \

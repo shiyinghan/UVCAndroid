@@ -279,39 +279,40 @@ void UVCPreview::callbackPixelFormatChanged() {
         case PIXEL_FORMAT_RAW:
             LOGI("PIXEL_FORMAT_RAW:");
             callbackPixelBytes = sz * 2;
+            mFrameCallbackFunc = uvc_rgbx_to_yuyv;
             break;
         case PIXEL_FORMAT_YUV:
             LOGI("PIXEL_FORMAT_YUV:");
             callbackPixelBytes = sz * 2;
+            mFrameCallbackFunc = uvc_rgbx_to_yuyv;
             break;
         case PIXEL_FORMAT_NV12:
             LOGI("PIXEL_FORMAT_NV12:");
-            mFrameCallbackFunc = uvc_yuyv2nv12;
+            mFrameCallbackFunc = uvc_rgbx_to_nv12;
             callbackPixelBytes = (sz * 3) / 2;
             break;
         case PIXEL_FORMAT_NV21:
             LOGI("PIXEL_FORMAT_NV21:");
-            mFrameCallbackFunc = uvc_yuyv2nv21;
+            mFrameCallbackFunc = uvc_rgbx_to_nv21;
             callbackPixelBytes = (sz * 3) / 2;
             break;
         case PIXEL_FORMAT_RGB:
             LOGI("PIXEL_FORMAT_RGB:");
-            mFrameCallbackFunc = uvc_any2rgb;
+            mFrameCallbackFunc = uvc_rgbx_to_rgb;
             callbackPixelBytes = sz * 3;
             break;
         case PIXEL_FORMAT_RGB565:
             LOGI("PIXEL_FORMAT_RGB565:");
-            mFrameCallbackFunc = uvc_any2rgb565;
+            mFrameCallbackFunc = uvc_rgbx_to_rgb565;
             callbackPixelBytes = sz * 2;
             break;
         case PIXEL_FORMAT_RGBX:
             LOGI("PIXEL_FORMAT_RGBX:");
-            mFrameCallbackFunc = uvc_any2rgbx;
             callbackPixelBytes = sz * 4;
             break;
         case PIXEL_FORMAT_BGR:
             LOGI("PIXEL_FORMAT_BGR:");
-            mFrameCallbackFunc = uvc_any2bgr;
+            mFrameCallbackFunc = uvc_rgbx_to_bgr;
             callbackPixelBytes = sz * 3;
             break;
     }
@@ -554,8 +555,9 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
 //    time_t c_start, c_end;
 
     uvc_frame_t *frame = NULL;
+    uvc_frame_t *frame_yuv = NULL;
     uvc_frame_t *frame_mjpeg = NULL;
-    uvc_error_t result = uvc_start_streaming(
+    int result = uvc_start_streaming(
             mDeviceHandle, ctrl, uvc_preview_frame_callback, (void *) this, 0);
 
     if (LIKELY(!result)) {
@@ -571,35 +573,40 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
             for (; LIKELY(isRunning());) {
                 frame_mjpeg = waitPreviewFrame();
                 if (LIKELY(frame_mjpeg)) {
-                    frame = get_frame(frame_mjpeg->width * frame_mjpeg->height * 2);
+//                    frame = get_frame(frame_mjpeg->width * frame_mjpeg->height * 2);
+                    frame = get_frame(
+                            frame_mjpeg->width * frame_mjpeg->height * PREVIEW_PIXEL_BYTES);
 //                    c_start = clock();
-                    result = uvc_mjpeg2yuyv(frame_mjpeg, frame);   // MJPEG => yuyv
+                    result = uvc_mjpeg2rgbx_tj(frame_mjpeg, frame);   // MJPEG => yuyv
 //                    c_end = clock();
 //                    LOGI("uvc_mjpeg2yuyv time: %f", (double) (c_end - c_start) / CLOCKS_PER_SEC);
-                    recycle_frame(frame_mjpeg);
                     if (LIKELY(!result)) {
-//                        c_start = clock();
-                        frame = draw_preview_one(frame, &mPreviewWindow, uvc_any2rgbx,
-                                                 PREVIEW_PIXEL_BYTES);
-//                        c_end = clock();
-//                        LOGI("uvc_any2rgbx time: %f", (double) (c_end - c_start) / CLOCKS_PER_SEC);
+                        draw_preview_one(frame, &mPreviewWindow);
                         addCaptureFrame(frame);
                     } else {
                         recycle_frame(frame);
                     }
+                    recycle_frame(frame_mjpeg);
                 }
             }
         } else {
             // yuvyv mode
             for (; LIKELY(isRunning());) {
-                frame = waitPreviewFrame();
-                if (LIKELY(frame)) {
+                frame_yuv = waitPreviewFrame();
+                if (LIKELY(frame_yuv)) {
+                    frame = get_frame(frame_yuv->width * frame_yuv->height * PREVIEW_PIXEL_BYTES);
 //                    c_start = clock();
-                    frame = draw_preview_one(frame, &mPreviewWindow, uvc_any2rgbx,
-                                             PREVIEW_PIXEL_BYTES);
+                    result = uvc_yuyv2rgbx(frame_yuv, frame);   // YUYV => RGBX
 //                    c_end = clock();
-//                    LOGI("uvc_any2rgbx time: %f", (double) (c_end - c_start) / CLOCKS_PER_SEC);
-                    addCaptureFrame(frame);
+//                    LOGI("uvc_yuyv2rgbx time: %f", (double) (c_end - c_start) / CLOCKS_PER_SEC);
+
+                    if (LIKELY(!result)) {
+                        draw_preview_one(frame, &mPreviewWindow);
+                        addCaptureFrame(frame);
+                    } else {
+                        recycle_frame(frame);
+                    }
+                    recycle_frame(frame_yuv);
                 }
             }
         }
@@ -612,7 +619,7 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
         LOGI("Streaming finished");
 #endif
     } else {
-        uvc_perror(result, "failed start_streaming");
+        LOGE("failed start_streaming (%d)", result);
     }
 
     EXIT();
@@ -647,39 +654,18 @@ int copyToSurface(uvc_frame_t *frame, ANativeWindow **window) {
     return result; //RETURN(result, int);
 }
 
-// changed to return original frame instead of returning converted frame even if convert_func is not null.
-uvc_frame_t *UVCPreview::draw_preview_one(uvc_frame_t *frame, ANativeWindow **window,
-                                          convFunc_t convert_func, int pixelBytes) {
+void UVCPreview::draw_preview_one(uvc_frame_t *frame, ANativeWindow **window) {
     // ENTER();
 
-    int b = 0;
     pthread_mutex_lock(&preview_mutex);
     {
-        b = *window != NULL;
-    }
-    pthread_mutex_unlock(&preview_mutex);
-    if (LIKELY(b)) {
-        uvc_frame_t *converted;
-        if (convert_func) {
-            converted = get_frame(frame->width * frame->height * pixelBytes);
-            if LIKELY(converted) {
-                b = convert_func(frame, converted);
-                if (!b) {
-                    pthread_mutex_lock(&preview_mutex);
-                    copyToSurface(converted, window);
-                    pthread_mutex_unlock(&preview_mutex);
-                } else {
-                    LOGE("failed converting");
-                }
-                recycle_frame(converted);
-            }
-        } else {
-            pthread_mutex_lock(&preview_mutex);
+        if (LIKELY(*window != NULL)) {
             copyToSurface(frame, window);
-            pthread_mutex_unlock(&preview_mutex);
         }
     }
-    return frame; //RETURN(frame, uvc_frame_t *);
+    pthread_mutex_unlock(&preview_mutex);
+
+    //RETURN();
 }
 
 //======================================================================
@@ -831,7 +817,6 @@ void UVCPreview::do_capture_surface(JNIEnv *env) {
     ENTER();
 
     uvc_frame_t *frame = NULL;
-    uvc_frame_t *converted = NULL;
     char *local_picture_path;
 
     for (; isRunning() && isCapturing();) {
@@ -839,24 +824,14 @@ void UVCPreview::do_capture_surface(JNIEnv *env) {
         if (LIKELY(frame)) {
             // frame data is always YUYV format.
             if LIKELY(isCapturing()) {
-                if (UNLIKELY(!converted)) {
-                    converted = get_frame(previewBytes);
-                }
-                if (LIKELY(converted)) {
-                    int b = uvc_any2rgbx(frame, converted);
-                    if (!b) {
-                        if (LIKELY(mCaptureWindow)) {
-                            copyToSurface(converted, &mCaptureWindow);
-                        }
-                    }
+                if (LIKELY(mCaptureWindow)) {
+                    copyToSurface(frame, &mCaptureWindow);
                 }
             }
             do_capture_callback(env, frame);
         }
     }
-    if (converted) {
-        recycle_frame(converted);
-    }
+
     if (mCaptureWindow) {
         ANativeWindow_release(mCaptureWindow);
         mCaptureWindow = NULL;
@@ -869,7 +844,7 @@ void UVCPreview::do_capture_surface(JNIEnv *env) {
 * call IFrameCallback#onFrame if needs
  */
 void UVCPreview::do_capture_callback(JNIEnv *env, uvc_frame_t *frame) {
-    ENTER();
+//    ENTER();
 
     if (LIKELY(frame)) {
         uvc_frame_t *callback_frame = frame;
@@ -897,5 +872,5 @@ void UVCPreview::do_capture_callback(JNIEnv *env, uvc_frame_t *frame) {
         SKIP:
         recycle_frame(callback_frame);
     }
-    EXIT();
+//    EXIT();
 }
