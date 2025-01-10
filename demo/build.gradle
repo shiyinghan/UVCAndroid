@@ -3,6 +3,7 @@ plugins {
 }
 
 android {
+    namespace 'com.herohan.uvcdemo'
     compileSdkVersion 34
 
     defaultConfig {

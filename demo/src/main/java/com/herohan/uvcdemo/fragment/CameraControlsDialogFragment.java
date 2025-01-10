@@ -535,7 +535,7 @@ public class CameraControlsDialogFragment extends DialogFragment {
 
     private void setSeekBarParams(IndicatorSeekBar seekBar, boolean isEnable, int[] limit, int value) {
         seekBar.setEnabled(isEnable);
-        if (isEnable) {
+        if (isEnable && limit != null) {
             seekBar.setMax(limit[1]);
             seekBar.setMin(limit[0]);
             int tickCount = limit[1] - limit[0] + 1;

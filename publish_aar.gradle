@@ -23,6 +23,15 @@ task sourcesJar(type: Jar) {
 //    from javadoc.destinationDir
 //}
 
+android {
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
 afterEvaluate {
     publishing {
         publications {

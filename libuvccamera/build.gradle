@@ -21,9 +21,12 @@
  *  may have a different license, see the respective files.
  */
 
-apply plugin: 'com.android.library'
+plugins {
+    id 'com.android.library'
+}
 
 android {
+    namespace 'com.serenegiant.uvccamera'
     compileSdkVersion versionCompiler
 
     compileOptions {
@@ -66,7 +69,7 @@ dependencies {
     implementation 'androidx.core:core:1.13.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.annotation:annotation:1.6.0'
+    implementation 'androidx.annotation:annotation:1.8.0'
     implementation 'cn.hutool:hutool-core:5.6.3'
 }
 

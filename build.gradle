@@ -1,38 +1,40 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
-		maven { url 'https://maven.aliyun.com/repository/google' }
-		maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
 
-		google()
-		mavenCentral()
+        google()
+        mavenCentral()
+        gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath 'com.android.tools.build:gradle:8.5.0'
     }
 }
 
 allprojects {
     repositories {
-		maven { url 'https://maven.aliyun.com/repository/google' }
-		maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
 
-		maven { url 'https://jitpack.io' }
+        maven { url 'https://jitpack.io' }
 
-		google()
-		mavenCentral()
+        google()
+        mavenCentral()
+        jcenter() // Warning: this repository is going to shut down soon
     }
 }
 
 task clean(type: Delete) {
-	delete rootProject.buildDir
+    delete rootProject.buildDir
 }
 
 ext {
-	versionCompiler = 34
-	versionTarget = 34
-	versionMin = 19
+    versionCompiler = 34
+    versionTarget = 34
+    versionMin = 21
 
-	javaSourceCompatibility = JavaVersion.VERSION_1_8
-	javaTargetCompatibility = JavaVersion.VERSION_1_8
+    javaSourceCompatibility = JavaVersion.VERSION_1_8
+    javaTargetCompatibility = JavaVersion.VERSION_1_8
 }
