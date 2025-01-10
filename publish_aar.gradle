@@ -7,10 +7,10 @@ def sonatypePassword = rootProject.hasProperty('ossrhPassword')? rootProject.oss
 group = publishedGroupId
 version = libraryVersion
 
-task sourcesJar(type: Jar) {
-    archiveClassifier.set("sources")
-    from android.sourceSets.main.java.srcDirs
-}
+//task sourcesJar(type: Jar) {
+//    archiveClassifier.set("sources")
+//    from android.sourceSets.main.java.srcDirs
+//}
 
 //task javadoc(type: Javadoc) {
 //    options.addStringOption('Xdoclint:none', '-quiet')
@@ -25,7 +25,7 @@ task sourcesJar(type: Jar) {
 
 android {
     publishing {
-        singleVariant("release") {
+        singleVariant('release') {
             withSourcesJar()
             withJavadocJar()
         }
@@ -39,7 +39,7 @@ afterEvaluate {
                 artifactId = artifact
                 from components.release
 //                artifact javadocJar
-                artifact sourcesJar
+//                artifact sourcesJar
                 pom {
                     name = artifact
                     description = libraryDescription

@@ -49,7 +49,7 @@ dependencies {
     debugImplementation 'jp.wasabeef:takt:2.1.1'
 
     implementation project(':libuvccamera')
-//    implementation 'com.herohan:UVCAndroid:1.0.7'
+//    implementation 'com.herohan:UVCAndroid:1.0.8'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.3.0'
 

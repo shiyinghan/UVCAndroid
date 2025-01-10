@@ -70,11 +70,11 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.annotation:annotation:1.8.0'
-    implementation 'cn.hutool:hutool-core:5.6.3'
+    implementation 'cn.hutool:hutool-core:5.8.35'
 }
 
 ext {
-    libraryVersion = '1.0.7'
+    libraryVersion = '1.0.8'
     publishedGroupId = 'com.herohan'
     artifact = 'UVCAndroid'
     libraryDescription = 'Library and sample to access UVC camera on non-rooted Android device'
