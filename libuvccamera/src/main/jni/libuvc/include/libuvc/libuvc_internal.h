@@ -273,7 +273,12 @@ typedef struct uvc_device_info {
 
 #define LIBUVC_XFER_META_BUF_SIZE ( 4 * 1024 )
 
+// in milliseconds
 #define LIBUSB_CONTROL_TRANSFER_TIMEOUT 1500
+// in milliseconds
+#define LIBUSB_FILL_TRANSFER_TIMEOUT 1500
+// in seconds
+#define LIBUSB_HANDLE_EVENTS_TIMEOUT 2
 
 struct uvc_stream_handle {
     struct uvc_device_handle *devh;

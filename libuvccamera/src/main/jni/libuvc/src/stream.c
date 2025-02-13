@@ -749,7 +749,7 @@ static int _uvc_stream_params_negotiated(
         uvc_stream_ctrl_t *actual) {
     return required->bFormatIndex == actual->bFormatIndex &&
            required->bFrameIndex == actual->bFrameIndex &&
-           required->dwMaxPayloadTransferSize == actual->dwMaxPayloadTransferSize;
+           required->dwMaxPayloadTransferSize >= actual->dwMaxPayloadTransferSize;
 }
 
 /** @internal
@@ -1385,7 +1385,7 @@ uvc_error_t uvc_stream_start(
                     transfer, strmh->devh->usb_devh, format_desc->parent->bEndpointAddress,
                     strmh->transfer_bufs[transfer_id],
                     total_transfer_size, packets_per_transfer, _uvc_stream_callback, (void *) strmh,
-                    5000);
+                    LIBUSB_FILL_TRANSFER_TIMEOUT);
 
             libusb_set_iso_packet_lengths(transfer, endpoint_bytes_per_packet);
         }
@@ -1401,7 +1401,7 @@ uvc_error_t uvc_stream_start(
                                       strmh->transfer_bufs[transfer_id],
                                       strmh->cur_ctrl.dwMaxPayloadTransferSize,
                                       _uvc_stream_callback,
-                                      (void *) strmh, 5000);
+                                      (void *) strmh, LIBUSB_FILL_TRANSFER_TIMEOUT);
         }
     }
 
@@ -1540,8 +1540,9 @@ void _uvc_populate_frame(uvc_stream_handle_t *strmh) {
     frame->capture_time_finished = strmh->capture_time_finished;
 
     /* copy the image data from the hold buffer to the frame (unnecessary extra buf?) */
-    if (frame->data_bytes < strmh->hold_bytes) {
+    if (frame->capacity_bytes < strmh->hold_bytes) {
         frame->data = realloc(frame->data, strmh->hold_bytes);
+        frame->capacity_bytes = strmh->hold_bytes;
     }
     frame->data_bytes = strmh->hold_bytes;
     memcpy(frame->data, strmh->holdbuf, frame->data_bytes);

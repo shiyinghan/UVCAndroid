@@ -86,8 +86,12 @@ YUV stream from a UVC device such as a standard webcam.
 void *_uvc_handle_events(void *arg) {
   uvc_context_t *ctx = (uvc_context_t *) arg;
 
+  struct timeval tv;
+  tv.tv_sec = LIBUSB_HANDLE_EVENTS_TIMEOUT;
+  tv.tv_usec = 0;
+
   while (!ctx->kill_handler_thread)
-    libusb_handle_events_completed(ctx->usb_ctx, &ctx->kill_handler_thread);
+      libusb_handle_events_timeout_completed(ctx->usb_ctx, &tv, &ctx->kill_handler_thread);
   return NULL;
 }
 
@@ -139,7 +143,7 @@ uvc_error_t uvc_init2(uvc_context_t **pctx, struct libusb_context *usb_ctx) {
 
   if (usb_ctx == NULL) {
     // no-root android must use set LIBUSB_OPTION_NO_DEVICE_DISCOVERY
-    libusb_set_option(&ctx->usb_ctx, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
+    libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
     ret = libusb_init(&ctx->usb_ctx);
     ctx->own_usb_ctx = 1;
     if (ret != UVC_SUCCESS) {

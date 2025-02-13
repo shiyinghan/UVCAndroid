@@ -469,6 +469,8 @@ typedef struct uvc_frame {
     void *data;
     /** Size of image data buffer */
     size_t data_bytes;
+    /** Capacity of image data buffer */
+    size_t capacity_bytes;
     /** Width of image in pixels */
     uint32_t width;
     /** Height of image in pixels */

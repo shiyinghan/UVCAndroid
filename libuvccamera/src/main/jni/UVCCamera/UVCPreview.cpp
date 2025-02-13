@@ -114,6 +114,8 @@ uvc_frame_t *UVCPreview::get_frame(size_t data_bytes) {
     if UNLIKELY(!frame) {
         LOGI("allocate new frame");
         frame = uvc_allocate_frame(data_bytes);
+    } else {
+        uvc_ensure_frame_size(frame, data_bytes);
     }
     return frame;
 }

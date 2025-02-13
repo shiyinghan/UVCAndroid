@@ -41,15 +41,16 @@
 /** @internal */
 uvc_error_t uvc_ensure_frame_size(uvc_frame_t *frame, size_t need_bytes) {
     if (frame->library_owns_data) {
-        if (!frame->data || frame->data_bytes != need_bytes) {
-            frame->data_bytes = need_bytes;
-            frame->data = realloc(frame->data, frame->data_bytes);
+        frame->data_bytes = need_bytes;
+        if (!frame->data || frame->capacity_bytes < need_bytes) {
+            frame->capacity_bytes = need_bytes;
+            frame->data = realloc(frame->data, frame->capacity_bytes);
         }
         if (!frame->data)
             return UVC_ERROR_NO_MEM;
         return UVC_SUCCESS;
     } else {
-        if (!frame->data || frame->data_bytes < need_bytes)
+        if (!frame->data || frame->capacity_bytes < need_bytes)
             return UVC_ERROR_NO_MEM;
         return UVC_SUCCESS;
     }
@@ -72,6 +73,7 @@ uvc_frame_t *uvc_allocate_frame(size_t data_bytes) {
     frame->library_owns_data = 1;
 
     if (data_bytes > 0) {
+        frame->capacity_bytes = data_bytes;
         frame->data_bytes = data_bytes;
         frame->data = malloc(data_bytes);
 
@@ -91,7 +93,7 @@ uvc_frame_t *uvc_allocate_frame(size_t data_bytes) {
  */
 void uvc_free_frame(uvc_frame_t *frame) {
     if (frame->library_owns_data) {
-        if (frame->data_bytes > 0)
+        if (frame->capacity_bytes > 0 || frame->data_bytes > 0)
             free(frame->data);
         if (frame->metadata_bytes > 0)
             free(frame->metadata);
