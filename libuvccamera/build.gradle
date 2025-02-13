@@ -74,7 +74,7 @@ dependencies {
 }
 
 ext {
-    libraryVersion = '1.0.8'
+    libraryVersion = '1.0.9'
     publishedGroupId = 'com.herohan'
     artifact = 'UVCAndroid'
     libraryDescription = 'Library and sample to access UVC camera on non-rooted Android device'
