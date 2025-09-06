@@ -49,5 +49,5 @@ LOCAL_CFLAGS := -fvisibility=hidden -pthread
 LOCAL_LDLIBS := -llog
 
 LOCAL_MODULE := libusb1.0
-
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 include $(BUILD_SHARED_LIBRARY)

@@ -67,5 +67,5 @@ else
   $(warning Use ndk-build USE_PC_NAME=1 to change the module name to the compatible usb-1.0.)
   $(warning USE_PC_NAME=1 may be the default in the future.)
 endif
-
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 include $(BUILD_SHARED_LIBRARY)

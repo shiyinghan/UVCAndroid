@@ -17,7 +17,7 @@
 #
 
 LOCAL_PATH := $(call my-dir)
-
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 include $(LOCAL_PATH)/libusb.mk
 include $(LOCAL_PATH)/examples.mk
 include $(LOCAL_PATH)/tests.mk

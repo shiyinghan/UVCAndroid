@@ -79,5 +79,5 @@ ifneq ($(LIBYUV_DISABLE_JPEG), "yes")
 # LOCAL_SHARED_LIBRARIES := libjpeg
 LOCAL_SHARED_LIBRARIES := jpeg-turbo212
 endif
-
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
 include $(BUILD_SHARED_LIBRARY)
