@@ -85,4 +85,5 @@ LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 
 LOCAL_MODULE := uvc
 LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
+LOCAL_LDFLAGS += -Wl,-z,common-page-size=16384
 include $(BUILD_SHARED_LIBRARY)

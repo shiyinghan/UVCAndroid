@@ -169,6 +169,8 @@ LOCAL_CPPFLAGS += -Wno-incompatible-pointer-types
 
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
+LOCAL_LDFLAGS += -Wl,-z,common-page-size=16384
 # build as statis library
 include $(BUILD_STATIC_LIBRARY)
 
@@ -188,5 +190,6 @@ LOCAL_WHOLE_STATIC_LIBRARIES = jpeg-turbo212_static
 
 LOCAL_MODULE := jpeg-turbo212
 LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
+LOCAL_LDFLAGS += -Wl,-z,common-page-size=16384
 include $(BUILD_SHARED_LIBRARY)
 

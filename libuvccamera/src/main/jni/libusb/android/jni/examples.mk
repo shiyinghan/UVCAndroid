@@ -165,4 +165,6 @@ LOCAL_LDLIBS += -llog
 
 LOCAL_MODULE := unrooted_android
 
+LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
+LOCAL_LDFLAGS += -Wl,-z,common-page-size=16384
 include $(BUILD_SHARED_LIBRARY)

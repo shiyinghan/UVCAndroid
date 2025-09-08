@@ -68,4 +68,5 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE    := UVCCamera
 LOCAL_LDFLAGS += -Wl,-z,max-page-size=16384
+LOCAL_LDFLAGS += -Wl,-z,common-page-size=16384
 include $(BUILD_SHARED_LIBRARY)
