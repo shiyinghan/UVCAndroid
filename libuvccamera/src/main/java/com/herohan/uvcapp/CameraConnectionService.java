@@ -184,7 +184,9 @@ class CameraConnectionService {
                 mUSBMonitor = null;
             }
 
-            mWeakStateCallback.clear();
+            if (mWeakStateCallback != null) {
+                mWeakStateCallback.clear();
+            }
         }
 
         @Override
@@ -491,7 +493,9 @@ class CameraConnectionService {
 //            Watchdog.getInstance().removeThread(mListenerHandler);
             mListenerHandlerThread.quitSafely();
 
-            mWeakStateCallback.clear();
+            if (mWeakStateCallback != null) {
+                mWeakStateCallback.clear();
+            }
         }
 
         private class MyOnDeviceConnectListener implements OnDeviceConnectListener {
@@ -499,7 +503,7 @@ class CameraConnectionService {
             public void onAttach(final UsbDevice device) {
                 if (DEBUG) Log.d(TAG, "OnDeviceConnectListener#onAttach:");
 
-                if (mWeakStateCallback.get() != null) {
+                if (mWeakStateCallback != null && mWeakStateCallback.get() != null) {
                     try {
                         mWeakStateCallback.get().onAttach(device);
                     } catch (Exception e) {
@@ -521,7 +525,7 @@ class CameraConnectionService {
                     @Override
                     public void onCameraOpen() {
                         if (!mIsCameraOpened) {
-                            if (mWeakStateCallback.get() != null) {
+                            if (mWeakStateCallback != null && mWeakStateCallback.get() != null) {
                                 try {
                                     mWeakStateCallback.get().onCameraOpen(device);
                                 } catch (Exception e) {
@@ -535,7 +539,7 @@ class CameraConnectionService {
                     @Override
                     public void onCameraClose() {
                         if (mIsCameraOpened) {
-                            if (mWeakStateCallback.get() != null) {
+                            if (mWeakStateCallback != null && mWeakStateCallback.get() != null) {
                                 try {
                                     mWeakStateCallback.get().onCameraClose(device);
                                 } catch (Exception e) {
@@ -548,7 +552,7 @@ class CameraConnectionService {
 
                     @Override
                     public void onError(CameraException e) {
-                        if (mWeakStateCallback.get() != null) {
+                        if (mWeakStateCallback != null && mWeakStateCallback.get() != null) {
                             try {
                                 mWeakStateCallback.get().onError(device, e);
                             } catch (Exception e1) {
@@ -558,7 +562,7 @@ class CameraConnectionService {
                     }
                 });
 
-                if (mWeakStateCallback.get() != null) {
+                if (mWeakStateCallback != null && mWeakStateCallback.get() != null) {
                     try {
                         mWeakStateCallback.get().onDeviceOpen(device, createNew);
                     } catch (Exception e) {
@@ -571,7 +575,7 @@ class CameraConnectionService {
             public void onDeviceClose(final UsbDevice device, final UsbControlBlock ctrlBlock) {
                 if (DEBUG) Log.d(TAG, "OnDeviceConnectListener#onDeviceClose:");
 
-                if (mWeakStateCallback.get() != null) {
+                if (mWeakStateCallback != null && mWeakStateCallback.get() != null) {
                     try {
                         mWeakStateCallback.get().onDeviceClose(device);
                     } catch (Exception e) {
@@ -586,7 +590,7 @@ class CameraConnectionService {
             public void onDetach(final UsbDevice device) {
                 if (DEBUG) Log.d(TAG, "OnDeviceConnectListener#onDetach:");
 
-                if (mWeakStateCallback.get() != null) {
+                if (mWeakStateCallback != null && mWeakStateCallback.get() != null) {
                     try {
                         mWeakStateCallback.get().onDetach(device);
                     } catch (Exception e) {
@@ -601,7 +605,7 @@ class CameraConnectionService {
             public void onCancel(final UsbDevice device) {
                 if (DEBUG) Log.d(TAG, "OnDeviceConnectListener#onCancel:");
 
-                if (mWeakStateCallback.get() != null) {
+                if (mWeakStateCallback != null && mWeakStateCallback.get() != null) {
                     try {
                         mWeakStateCallback.get().onCancel(device);
                     } catch (Exception e) {
@@ -618,7 +622,7 @@ class CameraConnectionService {
             public void onError(UsbDevice device, USBMonitor.USBException e) {
                 if (DEBUG) Log.d(TAG, "OnDeviceConnectListener#onError:");
 
-                if (mWeakStateCallback.get() != null) {
+                if (mWeakStateCallback != null && mWeakStateCallback.get() != null) {
                     try {
                         CameraException ex;
                         if (e.getCode() == USBMonitor.USB_OPEN_ERROR_UNKNOWN) {
