@@ -584,7 +584,9 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
 //                    LOGI("uvc_mjpeg2yuyv time: %f", (double) (c_end - c_start) / CLOCKS_PER_SEC);
                     if (LIKELY(!result)) {
                         draw_preview_one(frame, &mPreviewWindow);
-                        addCaptureFrame(frame);
+                        if (!addCaptureFrame(frame)) {
+                            recycle_frame(frame);
+                        }
                     } else {
                         recycle_frame(frame);
                     }
@@ -604,7 +606,9 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
 
                     if (LIKELY(!result)) {
                         draw_preview_one(frame, &mPreviewWindow);
-                        addCaptureFrame(frame);
+                        if (!addCaptureFrame(frame)) {
+                            recycle_frame(frame);
+                        }
                     } else {
                         recycle_frame(frame);
                     }
@@ -711,7 +715,8 @@ int UVCPreview::setCaptureDisplay(ANativeWindow *capture_window) {
     RETURN(0, int);
 }
 
-void UVCPreview::addCaptureFrame(uvc_frame_t *frame) {
+bool UVCPreview::addCaptureFrame(uvc_frame_t *frame) {
+    bool result = false;
     pthread_mutex_lock(&capture_mutex);
     if (LIKELY(isRunning())) {
         // keep only latest one
@@ -720,8 +725,10 @@ void UVCPreview::addCaptureFrame(uvc_frame_t *frame) {
         }
         captureQueu = frame;
         pthread_cond_broadcast(&capture_sync);
+        result = true;
     }
     pthread_mutex_unlock(&capture_mutex);
+    return result;
 }
 
 /**

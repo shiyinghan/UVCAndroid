@@ -121,7 +121,7 @@ private:
     void draw_preview_one(uvc_frame_t *frame, ANativeWindow **window);
 
 //
-    void addCaptureFrame(uvc_frame_t *frame);
+    bool addCaptureFrame(uvc_frame_t *frame);
 
     uvc_frame_t *waitCaptureFrame();
 
