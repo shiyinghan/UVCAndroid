@@ -124,15 +124,21 @@ final class CameraInternal implements ICameraInternal {
     public void setPreviewSize(Size size) {
         if (DEBUG) Log.d(TAG, "setPreviewSize:" + size);
         try {
-            mUVCCamera.setPreviewSize(size);
+            if (mUVCCamera != null) {
+                mUVCCamera.setPreviewSize(size);
+            }
 
             // Preview size may changed, so set the resolution and reinitialize video encoder and audio encoder of VideoCapture
             mVideoCapture.setResolution(getPreviewSize());
         } catch (final Exception e) {
             Log.e(TAG, "setPreviewSize:", e);
             // unexpectedly #setPreviewSize failed
-            mUVCCamera.destroy();
-            mUVCCamera = null;
+            synchronized (CameraInternal.class) {
+                if (mUVCCamera != null) {
+                    mUVCCamera.destroy();
+                    mUVCCamera = null;
+                }
+            }
         }
     }
 
@@ -165,7 +171,9 @@ final class CameraInternal implements ICameraInternal {
     public void setButtonCallback(IButtonCallback callback) {
         if (DEBUG) Log.d(TAG, "setButtonCallback:callback=" + callback);
         try {
-            mUVCCamera.setButtonCallback(callback);
+            if (mUVCCamera != null) {
+                mUVCCamera.setButtonCallback(callback);
+            }
         } catch (final Exception e) {
             Log.e(TAG, "setButtonCallback:", e);
         }
@@ -175,7 +183,9 @@ final class CameraInternal implements ICameraInternal {
     public void setFrameCallback(final IFrameCallback callback, final int pixelFormat) {
         if (DEBUG) Log.d(TAG, "setFrameCallback:surface=" + callback);
         try {
-            mUVCCamera.setFrameCallback(callback, pixelFormat);
+            if (mUVCCamera != null) {
+                mUVCCamera.setFrameCallback(callback, pixelFormat);
+            }
         } catch (final Exception e) {
             Log.e(TAG, "setFrameCallback:", e);
         }
