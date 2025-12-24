@@ -206,6 +206,7 @@ JMESSAGE(JERR_NO_ARITH_TABLE, "Arithmetic table 0x%02x was not defined")
 JMESSAGE(JWRN_ARITH_BAD_CODE, "Corrupt JPEG data: bad arithmetic code")
 #endif
 #endif
+JMESSAGE(JERR_BAD_PARAM, "Bogus parameter")
 JMESSAGE(JWRN_BOGUS_ICC, "Corrupt JPEG data: bad ICC marker")
 #if JPEG_LIB_VERSION < 70
 JMESSAGE(JERR_BAD_DROP_SAMPLING,
