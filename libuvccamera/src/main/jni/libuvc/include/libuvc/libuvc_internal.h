@@ -272,11 +272,19 @@ typedef struct uvc_device_info {
 #endif
 
 /*
- Make a limit number of packets per transfer.
- Big number may cause error (libusb: error [submit_iso_transfer] submiturb failed, errno=12)
+ * Maximum number of isochronous packets in a single transfer.
+ *
+ * This controls the size of each individual iso transfer. Some Android USB
+ * host stacks may fail large iso submissions with ENOMEM, for example:
+ *
+ *     libusb: error [submit_iso_transfer] submiturb failed, errno=12
+ *
+ * On Android, total in-flight URB pressure is now primarily reduced by using
+ * a smaller LIBUVC_NUM_TRANSFER_BUFS value. Therefore keep this per-transfer
+ * limit at the original default unless a specific platform needs tuning.
  */
 #ifndef LIBUVC_PACKETS_PER_TRANSFER_MAX
-#define LIBUVC_PACKETS_PER_TRANSFER_MAX 8
+#define LIBUVC_PACKETS_PER_TRANSFER_MAX 32
 #endif
 
 #define LIBUVC_XFER_META_BUF_SIZE ( 4 * 1024 )
