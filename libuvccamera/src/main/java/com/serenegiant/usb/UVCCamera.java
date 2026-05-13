@@ -26,6 +26,7 @@ package com.serenegiant.usb;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +34,7 @@ import org.json.JSONObject;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.usb.UsbDevice;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
@@ -78,6 +80,21 @@ public class UVCCamera {
      * and instead the library calculates its own value based off the frame size, frame rate and bits per pixel.
      */
     public static final int UVC_QUIRK_FIX_BANDWIDTH = 0x00000080;
+
+
+    /**
+     * libuvc quirks recommended for this device's USB host. MediaTek platforms
+     * often need {@link #UVC_QUIRK_FIX_BANDWIDTH} for isochronous uncompressed
+     * video so that {@code dwMaxPayloadTransferSize} is recalculated before commit.
+     */
+    public static int getRecommendedPlatformQuirks() {
+        final String hw = Build.HARDWARE != null ? Build.HARDWARE.toLowerCase(Locale.US) : "";
+        if (hw.startsWith("mt") || hw.contains("mediatek")) {
+            return UVC_QUIRK_FIX_BANDWIDTH;
+        }
+        return 0;
+    }
+
 
     static {
         System.loadLibrary("jpeg-turbo212");

@@ -526,7 +526,7 @@ int UVCPreview::prepare_preview(uvc_stream_ctrl_t *ctrl) {
 #endif
         uvc_frame_desc_t *frame_desc;
         frame_desc = uvc_find_frame_desc(mDeviceHandle, ctrl->bFormatIndex, ctrl->bFrameIndex);
-        if (LIKELY(!result)) {
+        if (LIKELY(frame_desc != NULL)) {
             frameWidth = frame_desc->wWidth;
             frameHeight = frame_desc->wHeight;
             frameFormatType = frame_desc->bDescriptorSubtype;

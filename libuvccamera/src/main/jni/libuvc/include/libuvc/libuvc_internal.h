@@ -258,6 +258,14 @@ typedef struct uvc_device_info {
 #ifndef LIBUVC_NUM_TRANSFER_BUFS
 #if defined(__APPLE__) && defined(__MACH__)
 #define LIBUVC_NUM_TRANSFER_BUFS 20
+#elif defined(__ANDROID__)
+/*
+ * Android USB host stacks (notably MediaTek) often fail isochronous streaming
+ * when too many URBs are queued at once: libusb_submit_transfer may return
+ * ENOMEM (errno=12). See https://github.com/libuvc/libuvc/issues/299
+ * Keep concurrent transfers in the same range as macOS instead of 100.
+ */
+#define LIBUVC_NUM_TRANSFER_BUFS 16
 #else
 #define LIBUVC_NUM_TRANSFER_BUFS 100
 #endif
