@@ -294,6 +294,28 @@ static void uvc_fixup_video_ctrl(uvc_device_handle_t *devh,
 
         ctrl->dwMaxPayloadTransferSize = bandwidth;
     }
+
+#if defined(__ANDROID__) && !defined(LIBUVC_DISABLE_ANDROID_BULK_PAYLOAD_CLAMP)
+    /*
+     * Some kernels (often seen on MTK phones) omit or mis-report usbfs caps;
+     * libusb then splits bulk transfers into multiple 16KB URBs without
+     * USBFS_CAP_BULK_CONTINUATION handling. Completed URB short reads then
+     * abort the remainder of the frame (see libusb issues on Android bulk).
+     *
+     * UVC streaming over bulk uses ctrl->dwMaxPayloadTransferSize as the
+     * libusb_transfer length — keep each read <= linux_usbfs MAX_BULK_BUFFER_LENGTH
+     * (16384) so submit_bulk_transfer uses a single URB.
+     *
+     * Define LIBUVC_DISABLE_ANDROID_BULK_PAYLOAD_CLAMP (e.g. LOCAL_CFLAGS in
+     * libuvc/android/jni/Android.mk) on ROMs/devices where clamping breaks
+     * picky bulk UVC firmware.
+     */
+    if (!isochronous && ctrl->dwMaxPayloadTransferSize > 16384u) {
+        UVC_DEBUG("Android: clamp dwMaxPayloadTransferSize %u -> 16384 (bulk/usbfs workaround)\n",
+                  (unsigned int) ctrl->dwMaxPayloadTransferSize);
+        ctrl->dwMaxPayloadTransferSize = 16384;
+    }
+#endif
 }
 
 /** @internal
