@@ -473,6 +473,10 @@ color_quantize(j_decompress_ptr cinfo, JSAMPARRAY input_buf,
   JDIMENSION width = cinfo->output_width;
   register int nc = cinfo->out_color_components;
 
+  if (output_buf == NULL && num_rows) {
+    ERREXIT(cinfo, JERR_BAD_PARAM);
+  }
+
   for (row = 0; row < num_rows; row++) {
     ptrin = input_buf[row];
     ptrout = output_buf[row];
