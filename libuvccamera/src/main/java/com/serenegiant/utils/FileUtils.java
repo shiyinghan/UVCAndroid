@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 
@@ -19,8 +20,6 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-
-import cn.hutool.core.io.FileUtil;
 
 public class FileUtils {
     private static final String TAG = FileUtils.class.getSimpleName();
@@ -54,7 +53,13 @@ public class FileUtils {
         if (!TextUtils.isEmpty(prefix)) {
             fileName = prefix + fileName;
         }
-        String mimeType = FileUtil.getMimeType(ext);
+        
+        String extension = "";
+        int lastDot = fileName.lastIndexOf('.');
+        if (lastDot > 0 && lastDot < fileName.length() - 1) {
+            extension = fileName.substring(lastDot + 1).toLowerCase(Locale.getDefault());
+        }
+        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
 
         // Add a specific media item.
         ContentResolver resolver = context.getContentResolver();
