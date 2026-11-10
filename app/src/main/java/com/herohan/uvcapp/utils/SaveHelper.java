@@ -15,7 +15,8 @@ public class SaveHelper {
 
     public static void checkBaseStoragePath() {
         if (BaseStoragePath == null) {
-            BaseStoragePath = Environment.getExternalStorageDirectory().getPath() + File.separator + UVCUtils.getApplication().getString(R.string.app_name);
+            String basePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+            BaseStoragePath = basePath + File.separator + UVCUtils.getApplication().getPackageName();
         }
     }
 

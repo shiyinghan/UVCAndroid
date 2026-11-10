@@ -208,6 +208,23 @@ public class MainActivity extends AppCompatActivity {
                         toggleVideoRecord(!mIsRecording);
                     });
         });
+        mBinding.fabPicture2.setOnClickListener(v -> {
+            File file = new File(SaveHelper.getSavePhotoPath());
+            tryStillImage(file);
+        });
+    }
+
+    private void tryStillImage(final File file) {
+        Log.d(TAG, "tryStillImage: " + file.getAbsolutePath());
+//        mCameraHelper.setStillImageCallback(new IStillImageCallback() {
+//            @Override
+//            public void onStillImage(byte[] data, int width, int height) {
+//                Log.d(TAG, "onStillImage: ");
+//                if (data == null || width <= 0 || height <= 0) return;
+//                Log.d(TAG, "onStillImage: " + width + "x" + height + " " + data.length + " bytes");
+//            }
+//        });
+//        mCameraHelper.triggerStillImage(1600, 1200);
     }
 
     private void showCameraControlsDialog() {
@@ -487,6 +504,7 @@ public class MainActivity extends AppCompatActivity {
                 mBinding.viewMainPreview.setVisibility(View.VISIBLE);
                 mBinding.tvConnectUSBCameraTip.setVisibility(View.GONE);
 
+                mBinding.fabPicture2.setVisibility(View.VISIBLE);
                 mBinding.fabPicture.setVisibility(View.VISIBLE);
                 mBinding.fabVideo.setVisibility(View.VISIBLE);
 
@@ -502,6 +520,7 @@ public class MainActivity extends AppCompatActivity {
                 mBinding.viewMainPreview.setVisibility(View.GONE);
                 mBinding.tvConnectUSBCameraTip.setVisibility(View.VISIBLE);
 
+                mBinding.fabPicture2.setVisibility(View.GONE);
                 mBinding.fabPicture.setVisibility(View.GONE);
                 mBinding.fabVideo.setVisibility(View.GONE);
 
@@ -535,7 +554,9 @@ public class MainActivity extends AppCompatActivity {
 //        mCameraHelper.setImageCaptureConfig(
 //                mCameraHelper.getImageCaptureConfig().setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY));
         mCameraHelper.setImageCaptureConfig(
-                mCameraHelper.getImageCaptureConfig().setJpegCompressionQuality(90));
+                mCameraHelper.getImageCaptureConfig()
+                        .setJpegCompressionQuality(100)
+        );
     }
 
     public void takePicture() {

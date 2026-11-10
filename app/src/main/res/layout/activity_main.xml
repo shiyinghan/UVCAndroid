@@ -76,5 +76,15 @@
             android:layout_marginBottom="16dp"
             android:visibility="invisible"
             app:srcCompat="@drawable/ic_switch_camera" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabPicture2"
+            style="@style/MainFloatingActionButton"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginBottom="16dp"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/ic_switch_camera" />
     </RelativeLayout>
 </LinearLayout>
