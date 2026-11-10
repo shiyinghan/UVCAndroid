@@ -253,6 +253,16 @@ public class UVCCamera {
             mSupportedFormats = nativeGetSupportedFormats(mNativePtr);
             mSupportedFormatList = parseSupportedFormats(mSupportedFormats);
             mSupportedSizeList = fetchSupportedSizeList(mSupportedFormatList);
+            if (DEBUG) {
+                final int maxLogSize = 4000;
+                Log.i(TAG, "updateSupportedFormats: ---" + mSupportedFormats.length() + "---");
+                for (int i = 0; i <= mSupportedFormats.length() / maxLogSize; i++) {
+                    int start = i * maxLogSize;
+                    int end = Math.min((i + 1) * maxLogSize, mSupportedFormats.length());
+                    Log.i(TAG, mSupportedFormats.substring(start, end));
+                }
+                Log.i(TAG, "updateSupportedFormats: ---" + mSupportedFormats.length() + "---");
+            }
         }
     }
 

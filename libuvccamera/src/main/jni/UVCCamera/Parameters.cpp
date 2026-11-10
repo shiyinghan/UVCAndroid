@@ -130,6 +130,17 @@ static const char *_uvc_name_for_format_subtype(uint8_t subtype) {
 #define FRAME_INTERVAL_MAX            "maxFrameInterval"
 #define FRAME_INTERVAL_STEP            "frameIntervalStep"
 
+// still image -define start
+#define FORMAT_STILL_FRAME_DESCRIPTORS    "stillFrameDescriptors"
+#define STILL_CAPTURE_METHOD            "stillCaptureMethod"
+#define STILL_DESC_SUBTYPE                SUBTYPE
+#define STILL_ENDPOINT_ADDRESS            "endPointAddress"
+#define STILL_IMAGE_SIZE_PATTERNS        "imageSizePatterns"
+#define STILL_RESOLUTION_INDEX            "resolutionIndex"
+#define STILL_NUM_COMPRESSION_PATTERNS    "numCompressionPatterns"
+#define STILL_COMPRESSIONS                "compressions"
+// still image -define end
+
 static void writerFormat(Writer<StringBuffer> &writer, uvc_format_desc_t *fmt_desc) {
     uvc_frame_desc_t *frame_desc;
     char work[256];
@@ -364,6 +375,7 @@ char *UVCDiags::getSupportedFormats(const uvc_device_handle_t *deviceHandle) {
                 ++stream_idx;
                 uvc_format_desc_t *fmt_desc;
                 uvc_frame_desc_t *frame_desc;
+                uvc_still_frame_desc *still_frame_desc;
                 DL_FOREACH(stream_if->format_descs, fmt_desc) {
                     writer.StartObject();
                     {
@@ -448,6 +460,52 @@ char *UVCDiags::getSupportedFormats(const uvc_device_handle_t *deviceHandle) {
                                     writer.EndObject();
                                 }
                                 writer.EndArray();
+                                // still image desc -start
+                                writer.String(FORMAT_STILL_FRAME_DESCRIPTORS);
+                                writer.StartArray();
+                                DL_FOREACH(fmt_desc->still_frame_desc, still_frame_desc) {
+                                    writer.StartObject();
+                                    {
+                                        write(writer, STILL_CAPTURE_METHOD,
+                                              stream_if->bStillCaptureMethod);
+                                        write(writer, STILL_DESC_SUBTYPE,
+                                              still_frame_desc->bDescriptorSubtype);
+                                        write(writer, STILL_ENDPOINT_ADDRESS,
+                                              still_frame_desc->bEndPointAddress);
+
+                                        writer.String(STILL_IMAGE_SIZE_PATTERNS);
+                                        writer.StartArray();
+                                        uvc_still_frame_res_t *still_res;
+                                        DL_FOREACH(still_frame_desc->imageSizePatterns, still_res) {
+                                            writer.StartObject();
+                                            write(writer, STILL_RESOLUTION_INDEX,
+                                                  still_res->bResolutionIndex);
+                                            write(writer, FRAME_WIDTH, still_res->wWidth);
+                                            write(writer, FRAME_HEIGHT, still_res->wHeight);
+                                            writer.EndObject();
+                                        }
+                                        writer.EndArray();
+
+                                        if (still_frame_desc->bNumCompressionPattern) {
+                                            write(writer, STILL_NUM_COMPRESSION_PATTERNS,
+                                                  still_frame_desc->bNumCompressionPattern);
+                                        }
+
+                                        if (still_frame_desc->bNumCompressionPattern &&
+                                            still_frame_desc->bCompression) {
+                                            writer.String(STILL_COMPRESSIONS);
+                                            writer.StartArray();
+                                            for (int i = 0; i <
+                                                            still_frame_desc->bNumCompressionPattern; ++i) {
+                                                writer.Uint(still_frame_desc->bCompression[i]);
+                                            }
+                                            writer.EndArray();
+                                        }
+                                    }
+                                    writer.EndObject();
+                                }
+                                writer.EndArray();
+                                // still image desc -end
                                 break;
                             default:
                                 break;
@@ -457,7 +515,6 @@ char *UVCDiags::getSupportedFormats(const uvc_device_handle_t *deviceHandle) {
                 }
             }
             writer.EndArray();
-            // FIXME still image is not supported now
         }
     }
     writer.EndObject();
