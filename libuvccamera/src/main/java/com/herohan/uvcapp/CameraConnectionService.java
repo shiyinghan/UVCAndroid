@@ -309,6 +309,16 @@ class CameraConnectionService {
             }
         }
 
+        @Override
+        public void triggerStillImage(final UsbDevice device) {
+            if (DEBUG)
+                Log.d(TAG, LOG_PREFIX + "triggerStillImage:");
+            final CameraInternal cameraInternal = getCamera(device);
+            if (cameraInternal != null) {
+                cameraInternal.triggerStillImage();
+            }
+        }
+
         /**
          * open device once again, open camera and start streaming
          */

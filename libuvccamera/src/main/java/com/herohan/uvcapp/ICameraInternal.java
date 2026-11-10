@@ -33,6 +33,8 @@ interface ICameraInternal {
 
     void setFrameCallback(final IFrameCallback callback, final int pixelFormat);
 
+    void triggerStillImage();
+
     void openCamera(UVCParam param,
                     CameraPreviewConfig previewConfig,
                     ImageCaptureConfig imageCaptureConfig,

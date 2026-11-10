@@ -42,6 +42,8 @@ interface ICameraConnection {
 
     void setFrameCallback(UsbDevice device, IFrameCallback callback, int pixelFormat);
 
+    void triggerStillImage(UsbDevice device);
+
     void openCamera(UsbDevice device, UVCParam param,
                     CameraPreviewConfig previewConfig,
                     ImageCaptureConfig imageCaptureConfig,

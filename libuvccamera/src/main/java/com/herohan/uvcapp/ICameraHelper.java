@@ -39,6 +39,8 @@ public interface ICameraHelper {
 
     void setFrameCallback(IFrameCallback callback, int pixelFormat);
 
+    void triggerStillImage();
+
     void openCamera();
 
     void openCamera(Size size);

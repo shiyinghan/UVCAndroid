@@ -227,3 +227,12 @@ int UVCCamera::setCaptureDisplay(ANativeWindow *capture_window) {
     }
     RETURN(result, int);
 }
+
+int UVCCamera::triggerStillImage() {
+    ENTER();
+    int result = EXIT_FAILURE;
+    if (mPreview) {
+        result = mPreview->triggerStillImage();
+    }
+    RETURN(result, int);
+}

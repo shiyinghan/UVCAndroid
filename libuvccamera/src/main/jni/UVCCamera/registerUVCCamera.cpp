@@ -284,6 +284,18 @@ static jint nativeSetFrameCallback(JNIEnv *env, jobject thiz,
     RETURN(result, jint);
 }
 
+static jint nativeTriggerStillImage(JNIEnv *env, jobject thiz,
+                                    ID_TYPE id_camera) {
+
+    jint result = JNI_ERR;
+    ENTER();
+    UVCCamera *camera = reinterpret_cast<UVCCamera *>(id_camera);
+    if (LIKELY(camera)) {
+        result = camera->triggerStillImage();
+    }
+    RETURN(result, jint);
+}
+
 static jint nativeSetCaptureDisplay(JNIEnv *env, jobject thiz,
                                     ID_TYPE id_camera, jobject jSurface) {
 
@@ -334,6 +346,8 @@ static JNINativeMethod methods[] = {
         {"nativeStopPreview",         "(J)I",                                      (void *) nativeStopPreview},
         {"nativeSetPreviewDisplay",   "(JLandroid/view/Surface;)I",                (void *) nativeSetPreviewDisplay},
         {"nativeSetFrameCallback",    "(JLcom/serenegiant/usb/IFrameCallback;I)I", (void *) nativeSetFrameCallback},
+
+        {"nativeTriggerStillImage",   "(J)I",                                    (void *) nativeTriggerStillImage},
 
         {"nativeSetCaptureDisplay",   "(JLandroid/view/Surface;)I",                (void *) nativeSetCaptureDisplay},
 };

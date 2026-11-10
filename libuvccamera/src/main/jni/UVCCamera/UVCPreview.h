@@ -159,6 +159,8 @@ public:
     inline const bool isCapturing() const;
 
     int setCaptureDisplay(ANativeWindow *capture_window);
+
+    int triggerStillImage();
 };
 
 #endif /* UVCPREVIEW_H_ */

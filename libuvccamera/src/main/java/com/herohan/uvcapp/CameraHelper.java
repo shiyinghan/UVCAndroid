@@ -245,6 +245,20 @@ public class CameraHelper implements ICameraHelper {
     }
 
     @Override
+    public void triggerStillImage() {
+        if (DEBUG) Log.d(TAG, "triggerStillImage:");
+        mAsyncHandler.post(() -> {
+            if (mService != null && mUsbDevice != null) {
+                try {
+                    mService.triggerStillImage(mUsbDevice);
+                } catch (final Exception e) {
+                    if (DEBUG) Log.e(TAG, "triggerStillImage:", e);
+                }
+            }
+        });
+    }
+
+    @Override
     public void openCamera() {
         openCamera(new UVCParam());
     }

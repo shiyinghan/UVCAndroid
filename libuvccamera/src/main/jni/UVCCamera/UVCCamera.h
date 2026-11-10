@@ -73,6 +73,8 @@ public:
     int stopPreview();
 
     int setCaptureDisplay(ANativeWindow *capture_window);
+
+    int triggerStillImage();
 };
 
 #endif /* UVCCAMERA_H_ */

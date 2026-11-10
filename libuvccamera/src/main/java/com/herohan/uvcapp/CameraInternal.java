@@ -192,6 +192,18 @@ final class CameraInternal implements ICameraInternal {
     }
 
     @Override
+    public void triggerStillImage() {
+        if (DEBUG) Log.d(TAG, "triggerStillImage:");
+        try {
+            if (mUVCCamera != null) {
+                mUVCCamera.triggerStillImage();
+            }
+        } catch (final Exception e) {
+            Log.e(TAG, "triggerStillImage:", e);
+        }
+    }
+
+    @Override
     public void openCamera(UVCParam param,
                            CameraPreviewConfig previewConfig,
                            ImageCaptureConfig imageCaptureConfig,

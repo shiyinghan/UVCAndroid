@@ -883,3 +883,19 @@ void UVCPreview::do_capture_callback(JNIEnv *env, uvc_frame_t *frame) {
     }
 //    EXIT();
 }
+
+int UVCPreview::triggerStillImage() {
+    ENTER();
+
+    int result = EXIT_FAILURE;
+    if (UNLIKELY(!isRunning())) {
+        LOGW("preview is not running, could not trigger still image");
+        RETURN(result, int);
+    }
+    LOGI("triggerStillImage frame is %dx%d %d", frameWidth, frameHeight, frameFormatType);
+
+    // todo
+
+    LOGI("triggerStillImage end");
+    RETURN(result, int);
+}

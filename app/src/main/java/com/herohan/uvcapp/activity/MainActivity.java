@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d(TAG, "onStillImage: " + width + "x" + height + " " + data.length + " bytes");
 //            }
 //        });
-//        mCameraHelper.triggerStillImage(1600, 1200);
+        mCameraHelper.triggerStillImage();
     }
 
     private void showCameraControlsDialog() {

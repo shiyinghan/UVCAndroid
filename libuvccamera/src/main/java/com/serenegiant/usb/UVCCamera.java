@@ -531,6 +531,12 @@ public class UVCCamera {
         }
     }
 
+    public void triggerStillImage() {
+        if (mNativePtr != 0) {
+            nativeTriggerStillImage(mNativePtr);
+        }
+    }
+
     /**
      * start preview
      */
@@ -626,6 +632,8 @@ public class UVCCamera {
     private native int nativeSetPreviewDisplay(final long id_camera, final Surface surface);
 
     private native int nativeSetFrameCallback(final long id_camera, final IFrameCallback callback, final int pixelFormat);
+
+    private native int nativeTriggerStillImage(final long id_camera);
 
     private native int nativeSetCaptureDisplay(final long id_camera, final Surface surface);
 
