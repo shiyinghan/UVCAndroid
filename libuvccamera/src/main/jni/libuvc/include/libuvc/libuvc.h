@@ -646,6 +646,12 @@ uvc_error_t uvc_get_still_ctrl_format_size(
         uvc_still_ctrl_t *still_ctrl,
         int width, int height);
 
+uvc_error_t uvc_get_still_ctrl_format_size_uncompressed(
+        uvc_device_handle_t *devh,
+        uvc_stream_ctrl_t *ctrl,
+        uvc_still_ctrl_t *still_ctrl,
+        int width, int height);
+
 uvc_error_t uvc_trigger_still(
         uvc_device_handle_t *devh,
         uvc_still_ctrl_t *still_ctrl);

@@ -887,42 +887,41 @@ void UVCPreview::do_capture_callback(JNIEnv *env, uvc_frame_t *frame) {
 int UVCPreview::triggerStillImage() {
     ENTER();
 
+    LOGI("triggerStillImage");
     int result = EXIT_FAILURE;
     if (UNLIKELY(!isRunning())) {
         LOGW("preview is not running, could not trigger still image");
         RETURN(result, int);
     }
-    LOGI("triggerStillImage frame is %dx%d %d", frameWidth, frameHeight, frameFormatType);
+    LOGI("now frame is %dx%d %s", frameWidth, frameHeight,
+         (frameFormatType == UVC_VS_FRAME_MJPEG ? "MJPEG" : "YUYV"));
 
     uvc_stream_ctrl_t ctrl;
     memset(&ctrl, 0, sizeof(ctrl));
     result = uvc_get_stream_ctrl_format_size(mDeviceHandle, &ctrl, UVC_FRAME_FORMAT_UNCOMPRESSED,
                                              frameWidth, frameHeight, 0);
     if (UNLIKELY(result)) {
-        LOGW("uvc_stream_ctrl_t could not negotiate still image format size(%d,%d,%d):err=%d",
-             frameWidth, frameHeight, UVC_FRAME_FORMAT_UNCOMPRESSED, result);
+        LOGW("uvc_get_stream_ctrl_format_size.failed err=%d", result);
         RETURN(result, int);
     }
-    LOGI("uvc_get_stream_ctrl_format_size bInterfaceNumber=%d bFormatIndex=%d frameIndex=%d",
-         (int) ctrl.bInterfaceNumber, (int) ctrl.bFormatIndex, (int) ctrl.bFrameIndex);
+    LOGI("uvc_get_stream_ctrl_format_size bInterfaceNumber=%d bFrameIndex=%d bFormatIndex=%d",
+         (int) ctrl.bInterfaceNumber, (int) ctrl.bFrameIndex, (int) ctrl.bFormatIndex);
 
     uvc_still_ctrl_t still_ctrl;
     memset(&still_ctrl, 0, sizeof(still_ctrl));
-    result = uvc_get_still_ctrl_format_size(mDeviceHandle, &ctrl, &still_ctrl,
+    result = uvc_get_still_ctrl_format_size_uncompressed(mDeviceHandle, &ctrl, &still_ctrl,
                                             frameWidth, frameHeight);
     if (UNLIKELY(result)) {
-        LOGW("uvc_still_ctrl_t could not negotiate still image format size(%d,%d,%d):err=%d",
-             frameWidth, frameHeight, UVC_FRAME_FORMAT_UNCOMPRESSED, result);
+        LOGW("uvc_get_still_ctrl_format_size_uncompressed.failed err=%d", result);
         RETURN(result, int);
     }
-    LOGI("uvc_still_ctrl_t bInterfaceNumber=%d bFormatIndex=%d  bFrameIndex=%d dwMaxVideoFrameSize=%d",
-         (int) still_ctrl.bInterfaceNumber,
-         (int) still_ctrl.bFormatIndex, (int) still_ctrl.bFrameIndex,
-         (int) still_ctrl.dwMaxVideoFrameSize);
+    LOGI("uvc_get_still_ctrl_format_size_uncompressed bInterfaceNumber=%d bFrameIndex=%d bFormatIndex=%d dwMaxVideoFrameSize=%d",
+         (int) still_ctrl.bInterfaceNumber, (int) still_ctrl.bFrameIndex,
+         (int) still_ctrl.bFormatIndex, (int) still_ctrl.dwMaxVideoFrameSize);
 
     result = uvc_trigger_still(mDeviceHandle, &still_ctrl);
     if (UNLIKELY(result)) {
-        LOGW("uvc_trigger_still failed err=%d", result);
+        LOGW("uvc_trigger_still.failed err=%d", result);
         RETURN(result, int);
     }
 
