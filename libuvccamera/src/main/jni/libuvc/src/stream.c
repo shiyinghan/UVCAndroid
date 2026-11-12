@@ -893,6 +893,7 @@ void _uvc_swap_buffers(uvc_stream_handle_t *strmh) {
     strmh->hold_last_scr = strmh->last_scr;
     strmh->hold_pts = strmh->pts;
     strmh->hold_seq = strmh->seq;
+    strmh->hold_sti = strmh->sti;
 
     /* swap metadata buffer */
     tmp_buf = strmh->meta_holdbuf;
@@ -908,6 +909,7 @@ void _uvc_swap_buffers(uvc_stream_handle_t *strmh) {
     strmh->meta_got_bytes = 0;
     strmh->last_scr = 0;
     strmh->pts = 0;
+    strmh->sti = 0;
 }
 
 /** @internal
@@ -985,9 +987,10 @@ void _uvc_process_payload(uvc_stream_handle_t *strmh, uint8_t *payload, size_t p
             /* The frame ID bit was flipped, but we have image data sitting
                around from prior transfers. This means the camera didn't send
                an EOF for the last transfer of the previous frame. */
-            _uvc_swap_buffers(strmh);
+            if (header_info & UVC_STREAM_STI) {
+            } else { _uvc_swap_buffers(strmh); }
         }
-
+        strmh->sti = header_info & UVC_STREAM_STI;
         strmh->fid = header_info & UVC_STREAM_FID;
 
         if (header_info & UVC_STREAM_PTS) {
@@ -1614,6 +1617,7 @@ void _uvc_populate_frame(uvc_stream_handle_t *strmh) {
     }
 
     frame->sequence = strmh->hold_seq;
+    frame->is_still = strmh->hold_sti;
     frame->capture_time_finished = strmh->capture_time_finished;
 
     /* copy the image data from the hold buffer to the frame (unnecessary extra buf?) */

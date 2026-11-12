@@ -190,11 +190,11 @@ enum uvc_status_type {
 #define UVC_CONTROL_CAP_ASYNCHRONOUS (1 << 4)
 
 /* Devices quirks */
-#define UVC_QUIRK_FIX_BANDWIDTH		0x00000080
+#define UVC_QUIRK_FIX_BANDWIDTH        0x00000080
 
 /* Format flags */
-#define UVC_FMT_FLAG_COMPRESSED		0x00000001
-#define UVC_FMT_FLAG_STREAM		0x00000002
+#define UVC_FMT_FLAG_COMPRESSED        0x00000001
+#define UVC_FMT_FLAG_STREAM        0x00000002
 
 struct uvc_streaming_interface;
 struct uvc_device_info;
@@ -329,6 +329,7 @@ struct uvc_stream_handle {
     /* raw metadata buffer if available */
     uint8_t *meta_outbuf, *meta_holdbuf;
     size_t meta_got_bytes, meta_hold_bytes;
+    uint8_t sti, hold_sti;
 };
 
 /** Handle on an open UVC device

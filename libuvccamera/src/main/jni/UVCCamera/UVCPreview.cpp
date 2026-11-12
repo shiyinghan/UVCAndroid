@@ -439,6 +439,7 @@ void UVCPreview::uvc_preview_frame_callback(uvc_frame_t *frame, void *vptr_args)
 //#endif
 //        return;
 //    }
+    if (frame->is_still) LOGI("is_still uvc_preview_frame_callback");
     if (LIKELY(preview->isRunning())) {
         uvc_frame_t *copy = preview->get_frame(frame->data_bytes);
         if (UNLIKELY(!copy)) {
@@ -555,7 +556,7 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
     ENTER();
 
 //    time_t c_start, c_end;
-
+    LOGI("is_still do_preview");
     uvc_frame_t *frame = NULL;
     uvc_frame_t *frame_yuv = NULL;
     uvc_frame_t *frame_mjpeg = NULL;
@@ -575,6 +576,7 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
             for (; LIKELY(isRunning());) {
                 frame_mjpeg = waitPreviewFrame();
                 if (LIKELY(frame_mjpeg)) {
+                    if (frame_mjpeg->is_still) LOGI("jawa0919 JPG");
 //                    frame = get_frame(frame_mjpeg->width * frame_mjpeg->height * 2);
                     frame = get_frame(
                             frame_mjpeg->width * frame_mjpeg->height * PREVIEW_PIXEL_BYTES);
@@ -598,6 +600,7 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
             for (; LIKELY(isRunning());) {
                 frame_yuv = waitPreviewFrame();
                 if (LIKELY(frame_yuv)) {
+                    if (frame_mjpeg->is_still) LOGI("jawa0919 YUV");
                     frame = get_frame(frame_yuv->width * frame_yuv->height * PREVIEW_PIXEL_BYTES);
 //                    c_start = clock();
                     result = uvc_yuyv2rgbx(frame_yuv, frame);   // YUYV => RGBX
@@ -910,7 +913,7 @@ int UVCPreview::triggerStillImage() {
     uvc_still_ctrl_t still_ctrl;
     memset(&still_ctrl, 0, sizeof(still_ctrl));
     result = uvc_get_still_ctrl_format_size_uncompressed(mDeviceHandle, &ctrl, &still_ctrl,
-                                            frameWidth, frameHeight);
+                                                         frameWidth, frameHeight);
     if (UNLIKELY(result)) {
         LOGW("uvc_get_still_ctrl_format_size_uncompressed.failed err=%d", result);
         RETURN(result, int);
