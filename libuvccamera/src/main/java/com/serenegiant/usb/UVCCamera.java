@@ -253,6 +253,16 @@ public class UVCCamera {
             mSupportedFormats = nativeGetSupportedFormats(mNativePtr);
             mSupportedFormatList = parseSupportedFormats(mSupportedFormats);
             mSupportedSizeList = fetchSupportedSizeList(mSupportedFormatList);
+            if (DEBUG) {
+                final int maxLogSize = 4000;
+                Log.i(TAG, "updateSupportedFormats: ---" + mSupportedFormats.length() + "---");
+                for (int i = 0; i <= mSupportedFormats.length() / maxLogSize; i++) {
+                    int start = i * maxLogSize;
+                    int end = Math.min((i + 1) * maxLogSize, mSupportedFormats.length());
+                    Log.i(TAG, mSupportedFormats.substring(start, end));
+                }
+                Log.i(TAG, "updateSupportedFormats: ---" + mSupportedFormats.length() + "---");
+            }
         }
     }
 
@@ -531,6 +541,24 @@ public class UVCCamera {
         }
     }
 
+    public void triggerStillImage() {
+        if (mNativePtr != 0) {
+            nativeTriggerStillImage(mNativePtr);
+        }
+    }
+
+    /**
+     * set still image callback
+     *
+     * @param callback The callback that receives still image data
+     *                 triggered by {@link #triggerStillImage()}
+     */
+    public void setStillImageCallback(final IStillImageCallback callback) {
+        if (mNativePtr != 0) {
+            nativeSetStillImageCallback(mNativePtr, callback);
+        }
+    }
+
     /**
      * start preview
      */
@@ -626,6 +654,10 @@ public class UVCCamera {
     private native int nativeSetPreviewDisplay(final long id_camera, final Surface surface);
 
     private native int nativeSetFrameCallback(final long id_camera, final IFrameCallback callback, final int pixelFormat);
+
+    private native int nativeTriggerStillImage(final long id_camera);
+
+    private native int nativeSetStillImageCallback(final long id_camera, final IStillImageCallback callback);
 
     private native int nativeSetCaptureDisplay(final long id_camera, final Surface surface);
 

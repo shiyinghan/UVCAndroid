@@ -499,6 +499,7 @@ typedef struct uvc_frame {
     void *metadata;
     /** Size of metadata buffer */
     size_t metadata_bytes;
+    uint8_t is_still;
 } uvc_frame_t;
 
 /** A callback function to handle incoming assembled UVC frames
@@ -641,6 +642,12 @@ uvc_error_t uvc_get_stream_ctrl_format_size(
 );
 
 uvc_error_t uvc_get_still_ctrl_format_size(
+        uvc_device_handle_t *devh,
+        uvc_stream_ctrl_t *ctrl,
+        uvc_still_ctrl_t *still_ctrl,
+        int width, int height);
+
+uvc_error_t uvc_get_still_ctrl_format_size_uncompressed(
         uvc_device_handle_t *devh,
         uvc_stream_ctrl_t *ctrl,
         uvc_still_ctrl_t *still_ctrl,

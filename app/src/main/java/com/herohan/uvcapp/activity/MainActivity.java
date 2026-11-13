@@ -3,7 +3,10 @@ package com.herohan.uvcapp.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.graphics.YuvImage;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
@@ -15,11 +18,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.gson.Gson;
 import com.herohan.uvcapp.ImageCapture;
 import com.herohan.uvcapp.VideoCapture;
+import com.herohan.uvcapp.utils.MediaStoreUtil;
 import com.hjq.permissions.XXPermissions;
 import com.serenegiant.opengl.renderer.MirrorMode;
 import com.herohan.uvcapp.CameraHelper;
 import com.herohan.uvcapp.ICameraHelper;
 import com.serenegiant.usb.IButtonCallback;
+import com.serenegiant.usb.IStillImageCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor;
 import com.serenegiant.utils.UriHelper;
@@ -31,6 +36,7 @@ import com.herohan.uvcapp.fragment.VideoFormatDialogFragment;
 import com.herohan.uvcapp.utils.SaveHelper;
 
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -208,6 +214,44 @@ public class MainActivity extends AppCompatActivity {
                         toggleVideoRecord(!mIsRecording);
                     });
         });
+        mBinding.fabGallery.setOnClickListener(v -> {
+            startActivity(new Intent(Intent.ACTION_VIEW, MediaStore.Images.Media.EXTERNAL_CONTENT_URI));
+        });
+        mBinding.fabPicture2.setOnClickListener(v -> {
+            File file = MediaStoreUtil.createMediaFile(MainActivity.this, MediaStoreUtil.dateFileName("Still", "jpg"));
+            tryStillImage(file);
+        });
+    }
+
+    private void tryStillImage(final File file) {
+        Log.d(TAG, "tryStillImage: " + file.getAbsolutePath());
+        mCameraHelper.setStillImageCallback(new IStillImageCallback() {
+            @Override
+            public void onStillImage(byte[] data, int width, int height) {
+                Log.d(TAG, "onStillImage: ");
+                if (data == null || width <= 0 || height <= 0) return;
+                runOnUiThread(() -> Log.d(TAG, "onStillImage: " + width + "x" + height + " " + data.length + " bytes"));
+                try {
+                    // YUYV(4:2:2 packed) => ImageFormat.YUY2
+                    final YuvImage yuvImage = new YuvImage(
+                            data, ImageFormat.YUY2, width, height, null);
+                    try (java.io.FileOutputStream fos = new java.io.FileOutputStream(file)) {
+                        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, fos);
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Still image saved:" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                            MediaStoreUtil.saveMediaStore(MainActivity.this, file.getAbsoluteFile(), (path, uri) -> {
+                            });
+                        }
+                    });
+                } catch (final Exception e) {
+                    Log.e(TAG, "onStillImage:", e);
+                }
+            }
+        });
+        mCameraHelper.triggerStillImage();
     }
 
     private void showCameraControlsDialog() {
@@ -487,6 +531,7 @@ public class MainActivity extends AppCompatActivity {
                 mBinding.viewMainPreview.setVisibility(View.VISIBLE);
                 mBinding.tvConnectUSBCameraTip.setVisibility(View.GONE);
 
+                mBinding.fabPicture2.setVisibility(View.VISIBLE);
                 mBinding.fabPicture.setVisibility(View.VISIBLE);
                 mBinding.fabVideo.setVisibility(View.VISIBLE);
 
@@ -502,6 +547,7 @@ public class MainActivity extends AppCompatActivity {
                 mBinding.viewMainPreview.setVisibility(View.GONE);
                 mBinding.tvConnectUSBCameraTip.setVisibility(View.VISIBLE);
 
+                mBinding.fabPicture2.setVisibility(View.GONE);
                 mBinding.fabPicture.setVisibility(View.GONE);
                 mBinding.fabVideo.setVisibility(View.GONE);
 
@@ -535,7 +581,9 @@ public class MainActivity extends AppCompatActivity {
 //        mCameraHelper.setImageCaptureConfig(
 //                mCameraHelper.getImageCaptureConfig().setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY));
         mCameraHelper.setImageCaptureConfig(
-                mCameraHelper.getImageCaptureConfig().setJpegCompressionQuality(90));
+                mCameraHelper.getImageCaptureConfig()
+                        .setJpegCompressionQuality(100)
+        );
     }
 
     public void takePicture() {
@@ -553,6 +601,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this,
                             "save \"" + UriHelper.getPath(MainActivity.this, outputFileResults.getSavedUri()) + "\"",
                             Toast.LENGTH_SHORT).show();
+                    MediaStoreUtil.saveMediaStore(MainActivity.this, file.getAbsoluteFile(), (path, uri) -> {
+                    });
                 }
 
                 @Override
@@ -615,6 +665,8 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this,
                         "save \"" + UriHelper.getPath(MainActivity.this, outputFileResults.getSavedUri()) + "\"",
                         Toast.LENGTH_SHORT).show();
+                MediaStoreUtil.saveMediaStore(MainActivity.this, file.getAbsoluteFile(), (path, uri) -> {
+                });
             }
 
             @Override

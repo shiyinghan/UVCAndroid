@@ -8,6 +8,7 @@ import com.serenegiant.opengl.renderer.RendererHolderCallback;
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
+import com.serenegiant.usb.IStillImageCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor.UsbControlBlock;
 import com.serenegiant.usb.UVCCamera;
@@ -188,6 +189,30 @@ final class CameraInternal implements ICameraInternal {
             }
         } catch (final Exception e) {
             Log.e(TAG, "setFrameCallback:", e);
+        }
+    }
+
+    @Override
+    public void setStillImageCallback(final IStillImageCallback callback) {
+        if (DEBUG) Log.d(TAG, "setStillImageCallback:callback=" + callback);
+        try {
+            if (mUVCCamera != null) {
+                mUVCCamera.setStillImageCallback(callback);
+            }
+        } catch (final Exception e) {
+            Log.e(TAG, "setStillImageCallback:", e);
+        }
+    }
+
+    @Override
+    public void triggerStillImage() {
+        if (DEBUG) Log.d(TAG, "triggerStillImage:");
+        try {
+            if (mUVCCamera != null) {
+                mUVCCamera.triggerStillImage();
+            }
+        } catch (final Exception e) {
+            Log.e(TAG, "triggerStillImage:", e);
         }
     }
 

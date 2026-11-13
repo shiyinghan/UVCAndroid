@@ -766,6 +766,56 @@ uvc_error_t uvc_get_still_ctrl_format_size(
     return uvc_probe_still_ctrl(devh, still_ctrl);
 }
 
+uvc_error_t uvc_get_still_ctrl_format_size_uncompressed(
+        uvc_device_handle_t *devh,
+        uvc_stream_ctrl_t *ctrl,
+        uvc_still_ctrl_t *still_ctrl,
+        int width, int height) {
+    uvc_streaming_interface_t *stream_if;
+    uvc_still_frame_desc_t *still;
+    uvc_format_desc_t *format;
+    uvc_still_frame_res_t *sizePattern;
+
+    stream_if = _uvc_get_stream_if(devh, ctrl->bInterfaceNumber);
+
+    /* Only method 2 is supported */
+    if (!stream_if || stream_if->bStillCaptureMethod != 2)
+        return UVC_ERROR_NOT_SUPPORTED;
+
+    DL_FOREACH(stream_if->format_descs, format) {
+        LOGI("uvc_get_still_ctrl_format_size_uncompressed");
+        LOGI("uvc_get_still_ctrl_format_size_uncompressed format %d", ctrl->bFormatIndex);
+        LOGI("uvc_get_still_ctrl_format_size_uncompressed format %d", format->bFormatIndex);
+        LOGI("uvc_get_still_ctrl_format_size_uncompressed");
+
+        if (ctrl->bFormatIndex != format->bFormatIndex)
+            continue;
+
+        /* get the max values */
+        uvc_query_still_ctrl(devh, still_ctrl, 1, UVC_GET_MAX);
+
+        //look for still format
+        DL_FOREACH(format->still_frame_desc, still) {
+            DL_FOREACH(still->imageSizePatterns, sizePattern) {
+
+                if (sizePattern->wWidth != width || sizePattern->wHeight != height)
+                    continue;
+
+                still_ctrl->bInterfaceNumber = ctrl->bInterfaceNumber;
+                still_ctrl->bFormatIndex = format->bFormatIndex;
+                still_ctrl->bFrameIndex = sizePattern->bResolutionIndex;
+                still_ctrl->bCompressionIndex = 0; //TODO support compression index
+                goto found;
+            }
+        }
+    }
+
+    return UVC_ERROR_INVALID_MODE;
+
+    found:
+    return uvc_probe_still_ctrl(devh, still_ctrl);
+}
+
 static int _uvc_stream_params_negotiated(
         uvc_stream_ctrl_t *required,
         uvc_stream_ctrl_t *actual) {
@@ -843,6 +893,7 @@ void _uvc_swap_buffers(uvc_stream_handle_t *strmh) {
     strmh->hold_last_scr = strmh->last_scr;
     strmh->hold_pts = strmh->pts;
     strmh->hold_seq = strmh->seq;
+    strmh->hold_sti = strmh->sti;
 
     /* swap metadata buffer */
     tmp_buf = strmh->meta_holdbuf;
@@ -858,6 +909,7 @@ void _uvc_swap_buffers(uvc_stream_handle_t *strmh) {
     strmh->meta_got_bytes = 0;
     strmh->last_scr = 0;
     strmh->pts = 0;
+    strmh->sti = 0;
 }
 
 /** @internal
@@ -926,13 +978,26 @@ void _uvc_process_payload(uvc_stream_handle_t *strmh, uint8_t *payload, size_t p
             return;
         }
 
+        if (data_len == 0) {
+            UVC_DEBUG("bad packet: data empty");
+            return;
+        }
+        
+        if (header_info & UVC_STREAM_STI) {
+            LOGI("sit %d end %d fFormat%d fSize%d dLen%d", header_info & UVC_STREAM_STI,
+                 (header_info & UVC_STREAM_EOF),
+                 strmh->cur_ctrl.bFormatIndex,
+                 strmh->cur_ctrl.dwMaxVideoFrameSize, data_len);
+        }
+
         if (strmh->fid != (header_info & 1) && strmh->got_bytes != 0) {
             /* The frame ID bit was flipped, but we have image data sitting
                around from prior transfers. This means the camera didn't send
                an EOF for the last transfer of the previous frame. */
-            _uvc_swap_buffers(strmh);
+            if (header_info & UVC_STREAM_STI) {
+            } else { _uvc_swap_buffers(strmh); }
         }
-
+        strmh->sti = header_info & UVC_STREAM_STI;
         strmh->fid = header_info & UVC_STREAM_FID;
 
         if (header_info & UVC_STREAM_PTS) {
@@ -1559,6 +1624,7 @@ void _uvc_populate_frame(uvc_stream_handle_t *strmh) {
     }
 
     frame->sequence = strmh->hold_seq;
+    frame->is_still = strmh->hold_sti;
     frame->capture_time_finished = strmh->capture_time_finished;
 
     /* copy the image data from the hold buffer to the frame (unnecessary extra buf?) */

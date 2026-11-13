@@ -18,6 +18,7 @@ import com.herohan.uvcapp.utils.Watchdog;
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
+import com.serenegiant.usb.IStillImageCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
 import com.serenegiant.usb.UVCParam;
@@ -239,6 +240,34 @@ public class CameraHelper implements ICameraHelper {
                     mService.setFrameCallback(mUsbDevice, callback, pixelFormat);
                 } catch (final Exception e) {
                     if (DEBUG) Log.e(TAG, "setFrameCallback:", e);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setStillImageCallback(IStillImageCallback callback) {
+        if (DEBUG) Log.d(TAG, "setStillImageCallback:" + callback);
+        mAsyncHandler.post(() -> {
+            if (mService != null && mUsbDevice != null) {
+                try {
+                    mService.setStillImageCallback(mUsbDevice, callback);
+                } catch (final Exception e) {
+                    if (DEBUG) Log.e(TAG, "setStillImageCallback:", e);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void triggerStillImage() {
+        if (DEBUG) Log.d(TAG, "triggerStillImage:");
+        mAsyncHandler.post(() -> {
+            if (mService != null && mUsbDevice != null) {
+                try {
+                    mService.triggerStillImage(mUsbDevice);
+                } catch (final Exception e) {
+                    if (DEBUG) Log.e(TAG, "triggerStillImage:", e);
                 }
             }
         });

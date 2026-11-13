@@ -124,6 +124,7 @@ uvc_error_t uvc_duplicate_frame(uvc_frame_t *in, uvc_frame_t *out) {
     out->capture_time = in->capture_time;
     out->capture_time_finished = in->capture_time_finished;
     out->source = in->source;
+    out->is_still = in->is_still;
 
     memcpy(out->data, in->data, in->data_bytes);
 
