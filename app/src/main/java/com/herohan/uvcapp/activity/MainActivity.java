@@ -3,7 +3,10 @@ package com.herohan.uvcapp.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.graphics.YuvImage;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
@@ -15,11 +18,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.gson.Gson;
 import com.herohan.uvcapp.ImageCapture;
 import com.herohan.uvcapp.VideoCapture;
+import com.herohan.uvcapp.utils.MediaStoreUtil;
 import com.hjq.permissions.XXPermissions;
 import com.serenegiant.opengl.renderer.MirrorMode;
 import com.herohan.uvcapp.CameraHelper;
 import com.herohan.uvcapp.ICameraHelper;
 import com.serenegiant.usb.IButtonCallback;
+import com.serenegiant.usb.IStillImageCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor;
 import com.serenegiant.utils.UriHelper;
@@ -31,6 +36,7 @@ import com.herohan.uvcapp.fragment.VideoFormatDialogFragment;
 import com.herohan.uvcapp.utils.SaveHelper;
 
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -208,8 +214,11 @@ public class MainActivity extends AppCompatActivity {
                         toggleVideoRecord(!mIsRecording);
                     });
         });
+        mBinding.fabGallery.setOnClickListener(v -> {
+            startActivity(new Intent(Intent.ACTION_VIEW, MediaStore.Images.Media.EXTERNAL_CONTENT_URI));
+        });
         mBinding.fabPicture2.setOnClickListener(v -> {
-            File file = new File(SaveHelper.getSavePhotoPath());
+            File file = MediaStoreUtil.createMediaFile(MainActivity.this, MediaStoreUtil.dateFileName("Still", "jpg"));
             tryStillImage(file);
         });
     }
@@ -574,6 +583,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this,
                             "save \"" + UriHelper.getPath(MainActivity.this, outputFileResults.getSavedUri()) + "\"",
                             Toast.LENGTH_SHORT).show();
+                    MediaStoreUtil.saveMediaStore(MainActivity.this, file.getAbsoluteFile(), (path, uri) -> {
+                    });
                 }
 
                 @Override
@@ -636,6 +647,8 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this,
                         "save \"" + UriHelper.getPath(MainActivity.this, outputFileResults.getSavedUri()) + "\"",
                         Toast.LENGTH_SHORT).show();
+                MediaStoreUtil.saveMediaStore(MainActivity.this, file.getAbsoluteFile(), (path, uri) -> {
+                });
             }
 
             @Override

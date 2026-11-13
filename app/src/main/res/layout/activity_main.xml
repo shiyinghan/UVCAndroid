@@ -58,6 +58,15 @@
             tools:text="99:99:99" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabGallery"
+            style="@style/MainFloatingActionButton"
+            android:layout_above="@id/fabVideo"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginBottom="16dp"
+            app:srcCompat="@android:drawable/ic_menu_gallery" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabVideo"
             style="@style/MainFloatingActionButton"
             android:layout_above="@id/fabPicture"
