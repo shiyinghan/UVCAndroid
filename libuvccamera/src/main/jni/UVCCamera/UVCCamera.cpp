@@ -201,6 +201,15 @@ int UVCCamera::setFrameCallback(JNIEnv *env, jobject frame_callback_obj, int pix
     RETURN(result, int);
 }
 
+int UVCCamera::setStillImageCallback(JNIEnv *env, jobject still_image_callback_obj) {
+    ENTER();
+    int result = EXIT_FAILURE;
+    if (mPreview) {
+        result = mPreview->setStillImageCallback(env, still_image_callback_obj);
+    }
+    RETURN(result, int);
+}
+
 int UVCCamera::startPreview() {
     ENTER();
 

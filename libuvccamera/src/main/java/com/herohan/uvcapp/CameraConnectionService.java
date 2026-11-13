@@ -12,6 +12,7 @@ import com.serenegiant.usb.DeviceFilter;
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
+import com.serenegiant.usb.IStillImageCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor;
 import com.serenegiant.usb.USBMonitor.OnDeviceConnectListener;
@@ -306,6 +307,16 @@ class CameraConnectionService {
             final CameraInternal cameraInternal = getCamera(device);
             if (cameraInternal != null) {
                 cameraInternal.setFrameCallback(callback, pixelFormat);
+            }
+        }
+
+        @Override
+        public void setStillImageCallback(final UsbDevice device, final IStillImageCallback callback) {
+            if (DEBUG)
+                Log.d(TAG, LOG_PREFIX + "setStillImageCallback:callback=" + callback);
+            final CameraInternal cameraInternal = getCamera(device);
+            if (cameraInternal != null) {
+                cameraInternal.setStillImageCallback(callback);
             }
         }
 

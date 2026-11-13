@@ -3,6 +3,7 @@ package com.herohan.uvcapp;
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
+import com.serenegiant.usb.IStillImageCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
 import com.serenegiant.usb.UVCParam;
@@ -41,6 +42,8 @@ interface ICameraConnection {
     void setButtonCallback(UsbDevice device, IButtonCallback callback);
 
     void setFrameCallback(UsbDevice device, IFrameCallback callback, int pixelFormat);
+
+    void setStillImageCallback(UsbDevice device, IStillImageCallback callback);
 
     void triggerStillImage(UsbDevice device);
 

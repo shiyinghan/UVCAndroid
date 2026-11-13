@@ -61,15 +61,17 @@ UVCPreview::UVCPreview(uvc_device_handle_t *devh)
           mFrameCallbackFunc(NULL),
           callbackPixelBytes(2),
           preview_thread(0),
-          capture_thread(0) {
+          capture_thread(0),
+          mStillImageCallbackObj(NULL) {
 
     ENTER();
+    istillimagecallback_fields.onStillImage = NULL;
     pthread_cond_init(&preview_sync, NULL);
     pthread_mutex_init(&preview_mutex, NULL);
 //
     pthread_cond_init(&capture_sync, NULL);
     pthread_mutex_init(&capture_mutex, NULL);
-//	
+//
     pthread_mutex_init(&pool_mutex, NULL);
     EXIT();
 }
@@ -85,6 +87,8 @@ UVCPreview::~UVCPreview() {
     mCaptureWindow = NULL;
     mFrameCallbackObj = NULL;
     iframecallback_fields.onFrame = NULL;
+    mStillImageCallbackObj = NULL;
+    istillimagecallback_fields.onStillImage = NULL;
     clearPreviewFrame();
     clearCaptureFrame();
     clear_pool();
@@ -268,6 +272,40 @@ int UVCPreview::setFrameCallback(JNIEnv *env, jobject frame_callback_obj, int pi
         if (frame_callback_obj) {
             mPixelFormat = pixel_format;
             callbackPixelFormatChanged();
+        }
+    }
+    pthread_mutex_unlock(&capture_mutex);
+    RETURN(0, int);
+}
+
+int UVCPreview::setStillImageCallback(JNIEnv *env, jobject still_image_callback_obj) {
+
+    ENTER();
+    pthread_mutex_lock(&capture_mutex);
+    {
+        if (!env->IsSameObject(mStillImageCallbackObj, still_image_callback_obj)) {
+            istillimagecallback_fields.onStillImage = NULL;
+            if (mStillImageCallbackObj) {
+                env->DeleteGlobalRef(mStillImageCallbackObj);
+            }
+            mStillImageCallbackObj = still_image_callback_obj;
+            if (still_image_callback_obj) {
+                // get method IDs of Java object for callback
+                jclass clazz = env->GetObjectClass(still_image_callback_obj);
+                if (LIKELY(clazz)) {
+                    istillimagecallback_fields.onStillImage = env->GetMethodID(clazz,
+                                                                               "onStillImage",
+                                                                               "([BII)V");
+                } else {
+                    LOGW("failed to get object class");
+                }
+                env->ExceptionClear();
+                if (!istillimagecallback_fields.onStillImage) {
+                    LOGE("Can't find IStillImageCallback#onStillImage");
+                    env->DeleteGlobalRef(still_image_callback_obj);
+                    mStillImageCallbackObj = still_image_callback_obj = NULL;
+                }
+            }
         }
     }
     pthread_mutex_unlock(&capture_mutex);
@@ -496,6 +534,41 @@ void UVCPreview::clearPreviewFrame() {
     pthread_mutex_unlock(&preview_mutex);
 }
 
+/**
+ * call IStillImageCallback#onStillImage if needs
+ * called on preview thread when a still image frame is received,
+ * attach to JavaVM only for this one frame callback
+ */
+void UVCPreview::callStillImageCallback(uvc_frame_t *frame) {
+
+//    ENTER();
+    if (LIKELY(frame)) {
+        if (mStillImageCallbackObj && istillimagecallback_fields.onStillImage) {
+            JavaVM *vm = getVM();
+            JNIEnv *env;
+            bool attached = false;
+            if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
+                vm->AttachCurrentThread(&env, NULL);
+                attached = true;
+            }
+            jbyteArray array = env->NewByteArray(frame->data_bytes);
+            if (LIKELY(array)) {
+                env->SetByteArrayRegion(array, 0, frame->data_bytes,
+                                        (const jbyte *) frame->data);
+                env->CallVoidMethod(mStillImageCallbackObj,
+                                    istillimagecallback_fields.onStillImage,
+                                    array, frame->width, frame->height);
+                env->ExceptionClear();
+                env->DeleteLocalRef(array);
+            }
+            if (attached) {
+                vm->DetachCurrentThread();
+            }
+        }
+    }
+//    EXIT();
+}
+
 void *UVCPreview::preview_thread_func(void *vptr_args) {
     int result;
 
@@ -576,7 +649,10 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
             for (; LIKELY(isRunning());) {
                 frame_mjpeg = waitPreviewFrame();
                 if (LIKELY(frame_mjpeg)) {
-                    if (frame_mjpeg->is_still) LOGI("jawa0919 JPG");
+                    if (frame_mjpeg->is_still) {
+                        LOGI("callStillImageCallback");
+                        callStillImageCallback(frame_mjpeg);
+                    }
 //                    frame = get_frame(frame_mjpeg->width * frame_mjpeg->height * 2);
                     frame = get_frame(
                             frame_mjpeg->width * frame_mjpeg->height * PREVIEW_PIXEL_BYTES);
@@ -600,7 +676,10 @@ void UVCPreview::do_preview(uvc_stream_ctrl_t *ctrl) {
             for (; LIKELY(isRunning());) {
                 frame_yuv = waitPreviewFrame();
                 if (LIKELY(frame_yuv)) {
-                    if (frame_mjpeg->is_still) LOGI("jawa0919 YUV");
+                    if (frame_yuv->is_still) {
+                        LOGI("callStillImageCallback");
+                        callStillImageCallback(frame_yuv);
+                    }
                     frame = get_frame(frame_yuv->width * frame_yuv->height * PREVIEW_PIXEL_BYTES);
 //                    c_start = clock();
                     result = uvc_yuyv2rgbx(frame_yuv, frame);   // YUYV => RGBX

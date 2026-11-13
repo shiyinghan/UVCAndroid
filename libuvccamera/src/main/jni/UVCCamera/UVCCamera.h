@@ -68,6 +68,8 @@ public:
 
     int setFrameCallback(JNIEnv *env, jobject frame_callback_obj, int pixel_format);
 
+    int setStillImageCallback(JNIEnv *env, jobject still_image_callback_obj);
+
     int startPreview();
 
     int stopPreview();

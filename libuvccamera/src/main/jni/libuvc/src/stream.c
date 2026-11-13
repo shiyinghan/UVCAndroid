@@ -982,6 +982,13 @@ void _uvc_process_payload(uvc_stream_handle_t *strmh, uint8_t *payload, size_t p
             UVC_DEBUG("bad packet: data empty");
             return;
         }
+        
+        if (header_info & UVC_STREAM_STI) {
+            LOGI("sit %d end %d fFormat%d fSize%d dLen%d", header_info & UVC_STREAM_STI,
+                 (header_info & UVC_STREAM_EOF),
+                 strmh->cur_ctrl.bFormatIndex,
+                 strmh->cur_ctrl.dwMaxVideoFrameSize, data_len);
+        }
 
         if (strmh->fid != (header_info & 1) && strmh->got_bytes != 0) {
             /* The frame ID bit was flipped, but we have image data sitting

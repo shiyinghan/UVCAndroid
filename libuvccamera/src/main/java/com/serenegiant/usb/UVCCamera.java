@@ -548,6 +548,18 @@ public class UVCCamera {
     }
 
     /**
+     * set still image callback
+     *
+     * @param callback The callback that receives still image data
+     *                 triggered by {@link #triggerStillImage()}
+     */
+    public void setStillImageCallback(final IStillImageCallback callback) {
+        if (mNativePtr != 0) {
+            nativeSetStillImageCallback(mNativePtr, callback);
+        }
+    }
+
+    /**
      * start preview
      */
     public synchronized void startPreview() {
@@ -644,6 +656,8 @@ public class UVCCamera {
     private native int nativeSetFrameCallback(final long id_camera, final IFrameCallback callback, final int pixelFormat);
 
     private native int nativeTriggerStillImage(final long id_camera);
+
+    private native int nativeSetStillImageCallback(final long id_camera, final IStillImageCallback callback);
 
     private native int nativeSetCaptureDisplay(final long id_camera, final Surface surface);
 

@@ -225,14 +225,32 @@ public class MainActivity extends AppCompatActivity {
 
     private void tryStillImage(final File file) {
         Log.d(TAG, "tryStillImage: " + file.getAbsolutePath());
-//        mCameraHelper.setStillImageCallback(new IStillImageCallback() {
-//            @Override
-//            public void onStillImage(byte[] data, int width, int height) {
-//                Log.d(TAG, "onStillImage: ");
-//                if (data == null || width <= 0 || height <= 0) return;
-//                Log.d(TAG, "onStillImage: " + width + "x" + height + " " + data.length + " bytes");
-//            }
-//        });
+        mCameraHelper.setStillImageCallback(new IStillImageCallback() {
+            @Override
+            public void onStillImage(byte[] data, int width, int height) {
+                Log.d(TAG, "onStillImage: ");
+                if (data == null || width <= 0 || height <= 0) return;
+                runOnUiThread(() -> Log.d(TAG, "onStillImage: " + width + "x" + height + " " + data.length + " bytes"));
+                try {
+                    // YUYV(4:2:2 packed) => ImageFormat.YUY2
+                    final YuvImage yuvImage = new YuvImage(
+                            data, ImageFormat.YUY2, width, height, null);
+                    try (java.io.FileOutputStream fos = new java.io.FileOutputStream(file)) {
+                        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 100, fos);
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(MainActivity.this, "Still image saved:" + file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                            MediaStoreUtil.saveMediaStore(MainActivity.this, file.getAbsoluteFile(), (path, uri) -> {
+                            });
+                        }
+                    });
+                } catch (final Exception e) {
+                    Log.e(TAG, "onStillImage:", e);
+                }
+            }
+        });
         mCameraHelper.triggerStillImage();
     }
 

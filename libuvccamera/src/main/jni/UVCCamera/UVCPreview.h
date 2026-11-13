@@ -56,6 +56,10 @@ typedef struct {
     jmethodID onFrame;
 } Fields_iframecallback;
 
+typedef struct {
+    jmethodID onStillImage;
+} Fields_istillimagecallback;
+
 class UVCPreview {
 private:
     uvc_device_handle_t *mDeviceHandle;
@@ -89,6 +93,9 @@ private:
     Fields_iframecallback iframecallback_fields;
     int mPixelFormat;
     size_t callbackPixelBytes;
+//
+    jobject mStillImageCallbackObj;
+    Fields_istillimagecallback istillimagecallback_fields;
 // improve performance by reducing memory allocation
     pthread_mutex_t pool_mutex;
     ObjectArray<uvc_frame_t *> mFramePool;
@@ -139,6 +146,8 @@ private:
 
     void callbackPixelFormatChanged();
 
+    void callStillImageCallback(uvc_frame_t *frame);
+
 public:
     UVCPreview(uvc_device_handle_t *devh);
 
@@ -151,6 +160,8 @@ public:
     int setPreviewDisplay(ANativeWindow *preview_window);
 
     int setFrameCallback(JNIEnv *env, jobject frame_callback_obj, int pixel_format);
+
+    int setStillImageCallback(JNIEnv *env, jobject still_image_callback_obj);
 
     int startPreview();
 

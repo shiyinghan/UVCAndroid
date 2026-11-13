@@ -7,6 +7,7 @@ import android.widget.Toast;
 import com.serenegiant.usb.Format;
 import com.serenegiant.usb.IButtonCallback;
 import com.serenegiant.usb.IFrameCallback;
+import com.serenegiant.usb.IStillImageCallback;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.UVCControl;
 import com.serenegiant.usb.UVCParam;
@@ -38,6 +39,8 @@ public interface ICameraHelper {
     void setButtonCallback(IButtonCallback callback);
 
     void setFrameCallback(IFrameCallback callback, int pixelFormat);
+
+    void setStillImageCallback(IStillImageCallback callback);
 
     void triggerStillImage();
 
